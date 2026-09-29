@@ -14,7 +14,7 @@ docker compose up
 
 # Or start manually
 cd apps/api && bundle install && bin/rails db:setup && bin/rails server
-cd apps/web && pnpm install && pnpm gen:api && pnpm dev
+cd apps/web && pnpm install && pnpm dev
 ```
 
 ## Docs
@@ -36,7 +36,7 @@ cd apps/web && pnpm install && pnpm gen:api && pnpm dev
 
 ## Stack
 
-Ruby 3.3+ · Rails 8.1 · Next.js · React · Tailwind CSS · PostgreSQL · Solid Queue · Solid Cable · Solid Cache
+Ruby 3.4 · Rails 8.1 · Next.js · React · Tailwind CSS · PostgreSQL · TanStack Query · Zustand · openapi-fetch
 
 ## Support
 

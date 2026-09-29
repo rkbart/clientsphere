@@ -46,17 +46,18 @@ PostgreSQL (Neon free tier for demo, self-hosted for production)
 
 ### Automation
 - `automations` + `automation_runs`
-- `email_sequences` + `steps` + `enrollments`
+- `email_sequences` + `email_sequence_steps` + `sequence_enrollments`
 
 ### Integrations
-- `webhooks` + `deliveries`
+- `webhooks` + `webhook_deliveries`
 
 ### AI
-- `account_ai_settings` — per-account AI config
-- `ai_conversations` + `ai_messages`
+- `ai_settings` — per-account AI config (encrypted `api_key`, `enabled`, `redact_pii`)
+- `ai_logs` — metadata-only usage log (action, provider, model, success, duration)
+- `ai_conversations` + `ai_messages` — reserved for future chat persistence (not used yet)
 
 ### Audit
-- `versions` — paper_trail
+- `versions` — created by paper_trail (gem installed, not yet enabled on models)
 
 ## Migrations
 

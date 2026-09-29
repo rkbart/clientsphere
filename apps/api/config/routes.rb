@@ -1,7 +1,4 @@
 Rails.application.routes.draw do
-  # API Documentation
-  get "/api-docs", to: "rswag/ui/apps#swagger", defaults: { app_path: "openapi.yaml" }
-
   namespace :api do
     namespace :v1 do
       # Auth

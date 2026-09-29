@@ -4,56 +4,64 @@
 
 Sign up with email/password. Your account and workspace are created automatically.
 
-## Step 2: Add your first contact
+## Step 2: Explore your data
 
-Go to Contacts → New Contact. Fill in name, email, phone. Add tags like "lead" or "hot-lead".
+Seeded demo data (Bean & Brew Coffee Supplies) gives you contacts, companies,
+deals and activities to explore. Browse Contacts, Companies and Deals from
+the sidebar.
 
-## Step 3: Create a company
+Sign-in for the seed data: `sarah@beanandbrew.com` / `password123`.
 
-Go to Companies → New Company. Add name, domain, industry. Link contacts to this company.
+## Step 3: Filter contacts
 
-## Step 4: Set up a deal pipeline
+Go to Contacts. Use the debounced search box, the status filter
+(lead / customer / churned) and the tag filter. "Clear filters" resets
+everything. Open a contact to see details, notes and tags.
 
-Pipelines are created automatically with default stages: New, Contacted, Proposal, Negotiation, Won, Lost. Customize stages in Settings → Pipelines.
+> Record create/edit forms are not in the UI yet — add records through
+> CSV import (Step 9) or the API.
 
-## Step 5: Create a deal
+## Step 4: Work the pipeline
 
-Go to Deals → New Deal. Set title, amount, expected close date. Assign to a contact and company.
+Go to Pipeline. Drag deal cards between stages (works with mouse and
+touch). Open a deal to see stage, pipeline, value and notes.
 
-## Step 6: Move deals through pipeline
+## Step 5: Take notes and tag records
 
-Go to Pipeline view. Drag deal cards between stages. Track progress visually.
+On any contact, company or deal detail page: add notes in the Notes
+section, and attach/detach tags with the tag chips.
 
-## Step 7: Log activities
+## Step 6: Configure AI
 
-On any contact/deal page, add activities: calls, meetings, tasks, emails. Set due dates and assignees.
+Go to Settings → AI. Pick a provider (Groq for free, or Ollama for local),
+add your API key if the provider needs one, choose a model, then **Test
+connection** and **Save**. Turn on **Enable AI** — the page shows whether
+your data goes through the server (Server) or straight to a local model
+from your browser (Local).
 
-## Step 8: Add notes
+## Step 7: Use AI features
 
-On any record, add notes to track context and conversations.
+- **AI Assistant** (`/ai` in the sidebar): ask questions about your CRM data
+- **Contact page**: "Draft Email" card + "AI Insights" (next action) +
+  "Re-score" button
+- **Deal page**: draft an email to the deal's contact, suggest next action,
+  summarize the deal
+- **Company page**: "Enrich Company" previews suggested fields — apply only
+  what you want
+- **Dashboard**: "Next best action" widget for your most urgent open deal
 
-## Step 9: Configure AI
+## Step 8: Import existing data
 
-Go to Settings → AI Provider. Pick a provider (Groq for free, or Ollama for local). Add your API key. Test connection.
+Go to Settings → Import/Export. Upload a CSV of contacts. Per-row errors are
+reported; re-export to check the result.
 
-## Step 10: Use AI features
+## Step 9: Export your data
 
-- AI Assistant: Ask questions about your CRM data
-- Draft emails: On a contact page, click "Draft Email"
-- Lead scoring: Click "Score" on a contact to get AI-powered lead qualification
+Same page: export contacts, companies or deals as CSV for backup or
+migration. Individual contact export/erase also exist on the API.
 
-## Step 11: Set up automation
+## Coming later (see [ROADMAP.md](ROADMAP.md))
 
-Go to Automations → New Automation. Set trigger (e.g., "Deal created"), conditions (e.g., "Amount > $1000"), and actions (e.g., "Create task", "Send email").
-
-## Step 12: Create email sequences
-
-Go to Sequences → New Sequence. Add steps with delays. Enroll contacts to start receiving automated emails.
-
-## Step 13: Import existing data
-
-Go to Settings → Import/Export. Upload a CSV file. Map columns to fields. Review errors before importing.
-
-## Step 14: Export your data
-
-Go to Settings → Import/Export. Export contacts, companies, or deals as CSV for backup or migration.
+- Create/edit forms in the UI
+- Automations, email sequences, scheduling (Phase 3)
+- Saved-view editing UI, custom-field display in tables (Phase 4)

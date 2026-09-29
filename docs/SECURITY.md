@@ -4,22 +4,27 @@
 
 | Area | Measure |
 |------|---------|
-| Sessions | httpOnly, Secure, SameSite=Lax cookie; same-origin via Next rewrites; CSRF protection on state-changing requests |
-| Tenant isolation | `acts_as_tenant` on every model; request specs that prove account A cannot read/write account B for **every** resource |
+| Sessions | Bearer tokens returned on login; stored server-side as SHA-256 digests, revoked on logout; sent as `Authorization: Bearer <token>` |
+| Tenant isolation | Explicit `account_id` scoping + Pundit `policy_scope` on index actions; `ApplicationPolicy` rejects records from other accounts (403) |
 | Authorization | Pundit on every action; roles: owner, admin, member, viewer |
-| Secrets | Rails `encrypts` for AI keys and webhook secrets; never returned by the API |
-| Rate limiting | rack-attack on login, signup, invitations, AI, import |
-| Webhooks | HMAC signature header, retries with backoff, `ssrf_filter` to block private/internal targets, delivery log |
-| Enrichment fetch | Same SSRF guard, response size and timeout limits |
-| CSV import | Size and row caps, background processing, per-row error report |
+| Secrets | Rails `encrypts` for AI provider keys and webhook secrets; AI key never returned by the API (write-only, `api_key_set` flag) |
+| Rate limiting | rack-attack: 30 AI requests per IP per 5 minutes, JSON 429 responder |
+| Webhooks | HMAC signature header (`X-Webhook-Signature`), retries with exponential backoff (3 attempts), delivery log with response status |
+| Enrichment | No outbound HTTP fetch — enrichment uses LLM knowledge only, so there is no SSRF surface |
 | CSV export | Escape cells starting with `=`, `+`, `-`, `@` (formula injection) |
-| Search | Ransack allow-lists only |
-| Audit | paper_trail on core models |
-| Dependencies | Dependabot + `bundler-audit` + `pnpm audit` in CI; Brakeman |
+| Passwords | bcrypt |
+| AI logging | `ai_logs` stores metadata only (action, provider, model, success, duration, error class) — never prompts or completions |
+| Dependencies | Brakeman + bundler-audit run in CI (informational); rubocop on every push |
+
+### Not yet wired (installed but unused)
+
+- `paper_trail` (gem + `versions` table present, no model enables it)
+- `ransack`, `ssrf_filter`, `resend`, `jsonapi-serializer`
+- Dependabot is not configured
 
 ## Privacy
 
-- Per-contact export and erase endpoints
-- Account-level data export
-- Privacy note for AI
+- Per-contact export and erase endpoints (`GET /contacts/:id/export`, `DELETE /contacts/:id/erase`)
+- Account-level data export (`GET /export/csv/:type`)
+- AI is opt-in per account, off by default; optional PII redaction before any provider call
 - Document your responsibilities under applicable data-protection laws (e.g. Philippine Data Privacy Act, GDPR) in `docs/PRIVACY.md`

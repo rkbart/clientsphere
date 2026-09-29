@@ -4,10 +4,7 @@
 
 - Built for CRUD — the exact use case of a CRM
 - ActiveRecord: convention over configuration, migrations, associations
-- Devise/bcrypt for auth, Pundit for authorization
-- Solid Queue/Cable/Cache — no Redis needed, runs in Puma
-- Action Cable for WebSocket/realtime
-- Active Admin / Mission Control for ops visibility
+- Custom session-token auth + Pundit for authorization (no Devise)
 - Mature ecosystem, battle-tested for production apps
 
 ## Why Next.js (frontend)
@@ -18,59 +15,50 @@
 - Vercel free tier for deployment
 - TypeScript-first, excellent DX
 
-## Why Tailwind CSS + shadcn/ui
+## Why a hand-rolled design system (not shadcn/ui)
 
-- Utility-first: no CSS framework conflicts
-- shadcn/ui: production-ready, accessible components
-- Customizable, copy-paste, no vendor lock-in
+- Tailwind + semantic CSS custom properties in `globals.css`
+- Shared component classes (`.card`, `.btn-*`, `.input`, `.badge-*`) —
+  copy-paste simple, zero dependency churn
+- Full control of motion tokens and reduced-motion behavior
+- See [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md)
 
 ## Why Zustand (state)
 
 - Lightweight, simple API
 - No boilerplate compared to Redux
-- Good for small-medium apps
-- Persist middleware for auth
+- Persist middleware for the auth token
 
 ## Why TanStack Query (data fetching)
 
-- Caching, background refetch
-- Optimistic updates
+- Caching, background refetch, invalidation
 - Pagination support
 - Type-safe with openapi-fetch
 
-## Why Solid Queue/Cable/Cache (no Redis)
+## Why Bearer tokens (not cookies, not JWT-in-cookies)
 
-- No extra infrastructure to manage
-- Runs inside Puma process
-- Single database for everything
-- Simpler deployment, lower cost
+- Simple SPA flow: login returns a token, client sends
+  `Authorization: Bearer …`
+- Server stores only a SHA-256 digest — tokens are revocable (logout)
+- No CORS/CSRF surface because all requests go through the same-origin
+  Next rewrite
+- Tradeoff: the token lives in localStorage (XSS risk); acceptable for a
+  self-hosted CRM, and mitigated by revocation and short-lived sessions
 
-## Why cookies over JWT
+## Why a hand-written API schema (not rswag/openapi codegen)
 
-- httpOnly cookies: not accessible via JavaScript (XSS protection)
-- Same-origin via Next rewrites: no CORS needed
-- CSRF protection built-in
-- No token storage in localStorage
+- Full control of the TypeScript surface the web app consumes
+- No codegen pipeline to break in CI
+- `src/lib/api/schema.ts` mirrors routes 1:1 with `openapi-fetch`
+- Tradeoff: the schema can drift from Rails — keep it updated with routes
+  (candidate for a drift-check script later)
 
-## Why monorepo
+## Why explicit account scoping (not acts_as_tenant)
 
-- API contract and client types in same commit
-- CI can verify generated types are current
-- Single clone, single CI pipeline
-- Render and Vercel deploy from subdirectories
-
-## Why OpenAPI-generated types
-
-- Single source of truth (Rails specs)
-- No manual type mirroring that drifts
-- CI fails if generated file is out of date
-- Type-safe API calls with openapi-fetch
-
-## Why acts_as_tenant
-
-- Automatic `account_id` scoping on every query
-- Simple implementation, battle-tested gem
-- Works with ActiveRecord associations
+- `account_id` scoping is visible in every query — easy to audit
+- `ApplicationPolicy` enforces a cross-tenant guard centrally
+- `policy_scope` on index actions keeps lists tenant-safe
+- No gem magic hiding `current_account` switches
 
 ## Why rules-based lead scoring
 
@@ -79,9 +67,25 @@
 - LLM only explains/suggests, doesn't score
 - Faster, cheaper, more predictable
 
+## Why browser-direct for local AI
+
+- Local models (Ollama / LM Studio) should never require a server hop
+- Context assembly still happens server-side (`/ai/prompts`), so "what gets
+  sent" stays in one audited place
+- Works with a hosted backend + local models (the free-tier scenario)
+
+## Why no Redis / Solid Queue (for now)
+
+- Nothing in Phases 1–2 needs durable queues: jobs are short-lived
+  (webhook retries, sequence delays) and run on the ActiveJob async adapter
+- One fewer service to operate on free tiers
+- Tradeoff: delayed jobs only run while the app is awake; revisit with a
+  real queue when Phase 3 scheduling hardens
+
 ## Known tradeoffs
 
 - Free tier limits: 512MB RAM, 0.5GB DB, 10s Vercel functions
-- Render sleeps after ~15min idle
-- No real-time WebSocket on free tier (Solid Cable needs always-on)
+- Render sleeps after ~15min idle — delayed jobs pause with it
+- No real-time WebSocket layer
 - Single database may become bottleneck at scale
+- Local AI inference speed is bound to the user's hardware

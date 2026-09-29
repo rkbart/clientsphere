@@ -9,7 +9,14 @@ Development: http://localhost:3000/api/v1
 
 ## Authentication
 
-httpOnly cookie sessions. All requests scoped to session's active account.
+Bearer token sessions. Login returns a token; send it on every request:
+
+```
+Authorization: Bearer <token>
+```
+
+Tokens are stored server-side as digests (revoked on logout). All requests are
+scoped to the session's active account.
 
 ```
 POST   /auth/signup
@@ -17,6 +24,16 @@ POST   /auth/login
 DELETE /auth/logout
 GET    /auth/me
 POST   /auth/switch_account
+```
+
+## Invitations & Memberships
+
+```
+POST   /invitations
+POST   /invitations/accept        # body: token
+GET    /memberships
+PATCH  /memberships/:id           # role change
+DELETE /memberships/:id
 ```
 
 ## Contacts
@@ -87,6 +104,16 @@ POST   /notes
 GET    /notes/:id
 PATCH  /notes/:id
 DELETE /notes/:id
+```
+
+## Emails
+
+```
+GET    /emails
+POST   /emails
+GET    /emails/:id
+PATCH  /emails/:id
+DELETE /emails/:id
 ```
 
 ## Tags
@@ -165,33 +192,41 @@ GET    /webhooks/:id/deliveries
 ## AI
 
 ```
-GET    /ai/settings
-PATCH  /ai/settings
-POST   /ai/test_connection
-POST   /ai/chat
-POST   /ai/draft_email
-POST   /ai/suggest_next_action
-POST   /ai/enrich
-POST   /ai/summarize_deal
+GET    /ai/settings             # Read config (api_key never returned; api_key_set flag instead)
+PATCH  /ai/settings             # Write config (blank api_key keeps the stored key)
+POST   /ai/test_connection      # { success, message }
+POST   /ai/prompts              # Server-assembled prompts for browser-direct mode
+POST   /ai/chat                 # Scoped-context assistant
+POST   /ai/draft_email          # body: contact_id, purpose, deal_id?
+POST   /ai/suggest_next_action  # body: record_type, record_id
+POST   /ai/enrich               # body: domain
+POST   /ai/summarize_deal       # body: deal_id
 ```
+
+Usage endpoints return `422 { error }` when AI is unconfigured or disabled.
+Errors from the provider come back as `422 { error: "AI request failed (…)" }`.
 
 ## Import/Export
 
 ```
 POST   /import/csv
 GET    /import/:id
-GET    /export/csv/:type
+GET    /export/csv/:type        # type: contacts | companies | deals
 ```
 
 ## Query Parameters
 
 ```
-?page=1&per_page=25           # Pagination (max 100)
-?q=john                       # Search
-?status=active&tag=hot-lead   # Filtering
-?sort=created_at&order=desc   # Sorting
+?page=1&per_page=25                # Pagination (max 100)
+?q=john                            # Search (name/email/domain ILIKE)
+?status=lead|customer|churned      # Contact status filter
+?tag_id=<uuid>                   # Tag filter (contacts)
+?sort=created_at&order=desc        # Sorting
 ```
 
 ## API Documentation
 
-Swagger UI served at `/api-docs` (rswag).
+Request/response types are hand-written in
+`apps/web/src/lib/api/schema.ts` and consumed with `openapi-fetch`.
+There is no generated OpenAPI document (rswag was dropped; see
+[TECH-DECISIONS.md](TECH-DECISIONS.md)).

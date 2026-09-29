@@ -3,32 +3,49 @@
 ## Core CRM
 
 ### Contacts
-- Full CRUD with search and filtering
-- Tags for categorization
+- List with search (debounced), status/tag filters, pagination
+- Detail pages with notes, tags, AI cards
+- Status field: lead / customer / churned (filter + column)
+- Tags for categorization (filter by tag, attach/detach chips on detail)
 - Soft delete (discard)
 - Unique email per account
-- Lead scoring with explainable reasons
+- Lead scoring with explainable reasons + Re-score button
+- Create/edit forms: not yet in the UI (API + CSV import available)
 
 ### Companies
-- Full CRUD with search
+- List with search, detail pages
 - Linked contacts and deals
+- Enrichment from domain (user-confirmed)
 - Soft delete
+- Create/edit forms: not yet in the UI (API + CSV import available)
 
 ### Deals
-- Pipelines with customizable stages
-- Kanban board with drag-drop
+- Pipelines with customizable stages (API)
+- Kanban board with drag-drop (mouse and touch)
 - Won/lost tracking
 - Expected close dates
 - Deal value tracking
+- Create/edit forms: not yet in the UI (API available)
 
 ### Activities
-- Log calls, meetings, tasks, emails
+- Activity records: calls, meetings, tasks, emails
 - Due dates and completion tracking
-- Assign to team members
+- Assigned to team members
+- Surfaced in the dashboard (tasks due, recent activity)
+- Logging UI: not yet in the UI (API available)
 
 ### Notes
 - Polymorphic notes on any record
+- Shared notes section on contact/company/deal detail
 - Author tracking
+
+## Dashboard
+
+- Stat cards: contacts, deals, activities
+- Pipeline-by-stage bars (value + count per stage)
+- Tasks due widget (overdue/today highlighting)
+- Recent activity feed
+- Next best action widget (AI) for the most urgent open deal
 
 ## Views
 
@@ -36,63 +53,75 @@
 - Sortable columns
 - Search and filter
 - Pagination
+- "Clear filters" resets search/tag/status at once
 
 ### Kanban Board
-- Drag-drop deal cards between stages
+- Drag-drop deal cards between stages (mouse and touch)
 - Visual pipeline overview
 
 ## AI Features
 
+### AI Settings
+- Provider presets (Ollama, LM Studio, OpenRouter, Groq, Gemini, DeepSeek,
+  OpenAI, Anthropic, custom endpoint)
+- Write-only API key (encrypted server-side, never returned by the API)
+- Test connection, Enable toggle, Redact-PII toggle, Server/Local mode badge
+
 ### AI Chat
 - Conversational assistant with CRM context
+- Context assembled server-side, keyword-matched to the question
 - Scoped to account data
 
 ### Email Drafting
-- Generate professional emails
-- Context from contact/deal records
+- Generate professional emails (purpose: follow-up, introduction, proposal,
+  check-in)
+- Context from contact + its open deals/activities, or from a deal's contact
+- Editable, copyable draft
 
 ### Lead Scoring
 - Rules-based scoring with reasons
-- Explainable results
+- Explainable results; Re-score button on contact detail
 
 ### Suggestions
-- Next best action recommendations
-- Based on activity and deal stage
+- Next best action on dashboard, deal page and contact page
+- Deal summaries on demand
 
 ### Enrichment
-- Company info from domain
-- User-confirmed before saving
+- Company info from domain (LLM knowledge)
+- Preview diff, user confirms before saving
 
 ### Local Mode
-- Browser-direct for Ollama/LM Studio
+- Browser-direct for Ollama/LM Studio (chat + drafting)
 - Data never leaves the device
 
-## Automation
+## Automation (Phase 3 — backend scaffolded, UI in progress)
 
 ### Automations
-- Form-based trigger/action rules
-- Create tasks, send emails, tag, move stages, call webhooks
+- Form-based trigger/action rules (engine + models in place)
+- Create tasks, tag, move stages, call webhooks
 - Enable/disable toggle
+- UI: coming in Phase 3 (page shows a placeholder)
 
 ### Email Sequences
-- Steps with delays
-- Enrollment and unsubscribe
-- Stop on reply/unsubscribe
+- Steps with delays, enrollment
+- Stop on reply/unsubscribe: planned
+- Email sending itself is not wired yet
 
 ### Webhooks
-- Signed deliveries
-- Retries with backoff
+- Signed deliveries (`X-Webhook-Signature`)
+- Retries with exponential backoff (3 attempts)
 - Delivery log
 
 ## Customization
 
 ### Custom Fields
-- 12-15 field types
+- 13 field types (text, number, boolean, date, select, etc.)
 - Stored in `custom_data` jsonb
-- Shown in forms, tables, filters
+- CRUD via Settings → Custom Fields
+- Showing values in forms/tables/filters: Phase 4
 
 ### Saved Views
-- Save/share filters, sort, columns
+- Save filters, sort, columns
 - Per entity type
 
 ## Teams
@@ -102,20 +131,19 @@
 - Pundit policies on every action
 
 ### Invitations
-- Email invitations
-- Role assignment
-- Token-based acceptance
+- Invitation records with expiring tokens
+- Role assignment on acceptance
+- Email delivery not wired yet (token returned via API)
 
 ## Import/Export
 
 ### CSV Import
-- Background processing
-- Per-row error report
-- Size and row caps
+- Inline processing with per-row error report
+- Import status queryable via `GET /import/:id`
 
 ### CSV Export
-- Streamed for large datasets
-- Formula injection prevention
+- Contacts, companies, deals (Settings → Import/Export)
+- Formula injection prevention (escapes `=`, `+`, `-`, `@`)
 
 ## Interface
 
@@ -142,10 +170,9 @@
 
 ## Security
 
-- httpOnly cookie sessions
-- CSRF protection
-- Tenant isolation
-- Rate limiting
-- SSRF protection
-- Encrypted secrets
-- Audit logging
+- Token-based sessions (server-side token digests, revoked on logout)
+- Tenant isolation: `account_id` scoping + Pundit policies with a
+  cross-tenant guard (`ApplicationPolicy` rejects other accounts' records)
+- Rate limiting on AI endpoints (30 requests / IP / 5 min)
+- Encrypted secrets (AI keys, webhook secrets via ActiveRecord encryption)
+- Passwords hashed with bcrypt

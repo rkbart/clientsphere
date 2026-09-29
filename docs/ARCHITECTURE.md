@@ -4,16 +4,16 @@
 
 ```
 Browser
-  │  same-origin requests: /api/v1/*   (httpOnly session cookie)
+  │  Bearer token: /api/v1/*   (Authorization header)
   ▼
 Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
-                                              │  Auth (sessions), Pundit, acts_as_tenant
-                                              │  Solid Queue (jobs, in Puma)
-                                              │  Solid Cable (realtime)
-                                              │  AI service (server-side, encrypted keys)
+                                              │  Session tokens (digest-stored)
+                                              │  Pundit + account scoping
+                                              │  rack-attack (AI rate limit)
+                                              │  Ai services (server-side) ──► provider
+                                              │  Ai::Prompts /ai/prompts ──► browser ──► local model
                                               ▼
                                            PostgreSQL
-                                           (app data + queue + cable + cache)
 ```
 
 ## Layers
@@ -30,36 +30,45 @@ Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
   drawer below (covers half-width browser views); tables scroll
   horizontally on narrow viewports
 - **TanStack Query** — server state, caching, background refetch
-- **Zustand** — client state (sidebar, theme, auth)
-- **openapi-fetch** — typed API calls against generated schema
+- **Zustand** — client state (sidebar, auth, persisted token)
+- **openapi-fetch** — typed API calls against the hand-written schema
+  (`src/lib/api/schema.ts`)
+- **@hello-pangea/dnd** — accessible, touch-capable kanban drag-drop
 - **Vendored agent skills** — `.agents/skills/` (design taste + animation)
   guide UI changes
 
 ### Backend (apps/api)
 
-- **Rails 8.1 API mode** — RESTful API
+- **Rails 8.1 API mode** — RESTful API, `Api::V1` namespace
 - **PostgreSQL** — primary data store
-- **Solid Queue** — background jobs (runs in Puma)
-- **Solid Cable** — WebSocket/realtime (runs in Puma)
-- **Solid Cache** — caching (runs in Puma)
-- **Pundit** — authorization policies
-- **acts_as_tenant** — multi-tenancy scoping
+- **Pundit** — authorization policies (incl. cross-tenant guard)
+- **Kaminari** — pagination (`page`/`per_page`, cap 100)
+- **Discard** — soft delete (`discarded_at`)
+- **rack-attack** — AI endpoint throttling
+- **ActiveJob (async adapter)** — in-process delayed jobs (webhook retries,
+  sequence steps); no external worker
+- **Ai services** — `Ai::Client` (provider adapters), `Ai::Context`
+  (scoped record retrieval), `Ai::Prompts` (prompt assembly), `AiLog`
+  (metadata-only usage log)
+- **Services** — `Leads::Scorer`, `Automations::Engine`, `Webhooks::Deliverer`,
+  `Imports::CsvImporter`, `Exports::CsvExporter`
 
 ### Database
 
 - **PostgreSQL** — single database for all data
-- No Redis required — Solid Queue/Cable/Cache use Postgres
+- No Redis required
 
 ## State management
 
 ### Frontend
 
 - **TanStack Query** — server data (contacts, deals, etc.)
-- **Zustand** — UI state (sidebar, theme) + auth (persisted to localStorage)
+- **Zustand** — UI state (sidebar) + auth (token persisted to localStorage)
 
 ### Backend
 
-- **Rails sessions** — httpOnly cookie auth
+- **Bearer token sessions** — token issued on login, stored as SHA-256
+  digest server-side, revoked on logout
 - **Current attributes** — request-scoped account and user
 
 ## Routing
@@ -67,7 +76,7 @@ Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
 ### Frontend
 
 - **Next.js App Router** — file-based routing in `src/app/`
-- **API proxy** — `/api/*` rewrites to Rails backend
+- **API proxy** — `/api/*` rewrites to `API_INTERNAL_URL`
 
 ### Backend
 
@@ -77,15 +86,15 @@ Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
 ## Key constraints
 
 - Free tier limits: Vercel 10s functions, Render 512MB RAM, Neon 0.5GB storage
-- Render spins down after ~15min idle — automations only run while awake
+- Render spins down after ~15min idle — delayed jobs only run while awake
 - Vercel Hobby is for personal/non-commercial use
-- Single database — Postgres hosts app data, jobs, cable, cache
+- Single database — Postgres hosts app data
 
 ## Performance
 
 - Server-side rendering for initial page load
-- Optimistic updates for CRUD operations
-- Connection pooling via Neon
-- Solid Queue jobs run in-process (no external worker)
+- TanStack Query caching + invalidation instead of full refetches
 - Motion animates only `transform`/`opacity` with named-property
   transitions; `prefers-reduced-motion` drops all movement
+- Local AI inference speed depends on your machine (prompt caps:
+  `max_tokens: 1024`)
