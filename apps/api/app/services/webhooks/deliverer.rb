@@ -5,6 +5,9 @@ module Webhooks
     end
 
     def deliver(event:, data:)
+      return unless @webhook.is_active
+      return if @webhook.events.present? && !@webhook.events.include?(event.to_s)
+
       payload = {
         event: event,
         data: data,
@@ -14,6 +17,7 @@ module Webhooks
       signature = @webhook.sign(payload)
 
       delivery = @webhook.deliveries.create!(
+        account_id: @webhook.account_id,
         event: event,
         payload: JSON.parse(payload),
         status: :pending

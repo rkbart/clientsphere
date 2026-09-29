@@ -47,6 +47,6 @@ class Api::V1::WebhooksController < Api::V1::BaseController
   end
 
   def webhook_params
-    params.require(:webhook).permit(:url, :events, :is_active)
+    params.require(:webhook).permit(:url, :is_active, events: [])
   end
 end

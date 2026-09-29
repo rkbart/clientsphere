@@ -852,6 +852,13 @@ export interface paths {
       };
     };
     post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            automation: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -880,6 +887,13 @@ export interface paths {
       parameters: {
         path: {
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            automation: Record<string, unknown>;
+          };
         };
       };
       responses: {
@@ -950,6 +964,13 @@ export interface paths {
       };
     };
     post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            email_sequence: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -980,6 +1001,13 @@ export interface paths {
           id: string;
         };
       };
+      requestBody: {
+        content: {
+          "application/json": {
+            email_sequence: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         200: {
           content: {
@@ -1004,6 +1032,13 @@ export interface paths {
       parameters: {
         path: {
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            contact_id?: string;
+          };
         };
       };
       responses: {
@@ -1036,6 +1071,13 @@ export interface paths {
           email_sequence_id: string;
         };
       };
+      requestBody: {
+        content: {
+          "application/json": {
+            email_sequence_step: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -1045,11 +1087,19 @@ export interface paths {
       };
     };
   };
-  "/email_sequence_steps/{id}": {
+  "/email_sequences/{email_sequence_id}/steps/{id}": {
     patch: {
       parameters: {
         path: {
+          email_sequence_id: string;
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            email_sequence_step: Record<string, unknown>;
+          };
         };
       };
       responses: {
@@ -1063,11 +1113,59 @@ export interface paths {
     delete: {
       parameters: {
         path: {
+          email_sequence_id: string;
           id: string;
         };
       };
       responses: {
         204: never;
+      };
+    };
+  };
+  "/email_sequences/{id}/enrollments": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/sequence_enrollments/{id}": {
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/sequence_enrollments/{id}/unsubscribe": {
+    post: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
       };
     };
   };
@@ -1085,6 +1183,13 @@ export interface paths {
       };
     };
     post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            webhook: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -1113,6 +1218,13 @@ export interface paths {
       parameters: {
         path: {
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            webhook: Record<string, unknown>;
+          };
         };
       };
       responses: {
