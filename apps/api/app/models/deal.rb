@@ -25,7 +25,7 @@ class Deal < ApplicationRecord
     transaction do
       update!(stage_id: target_stage_id, position: 0)
       siblings = Deal.where(stage_id: target_stage_id).where.not(id: id).order(:position, :created_at).to_a
-      index = [[position.to_i, 0].max, siblings.length].min
+      index = position.to_i.clamp(0, siblings.length)
       siblings.insert(index, self)
       siblings.each_with_index { |deal, i| deal.update_column(:position, i) }
     end

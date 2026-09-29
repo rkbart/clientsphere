@@ -6,8 +6,9 @@ class Api::V1::ActivitiesController < Api::V1::BaseController
     activities = activities.where(kind: params[:kind]) if params[:kind].present?
     activities = activities.where(assignee_id: params[:assignee_id]) if params[:assignee_id].present?
     activities = activities.where(completed_at: nil) if params[:completed] == "false"
+    sort_key = params[:sort] || :due_at
     direction = params[:order] == "desc" ? :desc : :asc
-    activities = activities.order((params[:sort] || :due_at) => direction)
+    activities = activities.order(sort_key => direction)
 
     paginate(activities)
   end
