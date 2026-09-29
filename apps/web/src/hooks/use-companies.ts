@@ -8,7 +8,7 @@ export function useCompanies(params?: Record<string, unknown>) {
     queryKey: ["companies", params],
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/companies", {
-        params: params as never,
+        params: { query: params as never },
         headers: headers(),
       });
       if (error) throw error;

@@ -405,6 +405,13 @@ export interface paths {
       };
     };
     post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            activity: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -433,6 +440,11 @@ export interface paths {
       parameters: {
         path: {
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": Record<string, unknown>;
         };
       };
       responses: {

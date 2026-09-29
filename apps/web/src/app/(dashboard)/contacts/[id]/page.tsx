@@ -5,6 +5,8 @@ import { NotesSection } from "@/components/shared/notes-section";
 import { ContactTags } from "@/components/contacts/contact-tags";
 import { AiDraftEmail } from "@/components/ai/ai-draft-email";
 import { AiInsights } from "@/components/ai/ai-insights";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 
 interface ContactData {
   id: string;
@@ -28,7 +30,13 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">{contact.first_name} {contact.last_name}</h1>
+      <div className="flex items-start justify-between gap-4">
+        <h1 className="text-2xl font-semibold tracking-tight">{contact.first_name} {contact.last_name}</h1>
+        <Link href={`/contacts/${contact.id}/edit`} className="btn-secondary text-sm shrink-0">
+          <Pencil className="h-4 w-4" />
+          Edit
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card p-6">

@@ -2,6 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 export default function ActivitiesPage() {
   const { data, isLoading } = useQuery({
@@ -22,7 +24,18 @@ export default function ActivitiesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Activities</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Activities</h1>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">
+            Log calls, meetings, tasks and emails
+          </p>
+        </div>
+        <Link href="/activities/new" className="btn-primary self-start sm:self-auto">
+          <Plus className="h-4 w-4" />
+          Log Activity
+        </Link>
+      </div>
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
@@ -45,9 +58,14 @@ export default function ActivitiesPage() {
           </thead>
           <tbody className="divide-y divide-[var(--border-subtle)]">
             {data?.data?.map((activity: any) => (
-              <tr key={activity.id}>
+              <tr key={activity.id} className="table-row">
                 <td className="px-6 py-4 whitespace-nowrap font-medium">
-                  {activity.subject}
+                  <Link
+                    href={`/activities/${activity.id}/edit`}
+                    className="hover:text-[var(--text-secondary)] transition-colors"
+                  >
+                    {activity.subject}
+                  </Link>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-[var(--text-secondary)] capitalize">
                   {activity.kind}

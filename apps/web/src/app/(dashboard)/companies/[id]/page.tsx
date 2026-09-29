@@ -3,6 +3,8 @@
 import { useCompany } from "@/hooks/use-companies";
 import { NotesSection } from "@/components/shared/notes-section";
 import { AiEnrich } from "@/components/ai/ai-enrich";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 
 interface CompanyData {
   id: string;
@@ -23,7 +25,13 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">{company.name}</h1>
+      <div className="flex items-start justify-between gap-4">
+        <h1 className="text-2xl font-semibold tracking-tight">{company.name}</h1>
+        <Link href={`/companies/${company.id}/edit`} className="btn-secondary text-sm shrink-0">
+          <Pencil className="h-4 w-4" />
+          Edit
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card p-6">

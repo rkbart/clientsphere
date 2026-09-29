@@ -5,6 +5,8 @@ import { useStages, usePipelines } from "@/hooks/use-pipelines";
 import { NotesSection } from "@/components/shared/notes-section";
 import { AiInsights } from "@/components/ai/ai-insights";
 import { AiDraftEmail } from "@/components/ai/ai-draft-email";
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 
 interface DealData {
   id: string;
@@ -34,7 +36,13 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">{deal.title}</h1>
+      <div className="flex items-start justify-between gap-4">
+        <h1 className="text-2xl font-semibold tracking-tight">{deal.title}</h1>
+        <Link href={`/deals/${deal.id}/edit`} className="btn-secondary text-sm shrink-0">
+          <Pencil className="h-4 w-4" />
+          Edit
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card p-6">
