@@ -58,7 +58,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
@@ -84,15 +84,15 @@ export default function DashboardPage() {
         </div>
         <div className="divide-y divide-[var(--border-subtle)]">
           {recentActivities?.map((activity) => (
-            <div key={activity.id} className="px-5 py-3 flex items-center justify-between hover:bg-[var(--bg-elevated)] transition-colors duration-150">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-[var(--accent)]" />
-                <div>
-                  <p className="text-sm font-medium">{activity.subject}</p>
+            <div key={activity.id} className="px-5 py-3 flex items-center justify-between gap-4 hover:bg-[var(--bg-elevated)] transition-colors duration-150">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-2 h-2 rounded-full bg-[var(--accent)] shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{activity.subject}</p>
                   <p className="text-xs text-[var(--text-tertiary)] capitalize">{activity.kind}</p>
                 </div>
               </div>
-              <span className="text-xs text-[var(--text-tertiary)]">
+              <span className="text-xs text-[var(--text-tertiary)] shrink-0">
                 {new Date(activity.created_at).toLocaleDateString()}
               </span>
             </div>

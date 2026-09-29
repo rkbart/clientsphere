@@ -14,6 +14,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const { token } = useAuthStore();
   const [mounted, setMounted] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -35,10 +36,10 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-[var(--bg-elevated)]">
-      <Sidebar />
-      <div className="pl-60">
-        <Topbar />
-        <main className="p-6">{children}</main>
+      <Sidebar open={navOpen} onClose={() => setNavOpen(false)} />
+      <div className="lg:pl-60">
+        <Topbar onMenuClick={() => setNavOpen(true)} />
+        <main className="p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

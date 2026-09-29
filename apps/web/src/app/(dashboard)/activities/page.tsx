@@ -22,7 +22,8 @@ export default function ActivitiesPage() {
       <h1 className="text-2xl font-semibold tracking-tight">Activities</h1>
 
       <div className="card overflow-hidden">
-        <table className="min-w-full divide-y divide-[var(--border-subtle)]">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] divide-y divide-[var(--border-subtle)]">
           <thead className="bg-[var(--bg-elevated)]">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
@@ -62,6 +63,7 @@ export default function ActivitiesPage() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

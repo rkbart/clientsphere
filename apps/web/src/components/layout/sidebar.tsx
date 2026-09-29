@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -13,6 +14,7 @@ import {
   Settings,
   Info,
   ChevronRight,
+  X,
 } from "lucide-react";
 
 const navigation = [
@@ -30,14 +32,36 @@ const secondary = [
   { name: "About", href: "/about", icon: Info },
 ];
 
-export function Sidebar() {
+export function Sidebar({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const pathname = usePathname();
 
-  return (
-    <aside className="fixed inset-y-0 left-0 w-60 bg-[var(--bg-sidebar)] flex flex-col z-40">
-      {/* Logo */}
-      <div className="h-14 flex items-center px-5 border-b border-white/5">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open, onClose]);
+
+  const content = (
+    <>
+      <div className="h-14 flex items-center justify-between px-5 border-b border-white/5">
+        <Link
+          href="/dashboard"
+          onClick={onClose}
+          className="flex items-center gap-2.5"
+        >
           <div className="w-7 h-7 rounded-[var(--radius-md)] bg-white/10 flex items-center justify-center">
             <span className="text-white font-semibold text-sm">C</span>
           </div>
@@ -45,24 +69,38 @@ export function Sidebar() {
             ClientSphere
           </span>
         </Link>
+        <button
+          onClick={onClose}
+          className="lg:hidden p-1.5 -mr-1.5 rounded-[var(--radius-md)] text-white/60 hover:text-white hover:bg-white/10"
+          aria-label="Close menu"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navigation.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.name}
               href={item.href}
+              onClick={onClose}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm group ${
                 isActive
                   ? "bg-[var(--bg-sidebar-active)] text-white"
                   : "text-[var(--text-sidebar)] hover:bg-[var(--bg-sidebar-hover)] hover:text-white"
               }`}
             >
-              <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-[var(--text-tertiary)] group-hover:text-white"}`} />
+              <Icon
+                className={`h-4 w-4 ${
+                  isActive
+                    ? "text-white"
+                    : "text-[var(--text-tertiary)] group-hover:text-white"
+                }`}
+              />
               <span className="flex-1">{item.name}</span>
               {isActive && (
                 <ChevronRight className="h-3.5 w-3.5 text-white/40" />
@@ -72,29 +110,33 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Secondary nav */}
       <div className="px-3 py-3 border-t border-white/5 space-y-0.5">
         {secondary.map((item) => {
           const Icon = item.icon;
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link
               key={item.name}
               href={item.href}
+              onClick={onClose}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm ${
                 isActive
                   ? "bg-[var(--bg-sidebar-active)] text-white"
                   : "text-[var(--text-sidebar)] hover:bg-[var(--bg-sidebar-hover)] hover:text-white"
               }`}
             >
-              <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-[var(--text-tertiary)]"}`} />
+              <Icon
+                className={`h-4 w-4 ${
+                  isActive ? "text-white" : "text-[var(--text-tertiary)]"
+                }`}
+              />
               <span>{item.name}</span>
             </Link>
           );
         })}
       </div>
 
-      {/* User */}
       <div className="px-3 py-3 border-t border-white/5">
         <div className="flex items-center gap-2.5 px-3 py-2">
           <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
@@ -106,6 +148,37 @@ export function Sidebar() {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop rail */}
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-60 bg-[var(--bg-sidebar)] flex-col z-40">
+        {content}
+      </aside>
+
+      {/* Mobile backdrop */}
+      <div
+        onClick={onClose}
+        aria-hidden="true"
+        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-200 lg:hidden ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
+
+      {/* Mobile drawer — visibility rides the transform transition so closed
+          links leave the focus order only after the exit finishes */}
+      <aside
+        data-nav-drawer
+        aria-hidden={!open}
+        className={`fixed inset-y-0 left-0 w-60 bg-[var(--bg-sidebar)] flex flex-col z-50 lg:hidden transition-[transform,visibility] duration-[250ms] ${
+          open ? "translate-x-0 visible" : "-translate-x-full invisible"
+        }`}
+        style={{ transitionTimingFunction: "var(--ease-drawer)" }}
+      >
+        {content}
+      </aside>
+    </>
   );
 }

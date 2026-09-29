@@ -22,21 +22,22 @@ export default function CompaniesPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Companies</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
             {typed?.meta?.total_count ?? 0} companies
           </p>
         </div>
-        <Link href="/companies/new" className="btn-primary">
+        <Link href="/companies/new" className="btn-primary self-start sm:self-auto">
           <Plus className="h-4 w-4" />
           Add Company
         </Link>
       </div>
 
       <div className="card overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px]">
           <thead>
             <tr className="border-b border-[var(--border)]">
               <th className="table-cell table-header text-left">Name</th>
@@ -81,6 +82,7 @@ export default function CompaniesPage() {
             )}
           </tbody>
         </table>
+        </div>
 
         {!isLoading && (!typed?.data || typed.data.length === 0) && (
           <div className="px-5 py-12 text-center">
