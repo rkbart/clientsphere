@@ -1,0 +1,60 @@
+"use client";
+
+import { useContact } from "@/hooks/use-contacts";
+import { useParams } from "next/navigation";
+
+export default function ContactDetailPage() {
+  const params = useParams();
+  const { data: contact, isLoading } = useContact(params.id as string);
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading...</div>;
+  }
+
+  if (!contact) {
+    return <div className="text-center py-8">Contact not found</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold">
+        {contact.first_name} {contact.last_name}
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold mb-4">Contact Info</h2>
+          <dl className="space-y-3">
+            <div>
+              <dt className="text-sm text-gray-500">Email</dt>
+              <dd className="mt-1">{contact.email}</dd>
+            </div>
+            <div>
+              <dt className="text-sm text-gray-500">Phone</dt>
+              <dd className="mt-1">{contact.phone}</dd>
+            </div>
+            <div>
+              <dt className="text-sm text-gray-500">Status</dt>
+              <dd className="mt-1 capitalize">{contact.status}</dd>
+            </div>
+            <div>
+              <dt className="text-sm text-gray-500">Lead Score</dt>
+              <dd className="mt-1">{contact.lead_score}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-lg font-semibold mb-4">Lead Score Reasons</h2>
+          <ul className="space-y-2">
+            {contact.score_reasons?.map((reason: string, index: number) => (
+              <li key={index} className="text-sm text-gray-600">
+                {reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}

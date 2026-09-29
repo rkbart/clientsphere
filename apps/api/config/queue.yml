@@ -1,0 +1,14 @@
+default: &default
+  dispatchers:
+    polling_interval: 1 second
+    batch_size: 500
+  cron: {}
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: clientsphere
+          POSTGRES_PASSWORD: clientsphere
+          POSTGRES_DB: clientsphere_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Set up database
+        env:
+          DATABASE_URL: postgres://clientsphere:clientsphere@localhost:5432/clientsphere_test
+        run: |
+          bin/rails db:setup
+
+      - name: Run RSpec
+        env:
+          DATABASE_URL: postgres://clientsphere:clientsphere@localhost:5432/clientsphere_test
+        run: |
+          bundle exec rspec
+
+      - name: Run RuboCop
+        run: |
+          bundle exec rubocop
+
+      - name: Run Brakeman
+        run: |
+          bundle exec brakeman --no-pager
+
+      - name: Run bundler-audit
+        run: |
+          bundle exec bundler-audit check --update
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate API types
+        run: pnpm gen:api
+
+      - name: Run lint
+        run: pnpm lint
+
+      - name: Run typecheck
+        run: pnpm typecheck
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
