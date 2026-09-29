@@ -1,98 +1,130 @@
 module Ai
+  class Error < StandardError; end
+
   class Client
+    EMAIL_PATTERN = /\b[\w.%+-]+@[\w.-]+\.\w{2,}\b/
+    PHONE_PATTERN = /\+?\d[\d\s().-]{7,}\d/
+    SECRET_PATTERN = /\b(?:sk|key|token)[-_][A-Za-z0-9_-]{8,}\b/
+
     def initialize(ai_setting)
       @setting = ai_setting
-      @provider = ai_setting.provider
+      @provider = ai_setting.provider.to_s
     end
 
     def test_connection
-      response = chat("Reply with exactly: ok", "ok")
-      { success: true, message: "Connected." }
-    rescue => e
+      call("test_connection", Prompts.test, "Reply with exactly: ok")
+      { success: true, message: "Connected (#{@provider} · #{@setting.model})." }
+    rescue Ai::Error => e
       { success: false, message: e.message }
     end
 
     def chat(message, context = nil)
-      system_prompt = PROMPTS.chat(context || {})
-      call_provider(system_prompt, message)
+      call("chat", Prompts.chat(context || {}), message.to_s)
     end
 
     def draft_email(contact, purpose, context = nil)
-      system_prompt = PROMPTS.draft_email(contact, purpose, context)
-      call_provider(system_prompt, "Draft email")
+      call("draft_email", Prompts.draft_email(contact, purpose, context), "Write the email now.")
     end
 
     def suggest_next_action(record)
-      system_prompt = PROMPTS.suggest_next_action(record)
-      call_provider(system_prompt, "Suggest next action")
+      call("suggest_next_action", Prompts.suggest_next_action(record), "Suggest the next action.")
     end
 
     def enrich_company(domain)
-      system_prompt = PROMPTS.enrich_company(domain)
-      response = call_provider(system_prompt, "Enrich company")
-      JSON.parse(response)
+      raw = call("enrich_company", Prompts.enrich_company(domain), "Return the JSON now.")
+      JSON.parse(raw)
     rescue JSON::ParserError
-      { error: "Failed to parse enrichment response" }
+      raise Ai::Error, "The model did not return valid JSON. Try again."
     end
 
     def summarize_deal(deal)
-      activities = deal.activities.limit(10).order(created_at: :desc)
-      system_prompt = PROMPTS.summarize_deal(deal, activities)
-      call_provider(system_prompt, "Summarize deal")
+      activities = deal.activities.order(created_at: :desc).limit(10)
+      call("summarize_deal", Prompts.summarize_deal(deal, activities), "Summarize the deal now.")
     end
 
     private
 
-    def call_provider(system_prompt, user_prompt)
-      case @provider
-      when "anthropic"
-        call_anthropic(system_prompt, user_prompt)
+    def call(action, system_prompt, user_prompt)
+      started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      system_prompt = mask_pii(system_prompt)
+      user_prompt = mask_pii(user_prompt)
+      response = invoke(system_prompt, user_prompt)
+      raise Ai::Error, "The provider returned an empty response." if response.blank?
+
+      log(action, success: true, duration_ms: elapsed_since(started))
+      response
+    rescue Ai::Error => e
+      log(action, success: false, duration_ms: elapsed_since(started), error: e.message)
+      raise
+    rescue StandardError => e
+      log(action, success: false, duration_ms: elapsed_since(started), error: e.class.name)
+      raise Ai::Error, friendly_message(e)
+    end
+
+    def invoke(system_prompt, user_prompt)
+      if anthropic?
+        invoke_anthropic(system_prompt, user_prompt)
       else
-        call_openai_compatible(system_prompt, user_prompt)
+        invoke_openai_compatible(system_prompt, user_prompt)
       end
     end
 
-    def call_openai_compatible(system_prompt, user_prompt)
-      client = OpenAI::Client.new(
-        access_token: @setting.api_key,
-        uri_base: @setting.base_url
+    def invoke_openai_compatible(system_prompt, user_prompt)
+      options = { api_key: @setting.api_key.presence || "not-needed" }
+      options[:base_url] = @setting.base_url if @setting.base_url.present?
+      client = OpenAI::Client.new(**options)
+      response = client.chat.completions.create(
+        model: @setting.model,
+        messages: [
+          { role: "system", content: system_prompt },
+          { role: "user", content: user_prompt }
+        ]
       )
-
-      response = client.chat(
-        parameters: {
-          model: @setting.model,
-          messages: [
-            { role: "system", content: system_prompt },
-            { role: "user", content: user_prompt }
-          ]
-        }
-      )
-
-      response.dig("choices", 0, "message", "content")
+      response.choices.first&.message&.content
     end
 
-    def call_anthropic(system_prompt, user_prompt)
+    def invoke_anthropic(system_prompt, user_prompt)
       client = Anthropic::Client.new(api_key: @setting.api_key)
-
-      response = client.messages(
+      response = client.messages.create(
         model: @setting.model,
-        max_tokens: 4096,
+        max_tokens: 1024,
         system: system_prompt,
         messages: [{ role: "user", content: user_prompt }]
       )
-
-      response.content[0].text
+      response.content.filter_map { |block| block.text if block.respond_to?(:text) }.first
     end
 
-    def PROMPTS
-      # This would be the prompts module
-      OpenStruct.new(
-        chat: ->(context) { "You are a CRM assistant. Context: #{context}" },
-        draft_email: ->(contact, purpose, context) { "Draft a #{purpose} email to #{contact.full_name}" },
-        suggest_next_action: ->(record) { "Suggest next action for #{record.class.name}" },
-        enrich_company: ->(domain) { "Enrich company info for #{domain}" },
-        summarize_deal: ->(deal, activities) { "Summarize deal: #{deal.title}" }
+    def anthropic?
+      @provider == "anthropic"
+    end
+
+    def mask_pii(text)
+      return text unless @setting.redact_pii?
+
+      text.to_s.gsub(EMAIL_PATTERN, "[redacted-email]").gsub(PHONE_PATTERN, "[redacted-phone]")
+    end
+
+    def friendly_message(error)
+      message = error.message.to_s.gsub(SECRET_PATTERN, "[redacted]").truncate(300)
+      "AI request failed (#{error.class.name.split('::').last}): #{message}"
+    end
+
+    def log(action, success:, duration_ms:, error: nil)
+      AiLog.create!(
+        account: @setting.account,
+        action: action,
+        provider: @provider,
+        model: @setting.model,
+        success: success,
+        duration_ms: duration_ms,
+        error: error&.to_s&.truncate(255)
       )
+    rescue StandardError
+      nil
+    end
+
+    def elapsed_since(started)
+      ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round
     end
   end
 end

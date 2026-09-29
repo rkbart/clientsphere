@@ -1,79 +1,92 @@
 class Api::V1::AiController < Api::V1::BaseController
+  before_action :authorize_ai
+  before_action :require_ai_enabled, only: [:chat, :draft_email, :suggest_next_action, :enrich, :summarize_deal]
+
+  rescue_from Ai::Error, with: :ai_error
+
   def settings
-    setting = Current.account.ai_setting
-    render json: setting || { provider: nil, model: nil, enabled: false }
+    render json: settings_payload(Current.account.ai_setting)
   end
 
   def update_settings
     setting = Current.account.ai_setting || Current.account.build_ai_setting
-    setting.assign_attributes(ai_settings_params)
+    attributes = ai_settings_params
+    attributes = attributes.except(:api_key) if attributes[:api_key].blank?
+    setting.assign_attributes(attributes)
     setting.save!
-    render json: setting
+    render json: settings_payload(setting)
   end
 
   def test_connection
     setting = Current.account.ai_setting
-    return render json: { error: "AI not configured" }, status: :unprocessable_entity unless setting
+    return render json: { success: false, message: "AI is not configured yet." }, status: :unprocessable_entity unless setting
 
-    result = setting.test_connection!
-    render json: { success: result[:success], message: result[:message] }
+    render json: setting.test_connection!
   end
 
   def chat
-    setting = Current.account.ai_setting
-    return render json: { error: "AI not configured" }, status: :unprocessable_entity unless setting
-
-    result = Ai::Client.new(setting).chat(params[:message], params[:context])
-    render json: { response: result }
+    render json: { response: ai_client.chat(params[:message], params[:context]) }
   end
 
   def draft_email
-    setting = Current.account.ai_setting
-    return render json: { error: "AI not configured" }, status: :unprocessable_entity unless setting
-
-    contact = Contact.find(params[:contact_id])
-    result = Ai::Client.new(setting).draft_email(contact, params[:purpose], params[:context])
-    render json: { draft: result }
+    contact = find_in_account(Contact, params[:contact_id])
+    render json: { draft: ai_client.draft_email(contact, params[:purpose], params[:context]) }
   end
 
   def suggest_next_action
-    setting = Current.account.ai_setting
-    return render json: { error: "AI not configured" }, status: :unprocessable_entity unless setting
-
     record = find_record(params[:record_type], params[:record_id])
-    result = Ai::Client.new(setting).suggest_next_action(record)
-    render json: { suggestion: result }
+    render json: { suggestion: ai_client.suggest_next_action(record) }
   end
 
   def enrich
-    setting = Current.account.ai_setting
-    return render json: { error: "AI not configured" }, status: :unprocessable_entity unless setting
-
-    result = Ai::Client.new(setting).enrich_company(params[:domain])
-    render json: result
+    render json: ai_client.enrich_company(params[:domain])
   end
 
   def summarize_deal
-    setting = Current.account.ai_setting
-    return render json: { error: "AI not configured" }, status: :unprocessable_entity unless setting
-
-    deal = Deal.find(params[:deal_id])
-    result = Ai::Client.new(setting).summarize_deal(deal)
-    render json: { summary: result }
+    deal = find_in_account(Deal, params[:deal_id])
+    render json: { summary: ai_client.summarize_deal(deal) }
   end
 
   private
 
+  def authorize_ai
+    authorize AiSetting
+  end
+
+  def require_ai_enabled
+    setting = Current.account.ai_setting
+    return render json: { error: "AI is not configured yet." }, status: :unprocessable_entity unless setting
+    return render json: { error: "AI is turned off. Turn it on in Settings → AI." }, status: :unprocessable_entity unless setting.enabled?
+
+    setting
+  end
+
+  def ai_client
+    Ai::Client.new(Current.account.ai_setting)
+  end
+
+  def settings_payload(setting)
+    return { provider: nil, model: nil, base_url: nil, enabled: false, redact_pii: false, api_key_set: false } unless setting
+
+    setting.as_json(except: :api_key).merge("api_key_set" => setting.api_key.present?)
+  end
+
   def ai_settings_params
-    params.require(:ai_setting).permit(:provider, :model, :base_url, :api_key, :enabled)
+    params.require(:ai_setting).permit(:provider, :model, :base_url, :api_key, :enabled, :redact_pii)
+  end
+
+  def find_in_account(model, id)
+    model.where(account: Current.account).find(id)
   end
 
   def find_record(type, id)
-    case type
-    when "Contact" then Contact.find(id)
-    when "Deal" then Deal.find(id)
-    when "Company" then Company.find(id)
-    else raise ActiveRecord::RecordNotFound
-    end
+    klass = { "Contact" => Contact, "Deal" => Deal, "Company" => Company }[type]
+    raise ActiveRecord::RecordNotFound unless klass
+
+    find_in_account(klass, id)
+  end
+
+  def ai_error(exception)
+    render json: { error: exception.message }, status: :unprocessable_entity
   end
 end

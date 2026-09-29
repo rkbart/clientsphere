@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_01_01_000003) do
+ActiveRecord::Schema[8.1].define(version: 2024_01_01_000004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -55,6 +55,20 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_01_000003) do
     t.index ["user_id"], name: "index_ai_conversations_on_user_id"
   end
 
+  create_table "ai_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.string "action", null: false
+    t.string "provider"
+    t.string "model"
+    t.boolean "success", default: true, null: false
+    t.string "error"
+    t.integer "duration_ms"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "action"], name: "index_ai_logs_on_account_id_and_action"
+    t.index ["account_id"], name: "index_ai_logs_on_account_id"
+  end
+
   create_table "ai_messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.uuid "conversation_id", null: false
@@ -74,6 +88,7 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_01_000003) do
     t.boolean "enabled", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "redact_pii", default: false, null: false
     t.index ["account_id"], name: "index_ai_settings_on_account_id"
   end
 
