@@ -83,3 +83,12 @@ Lint/UselessAssignment:
   Enabled: false
 Lint/UnusedBlockArgument:
   Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
+
+Style/TrailingCommaInArguments:
+  Enabled: false
