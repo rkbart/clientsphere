@@ -2,23 +2,23 @@
 
 ## Phase 1: Core CRM (Weeks 1–4)
 
-- [ ] Auth & tenancy (email/password, sessions, acts_as_tenant, tenant-isolation specs)
-- [ ] Contacts & companies (CRUD, search, filters, tags, soft delete)
-- [ ] Deals (pipelines, stages, kanban with drag-drop, won/lost)
-- [ ] Activities & notes (log calls/meetings, tasks, notes on any record)
-- [ ] Dashboard (open deals by stage, tasks due, recent activity)
-- [ ] CSV import/export (basic mapping, error report)
-- [ ] Foundations (OpenAPI-generated client, CI, Docker Compose, seeds, Swagger UI)
+- [x] Auth & tenancy (email/password, sessions, account scoping, policy guards)
+- [x] Contacts & companies (CRUD, search, filters, tags, soft delete)
+- [x] Deals (pipelines, stages, kanban with drag-drop, won/lost)
+- [x] Activities & notes (log calls/meetings, tasks, notes on any record)
+- [x] Dashboard (open deals by stage, tasks due, recent activity)
+- [x] CSV import/export (basic mapping, error report)
+- [x] Foundations (hand-written typed client, CI, Docker Compose, seeds; Swagger UI deferred)
 
 ## Phase 2: Intelligence (Weeks 5–8)
 
-- [ ] AI settings (server-side encrypted keys, presets, test connection, privacy toggle)
-- [ ] AI chat (scoped-context assistant)
-- [ ] Email drafting (draft from contact/deal context)
-- [ ] Lead scoring (rules-based with reasons)
-- [ ] Suggestions (next-best-action on dashboard and deal page)
-- [ ] Enrichment (company info from domain, user-confirmed)
-- [ ] Local mode (browser-direct for Ollama / LM Studio)
+- [x] AI settings (server-side encrypted keys, presets, test connection, privacy toggle)
+- [x] AI chat (scoped-context assistant)
+- [x] Email drafting (draft from contact/deal context)
+- [x] Lead scoring (rules-based with reasons)
+- [x] Suggestions (next-best-action on dashboard and deal page)
+- [x] Enrichment (company info from domain, user-confirmed)
+- [x] Local mode (browser-direct for Ollama / LM Studio)
 
 ## Phase 3: Automation (Weeks 9–12)
 
