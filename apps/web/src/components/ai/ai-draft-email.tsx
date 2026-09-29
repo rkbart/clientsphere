@@ -7,7 +7,7 @@ import { Sparkles, Copy, Check, RefreshCw, X } from "lucide-react";
 
 const PURPOSES = ["follow-up", "introduction", "proposal", "check-in"];
 
-export function AiDraftEmail({ contactId }: { contactId: string }) {
+export function AiDraftEmail({ contactId, dealId }: { contactId: string; dealId?: string }) {
   const { data: settings } = useAiSettings();
   const draftEmail = useDraftEmail();
   const [purpose, setPurpose] = useState("follow-up");
@@ -20,7 +20,7 @@ export function AiDraftEmail({ contactId }: { contactId: string }) {
   const generate = async () => {
     setError(null);
     try {
-      const result = await draftEmail.mutateAsync({ contactId, purpose });
+      const result = await draftEmail.mutateAsync({ contactId, purpose, dealId });
       setText(result.draft || "");
       setCopied(false);
     } catch (e) {

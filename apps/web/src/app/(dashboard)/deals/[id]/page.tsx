@@ -4,6 +4,7 @@ import { useDeal } from "@/hooks/use-deals";
 import { useStages, usePipelines } from "@/hooks/use-pipelines";
 import { NotesSection } from "@/components/shared/notes-section";
 import { AiInsights } from "@/components/ai/ai-insights";
+import { AiDraftEmail } from "@/components/ai/ai-draft-email";
 
 interface DealData {
   id: string;
@@ -12,6 +13,7 @@ interface DealData {
   currency: string;
   stage_id: string;
   pipeline_id: string;
+  contact_id?: string | null;
   expected_close_date: string;
   probability: number;
   closed_at: string | null;
@@ -55,7 +57,10 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <AiInsights recordType="Deal" recordId={deal.id} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {deal.contact_id && <AiDraftEmail contactId={deal.contact_id} dealId={deal.id} />}
+        <AiInsights recordType="Deal" recordId={deal.id} />
+      </div>
 
       <NotesSection notableType="Deal" notableId={deal.id} />
     </div>

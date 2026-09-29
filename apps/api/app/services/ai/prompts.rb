@@ -16,6 +16,7 @@ module Ai
 
     def self.draft_email(contact, purpose, context = nil)
       purpose = purpose.presence || "follow-up"
+      related = related_payload(contact)
       extra = context.present? ? "\nAdditional context:\n#{dump(context)}" : ''
       <<~PROMPT
         #{BASE}
@@ -24,7 +25,7 @@ module Ai
         Keep it under 150 words unless asked otherwise.
 
         Contact:
-        #{dump(contact_payload(contact))}#{extra}
+        #{dump(contact_payload(contact))}#{related}#{extra}
       PROMPT
     end
 
@@ -86,6 +87,14 @@ module Ai
       }
     end
 
+    def self.related_payload(contact)
+      deals = contact.deals.where(closed_at: nil).order(expected_close_date: :asc).limit(3)
+      activities = contact.activities.order(created_at: :desc).limit(5)
+      return "" if deals.empty? && activities.empty?
+
+      "\nOpen deals:\n#{dump(deals.map { |deal| deal_payload(deal) })}\nRecent activity:\n#{dump(activity_list(activities))}"
+    end
+
     def self.record_payload(record)
       payload =
         case record
@@ -121,6 +130,6 @@ module Ai
       value.to_s.truncate(6000)
     end
 
-    private_class_method :record_payload, :company_payload, :dump
+    private_class_method :record_payload, :company_payload, :related_payload, :dump
   end
 end

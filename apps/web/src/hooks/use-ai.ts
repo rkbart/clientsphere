@@ -66,9 +66,9 @@ export function useAiChat() {
 
 export function useDraftEmail() {
   return useMutation({
-    mutationFn: async ({ contactId, purpose }: { contactId: string; purpose?: string }) => {
+    mutationFn: async ({ contactId, purpose, dealId }: { contactId: string; purpose?: string; dealId?: string }) => {
       const { data, error } = await apiClient.POST("/ai/draft_email", {
-        body: { contact_id: contactId, purpose },
+        body: { contact_id: contactId, purpose, deal_id: dealId },
         headers: headers(),
       });
       if (error) throw error;

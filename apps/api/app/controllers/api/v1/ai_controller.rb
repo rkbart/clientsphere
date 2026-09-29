@@ -31,7 +31,7 @@ class Api::V1::AiController < Api::V1::BaseController
 
   def draft_email
     contact = find_in_account(Contact, params[:contact_id])
-    render json: { draft: ai_client.draft_email(contact, params[:purpose], params[:context]) }
+    render json: { draft: ai_client.draft_email(contact, params[:purpose], draft_deal_context) }
   end
 
   def suggest_next_action
@@ -49,6 +49,16 @@ class Api::V1::AiController < Api::V1::BaseController
   end
 
   private
+
+  def draft_deal_context
+    return nil if params[:deal_id].blank?
+
+    deal = find_in_account(Deal, params[:deal_id])
+    {
+      deal: Prompts.deal_payload(deal),
+      recent_activities: Prompts.activity_list(deal.activities.order(created_at: :desc).limit(5))
+    }
+  end
 
   def authorize_ai
     authorize AiSetting

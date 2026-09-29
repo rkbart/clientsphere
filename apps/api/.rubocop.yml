@@ -55,6 +55,8 @@ Metrics/CyclomaticComplexity:
   Enabled: false
 Metrics/PerceivedComplexity:
   Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
 
 # Layout
 Layout/LineLength:

@@ -1389,6 +1389,7 @@ export interface paths {
           "application/json": {
             contact_id?: string;
             purpose?: string;
+            deal_id?: string;
             context?: unknown;
           };
         };
