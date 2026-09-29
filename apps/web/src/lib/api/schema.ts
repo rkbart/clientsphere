@@ -1261,92 +1261,6 @@ export interface paths {
       };
     };
   };
-  "/ai/settings": {
-    get: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-    patch: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
-  "/ai/test_connection": {
-    post: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
-  "/ai/chat": {
-    post: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
-  "/ai/draft_email": {
-    post: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
-  "/ai/suggest_next_action": {
-    post: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
-  "/ai/enrich": {
-    post: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
-  "/ai/summarize_deal": {
-    post: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
   "/import/csv": {
     post: {
       responses: {
@@ -1401,6 +1315,149 @@ export interface paths {
         200: {
           content: {
             "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/settings": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      requestBody: {
+        content: {
+          "application/json": {
+            ai_setting: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/test_connection": {
+    post: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              success?: boolean;
+              message?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/ai/chat": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            message?: string;
+            context?: unknown;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              response?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/ai/draft_email": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            contact_id?: string;
+            purpose?: string;
+            context?: unknown;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              draft?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/ai/suggest_next_action": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            record_type?: string;
+            record_id?: string;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              suggestion?: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/ai/enrich": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            domain?: string;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/summarize_deal": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            deal_id?: string;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              summary?: string;
+            };
           };
         };
       };
