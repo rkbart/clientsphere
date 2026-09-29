@@ -121,6 +121,6 @@ module Ai
       value.to_s.truncate(6000)
     end
 
-    private_class_method :contact_payload, :deal_payload, :record_payload, :company_payload, :activity_list, :dump
+    private_class_method :record_payload, :company_payload, :dump
   end
 end

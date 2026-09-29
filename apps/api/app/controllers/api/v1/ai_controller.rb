@@ -25,7 +25,8 @@ class Api::V1::AiController < Api::V1::BaseController
   end
 
   def chat
-    render json: { response: ai_client.chat(params[:message], params[:context]) }
+    context = Ai::Context.new(Current.account, params[:message]).chat
+    render json: { response: ai_client.chat(params[:message], context) }
   end
 
   def draft_email

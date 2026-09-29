@@ -50,3 +50,16 @@ export function useTestAiConnection() {
     },
   });
 }
+
+export function useAiChat() {
+  return useMutation({
+    mutationFn: async (message: string) => {
+      const { data, error } = await apiClient.POST("/ai/chat", {
+        body: { message },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as { response?: string };
+    },
+  });
+}
