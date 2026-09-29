@@ -21,7 +21,13 @@ class Deal < ApplicationRecord
   scope :won, -> { where.not(closed_at: nil).where(stage: { kind: :won }) }
   scope :lost, -> { where.not(closed_at: nil).where(stage: { kind: :lost }) }
 
-  def move_to!(stage_id, position: nil)
-    update!(stage_id: stage_id, position: position || 0)
+  def move_to!(target_stage_id, position: nil)
+    transaction do
+      update!(stage_id: target_stage_id, position: 0)
+      siblings = Deal.where(stage_id: target_stage_id).where.not(id: id).order(:position, :created_at).to_a
+      index = [[position.to_i, 0].max, siblings.length].min
+      siblings.insert(index, self)
+      siblings.each_with_index { |deal, i| deal.update_column(:position, i) }
+    end
   end
 end

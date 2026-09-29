@@ -31,18 +31,18 @@ Rails.application.routes.draw do
         collection do
           post :import
         end
-        resources :tags, only: [:create, :destroy]
+        resources :tags, only: [:index, :create, :destroy], controller: "contact_tags"
       end
 
       resources :companies do
-        resources :tags, only: [:create, :destroy]
+        resources :tags, only: [:index, :create, :destroy], controller: "company_tags"
       end
 
       resources :deals do
         member do
           patch :move
         end
-        resources :tags, only: [:create, :destroy]
+        resources :tags, only: [:index, :create, :destroy], controller: "deal_tags"
       end
 
       resources :pipelines do

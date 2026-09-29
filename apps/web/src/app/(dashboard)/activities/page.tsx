@@ -1,13 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api/client";
+import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 
 export default function ActivitiesPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["activities"],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/activities");
+      const { data, error } = await apiClient.GET("/activities", {
+        params: { query: { per_page: 50 } },
+        headers: getAuthHeadersForApi(),
+      });
       if (error) throw error;
       return data;
     },

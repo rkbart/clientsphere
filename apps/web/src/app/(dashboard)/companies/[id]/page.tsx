@@ -1,6 +1,7 @@
 "use client";
 
 import { useCompany } from "@/hooks/use-companies";
+import { NotesSection } from "@/components/shared/notes-section";
 
 interface CompanyData {
   id: string;
@@ -39,6 +40,8 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
           <p className="text-[var(--text-primary)]">{company.description || "No description provided."}</p>
         </div>
       </div>
+
+      <NotesSection notableType="Company" notableId={company.id} />
     </div>
   );
 }

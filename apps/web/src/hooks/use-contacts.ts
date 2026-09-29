@@ -8,7 +8,7 @@ export function useContacts(params?: Record<string, unknown>) {
     queryKey: ["contacts", params],
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/contacts", {
-        params: params as never,
+        params: { query: params as never },
         headers: headers(),
       });
       if (error) throw error;

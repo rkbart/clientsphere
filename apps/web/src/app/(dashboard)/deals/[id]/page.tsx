@@ -1,6 +1,8 @@
 "use client";
 
 import { useDeal } from "@/hooks/use-deals";
+import { useStages, usePipelines } from "@/hooks/use-pipelines";
+import { NotesSection } from "@/components/shared/notes-section";
 
 interface DealData {
   id: string;
@@ -18,6 +20,11 @@ interface DealData {
 export default function DealDetailPage({ params }: { params: { id: string } }) {
   const { data, isLoading } = useDeal(params.id);
   const deal = data as unknown as DealData | undefined;
+  const { data: pipelines } = usePipelines();
+  const { data: stages } = useStages(deal?.pipeline_id);
+
+  const stageName = stages?.find((s) => s.id === deal?.stage_id)?.name;
+  const pipelineName = pipelines?.find((p) => p.id === deal?.pipeline_id)?.name;
 
   if (isLoading) return <div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>;
   if (!deal) return <div className="text-center py-8 text-sm text-[var(--text-tertiary)]">Deal not found</div>;
@@ -40,12 +47,14 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
         <div className="card p-6">
           <h2 className="text-lg font-semibold mb-4">Status</h2>
           <div className="space-y-3">
-            <div><span className="text-sm text-[var(--text-secondary)]">Stage:</span><span className="ml-2 font-medium">{deal.stage_id}</span></div>
-            <div><span className="text-sm text-[var(--text-secondary)]">Pipeline:</span><span className="ml-2 font-medium">{deal.pipeline_id}</span></div>
+            <div><span className="text-sm text-[var(--text-secondary)]">Stage:</span><span className="ml-2 font-medium">{stageName ?? "—"}</span></div>
+            <div><span className="text-sm text-[var(--text-secondary)]">Pipeline:</span><span className="ml-2 font-medium">{pipelineName ?? "—"}</span></div>
             {deal.closed_at && <div><span className="text-sm text-[var(--text-secondary)]">Closed:</span><span className="ml-2 font-medium">{new Date(deal.closed_at).toLocaleDateString()}</span></div>}
           </div>
         </div>
       </div>
+
+      <NotesSection notableType="Deal" notableId={deal.id} />
     </div>
   );
 }

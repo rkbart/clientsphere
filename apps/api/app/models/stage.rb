@@ -1,4 +1,5 @@
 class Stage < ApplicationRecord
+  belongs_to :account
   belongs_to :pipeline
   has_many :deals, dependent: :destroy
 
@@ -8,4 +9,12 @@ class Stage < ApplicationRecord
   validates :position, presence: true
 
   default_scope { order(:position) }
+
+  before_validation :inherit_account, on: :create
+
+  private
+
+  def inherit_account
+    self.account ||= pipeline&.account
+  end
 end

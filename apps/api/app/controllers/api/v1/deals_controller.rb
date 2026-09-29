@@ -6,7 +6,7 @@ class Api::V1::DealsController < Api::V1::BaseController
     deals = deals.where(stage_id: params[:stage_id]) if params[:stage_id].present?
     deals = deals.where(pipeline_id: params[:pipeline_id]) if params[:pipeline_id].present?
     deals = deals.joins(:taggings).where(taggings: { tag_id: params[:tag_id] }) if params[:tag_id].present?
-    deals = deals.order(params[:sort] || :position)
+    deals = deals.order(params[:sort] || :position).order(created_at: :asc)
 
     paginate(deals)
   end

@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useContacts } from "@/hooks/use-contacts";
+import { useTags } from "@/hooks/use-tags";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 
 interface Contact {
   id: string;
@@ -20,8 +22,23 @@ interface ContactsResponse {
 }
 
 export default function ContactsPage() {
-  const { data, isLoading } = useContacts();
+  const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [tagId, setTagId] = useState("");
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q), 300);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  const { data, isLoading } = useContacts({
+    q: debouncedQ || undefined,
+    tag_id: tagId || undefined,
+    per_page: 25,
+  });
+  const { data: tags } = useTags();
   const typed = data as unknown as ContactsResponse;
+  const isFiltered = !!debouncedQ || !!tagId;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -39,6 +56,47 @@ export default function ContactsPage() {
           <Plus className="h-4 w-4" />
           Add Contact
         </Link>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)] pointer-events-none" />
+          <input
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search name or email…"
+            className="input pl-9"
+            aria-label="Search contacts"
+          />
+        </div>
+        <div className="flex gap-2">
+          <select
+            value={tagId}
+            onChange={(e) => setTagId(e.target.value)}
+            className="input w-auto min-w-[10rem]"
+            aria-label="Filter by tag"
+          >
+            <option value="">All tags</option>
+            {tags?.map((tag) => (
+              <option key={tag.id} value={tag.id}>
+                {tag.name}
+              </option>
+            ))}
+          </select>
+          {isFiltered && (
+            <button
+              onClick={() => {
+                setQ("");
+                setTagId("");
+              }}
+              className="btn-ghost"
+              aria-label="Clear filters"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="card overflow-hidden">
@@ -103,7 +161,9 @@ export default function ContactsPage() {
 
         {!isLoading && (!typed?.data || typed.data.length === 0) && (
           <div className="px-5 py-12 text-center">
-            <p className="text-sm text-[var(--text-tertiary)]">No contacts found</p>
+            <p className="text-sm text-[var(--text-tertiary)]">
+              {isFiltered ? "No contacts match your filters" : "No contacts found"}
+            </p>
           </div>
         )}
       </div>

@@ -3,7 +3,7 @@ class Api::V1::StagesController < Api::V1::BaseController
   before_action :set_stage, only: [:update, :destroy]
 
   def index
-    stages = @pipeline.stages
+    stages = policy_scope(@pipeline.stages)
     render json: stages
   end
 

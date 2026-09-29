@@ -1,6 +1,8 @@
 "use client";
 
 import { useContact } from "@/hooks/use-contacts";
+import { NotesSection } from "@/components/shared/notes-section";
+import { ContactTags } from "@/components/contacts/contact-tags";
 
 interface ContactData {
   id: string;
@@ -45,6 +47,10 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
           </ul>
         </div>
       </div>
+
+      <ContactTags contactId={contact.id} />
+
+      <NotesSection notableType="Contact" notableId={contact.id} />
     </div>
   );
 }

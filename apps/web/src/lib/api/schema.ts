@@ -2,6 +2,16 @@
 export interface paths {
   "/contacts": {
     get: {
+      parameters: {
+        query: {
+          q?: string;
+          status?: number;
+          tag_id?: string;
+          sort?: string;
+          page?: number;
+          per_page?: number;
+        };
+      };
       responses: {
         200: {
           content: {
@@ -142,6 +152,16 @@ export interface paths {
   };
   "/deals": {
     get: {
+      parameters: {
+        query: {
+          stage_id?: string;
+          pipeline_id?: string;
+          tag_id?: string;
+          sort?: string;
+          page?: number;
+          per_page?: number;
+        };
+      };
       responses: {
         200: {
           content: {
@@ -362,6 +382,17 @@ export interface paths {
   };
   "/activities": {
     get: {
+      parameters: {
+        query: {
+          kind?: string;
+          assignee_id?: string;
+          completed?: string;
+          sort?: string;
+          order?: string;
+          page?: number;
+          per_page?: number;
+        };
+      };
       responses: {
         200: {
           content: {
@@ -425,6 +456,14 @@ export interface paths {
   };
   "/notes": {
     get: {
+      parameters: {
+        query: {
+          notable_type?: string;
+          notable_id?: string;
+          page?: number;
+          per_page?: number;
+        };
+      };
       responses: {
         200: {
           content: {
@@ -437,6 +476,17 @@ export interface paths {
       };
     };
     post: {
+      requestBody?: {
+        content: {
+          "application/json": {
+            note: {
+              body: string;
+              notable_type: string;
+              notable_id: string;
+            };
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -519,10 +569,31 @@ export interface paths {
     };
   };
   "/contacts/{contact_id}/tags": {
+    get: {
+      parameters: {
+        path: {
+          contact_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
     post: {
       parameters: {
         path: {
           contact_id: string;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            tag_id: string;
+          };
         };
       };
       responses: {
@@ -544,10 +615,31 @@ export interface paths {
     };
   };
   "/companies/{company_id}/tags": {
+    get: {
+      parameters: {
+        path: {
+          company_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
     post: {
       parameters: {
         path: {
           company_id: string;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            tag_id: string;
+          };
         };
       };
       responses: {
@@ -569,10 +661,31 @@ export interface paths {
     };
   };
   "/deals/{deal_id}/tags": {
+    get: {
+      parameters: {
+        path: {
+          deal_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
     post: {
       parameters: {
         path: {
           deal_id: string;
+        };
+      };
+      requestBody?: {
+        content: {
+          "application/json": {
+            tag_id: string;
+          };
         };
       };
       responses: {

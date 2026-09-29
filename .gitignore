@@ -8,6 +8,9 @@ out/
 dist/
 build/
 
+# Server runtime files
+apps/api/tmp/
+
 # Environment
 .env
 .env.local

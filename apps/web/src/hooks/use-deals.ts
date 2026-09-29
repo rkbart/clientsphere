@@ -8,7 +8,7 @@ export function useDeals(params?: Record<string, unknown>) {
     queryKey: ["deals", params],
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/deals", {
-        params: params as never,
+        params: { query: params as never },
         headers: headers(),
       });
       if (error) throw error;
