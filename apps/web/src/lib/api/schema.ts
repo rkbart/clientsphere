@@ -1,0 +1,1297 @@
+// Stub types — replace with openapi-typescript output once rswag is configured
+export interface paths {
+  "/contacts": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            contact: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/contacts/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/companies": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            company: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/companies/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/deals": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            deal: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/deals/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/deals/{id}/move": {
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            stage_id: string;
+            position?: number;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/pipelines": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            pipeline: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/pipelines/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/pipelines/{pipeline_id}/stages": {
+    get: {
+      parameters: {
+        path: {
+          pipeline_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+    post: {
+      parameters: {
+        path: {
+          pipeline_id: string;
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/stages/{id}": {
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/activities": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/activities/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/notes": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/notes/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/tags": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/tags/{id}": {
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/contacts/{contact_id}/tags": {
+    post: {
+      parameters: {
+        path: {
+          contact_id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/contacts/{contact_id}/tags/{tag_id}": {
+    delete: {
+      parameters: {
+        path: {
+          contact_id: string;
+          tag_id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/companies/{company_id}/tags": {
+    post: {
+      parameters: {
+        path: {
+          company_id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/companies/{company_id}/tags/{tag_id}": {
+    delete: {
+      parameters: {
+        path: {
+          company_id: string;
+          tag_id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/deals/{deal_id}/tags": {
+    post: {
+      parameters: {
+        path: {
+          deal_id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/deals/{deal_id}/tags/{tag_id}": {
+    delete: {
+      parameters: {
+        path: {
+          deal_id: string;
+          tag_id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/custom_field_definitions": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/custom_field_definitions/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/saved_views": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/saved_views/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/automations": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/automations/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/automations/{id}/toggle": {
+    post: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/automations/{id}/runs": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/email_sequences": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/email_sequences/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/email_sequences/{id}/enroll": {
+    post: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/email_sequences/{email_sequence_id}/steps": {
+    get: {
+      parameters: {
+        path: {
+          email_sequence_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+    post: {
+      parameters: {
+        path: {
+          email_sequence_id: string;
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/email_sequence_steps/{id}": {
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/webhooks": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/webhooks/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/webhooks/{id}/deliveries": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/auth/signup": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            user: Record<string, unknown>;
+            account_name: string;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/auth/login": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            email: string;
+            password: string;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/auth/logout": {
+    delete: {
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/auth/me": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/invitations": {
+    post: {
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/invitations/{token}/accept": {
+    post: {
+      parameters: {
+        path: {
+          token: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/memberships": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+  };
+  "/memberships/{id}": {
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/ai/settings": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/test_connection": {
+    post: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/chat": {
+    post: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/draft_email": {
+    post: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/suggest_next_action": {
+    post: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/enrich": {
+    post: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/ai/summarize_deal": {
+    post: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/import/csv": {
+    post: {
+      responses: {
+        202: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/import/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/export/csv/{type}": {
+    get: {
+      parameters: {
+        path: {
+          type: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "text/csv": string;
+          };
+        };
+      };
+    };
+  };
+  "/contacts/{id}/score": {
+    post: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+}
+export type components = Record<string, never>;
