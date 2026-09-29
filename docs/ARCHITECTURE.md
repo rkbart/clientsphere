@@ -22,10 +22,18 @@ Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
 
 - **Next.js App Router** — file-based routing, server components, proxy rewrites
 - **React 18** — UI library
-- **Tailwind CSS + shadcn/ui** — styling and components
+- **Tailwind CSS + design tokens** — utility styling over semantic CSS
+  custom properties in `globals.css` (color, radius, shadow, easing,
+  duration) plus component classes (`card`, `btn-*`, `input`, `badge-*`);
+  see [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md)
+- **Responsive shell** — fixed sidebar rail at `lg+` (1024px), slide-in
+  drawer below (covers half-width browser views); tables scroll
+  horizontally on narrow viewports
 - **TanStack Query** — server state, caching, background refetch
 - **Zustand** — client state (sidebar, theme, auth)
 - **openapi-fetch** — typed API calls against generated schema
+- **Vendored agent skills** — `.agents/skills/` (design taste + animation)
+  guide UI changes
 
 ### Backend (apps/api)
 
@@ -79,3 +87,5 @@ Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
 - Optimistic updates for CRUD operations
 - Connection pooling via Neon
 - Solid Queue jobs run in-process (no external worker)
+- Motion animates only `transform`/`opacity` with named-property
+  transitions; `prefers-reduced-motion` drops all movement

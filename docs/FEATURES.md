@@ -117,6 +117,29 @@
 - Streamed for large datasets
 - Formula injection prevention
 
+## Interface
+
+### Responsive layout
+- Mobile-first: below `lg` (1024px) — including half-width browser
+  windows — the sidebar becomes a slide-in drawer (backdrop, Escape to
+  close, scroll lock)
+- Sticky topbar with hamburger and current page title on mobile
+- Tables scroll horizontally; page headers and grids stack on narrow
+  viewports
+
+### Motion & accessibility
+- Fast, purposeful motion: 120–300ms, strong ease-out curves, interruptible
+  press feedback (`scale(0.97)`)
+- Staggered entrances for grouped content (50ms steps)
+- `prefers-reduced-motion` respected: fades kept, movement removed
+- Visible focus rings (`:focus-visible`), semantic landmarks, aria labels
+  on icon-only buttons
+
+### Design system
+- Warm-monochrome tokens and shared component classes
+  (`.card`, `.btn-*`, `.input`, `.badge-*`) — see
+  [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md)
+
 ## Security
 
 - httpOnly cookie sessions
