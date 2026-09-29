@@ -18,29 +18,29 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
   const { data, isLoading } = useContact(params.id);
   const contact = data as unknown as ContactData | undefined;
 
-  if (isLoading) return <div className="text-center py-8">Loading...</div>;
-  if (!contact) return <div className="text-center py-8">Contact not found</div>;
+  if (isLoading) return <div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>;
+  if (!contact) return <div className="text-center py-8 text-sm text-[var(--text-tertiary)]">Contact not found</div>;
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{contact.first_name} {contact.last_name}</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">{contact.first_name} {contact.last_name}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="card p-6">
           <h2 className="text-lg font-semibold mb-4">Contact Info</h2>
           <dl className="space-y-3">
-            <div><dt className="text-sm text-gray-500">Email</dt><dd className="mt-1">{contact.email}</dd></div>
-            <div><dt className="text-sm text-gray-500">Phone</dt><dd className="mt-1">{contact.phone}</dd></div>
-            <div><dt className="text-sm text-gray-500">Status</dt><dd className="mt-1 capitalize">{contact.status}</dd></div>
-            <div><dt className="text-sm text-gray-500">Lead Score</dt><dd className="mt-1">{contact.lead_score}</dd></div>
+            <div><dt className="text-sm text-[var(--text-secondary)]">Email</dt><dd className="mt-1">{contact.email}</dd></div>
+            <div><dt className="text-sm text-[var(--text-secondary)]">Phone</dt><dd className="mt-1">{contact.phone}</dd></div>
+            <div><dt className="text-sm text-[var(--text-secondary)]">Status</dt><dd className="mt-1 capitalize">{contact.status}</dd></div>
+            <div><dt className="text-sm text-[var(--text-secondary)]">Lead Score</dt><dd className="mt-1">{contact.lead_score}</dd></div>
           </dl>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="card p-6">
           <h2 className="text-lg font-semibold mb-4">Lead Score Reasons</h2>
           <ul className="space-y-2">
             {contact.score_reasons?.map((reason: string, index: number) => (
-              <li key={index} className="text-sm text-gray-600">{reason}</li>
+              <li key={index} className="text-sm text-[var(--text-primary)]">{reason}</li>
             ))}
           </ul>
         </div>

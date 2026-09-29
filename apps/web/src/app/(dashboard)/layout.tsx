@@ -27,16 +27,16 @@ export default function DashboardLayout({
 
   if (!mounted || !token) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading...</p>
+      <div className="min-h-screen bg-[var(--bg-elevated)] flex items-center justify-center">
+        <p className="text-[var(--text-secondary)]">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[var(--bg-elevated)]">
       <Sidebar />
-      <div className="pl-64">
+      <div className="pl-60">
         <Topbar />
         <main className="p-6">{children}</main>
       </div>

@@ -20,22 +20,22 @@ export default function PipelinePage() {
     },
   });
 
-  if (isLoading) return <div className="text-center py-8">Loading...</div>;
+  if (isLoading) return <div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>;
 
   const pipeline = pipelines?.data?.[0];
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Pipeline</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">Pipeline</h1>
 
       {pipeline ? (
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="card p-6">
           <h2 className="text-lg font-semibold mb-4">{pipeline.name}</h2>
-          <p className="text-gray-500">Kanban board coming soon...</p>
+          <p className="text-[var(--text-secondary)]">Kanban board coming soon...</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow p-6 text-center">
-          <p className="text-gray-500">No pipelines found.</p>
+        <div className="card p-6 text-center">
+          <p className="text-[var(--text-secondary)]">No pipelines found.</p>
         </div>
       )}
     </div>

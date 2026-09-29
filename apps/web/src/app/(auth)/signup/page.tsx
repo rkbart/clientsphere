@@ -46,91 +46,51 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8">
-        <div>
-          <h1 className="text-3xl font-bold text-center">ClientSphere</h1>
-          <h2 className="mt-2 text-center text-gray-600">Create your account</h2>
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] px-4">
+      <div className="w-full max-w-sm animate-fade-in">
+        <div className="text-center mb-8">
+          <div className="w-10 h-10 rounded-[var(--radius-lg)] bg-[var(--accent)] flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-semibold text-lg">C</span>
+          </div>
+          <h1 className="text-xl font-semibold tracking-tight">Create your account</h1>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">Start managing your relationships</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
+            <div className="p-3 rounded-[var(--radius-md)] bg-red-50 border border-red-100 text-red-600 text-sm animate-scale-in">
               {error}
             </div>
           )}
 
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Your name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
+          <div className="space-y-1.5">
+            <label htmlFor="name" className="text-sm font-medium text-[var(--text-primary)]">Name</label>
+            <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required className="input" placeholder="Your name" />
           </div>
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
+          <div className="space-y-1.5">
+            <label htmlFor="email" className="text-sm font-medium text-[var(--text-primary)]">Email</label>
+            <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="input" placeholder="you@example.com" autoComplete="email" />
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
+          <div className="space-y-1.5">
+            <label htmlFor="password" className="text-sm font-medium text-[var(--text-primary)]">Password</label>
+            <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} className="input" placeholder="Min 8 characters" autoComplete="new-password" />
           </div>
 
-          <div>
-            <label htmlFor="accountName" className="block text-sm font-medium text-gray-700">
-              Company / workspace name
-            </label>
-            <input
-              id="accountName"
-              type="text"
-              value={accountName}
-              onChange={(e) => setAccountName(e.target.value)}
-              required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
+          <div className="space-y-1.5">
+            <label htmlFor="accountName" className="text-sm font-medium text-[var(--text-primary)]">Workspace name</label>
+            <input id="accountName" type="text" value={accountName} onChange={(e) => setAccountName(e.target.value)} required className="input" placeholder="e.g. Bean & Brew" />
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-[var(--text-secondary)] mt-6">
           Already have an account?{" "}
-          <Link href="/login" className="text-blue-600 hover:text-blue-500">
-            Sign in
-          </Link>
+          <Link href="/login" className="text-[var(--text-primary)] font-medium hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

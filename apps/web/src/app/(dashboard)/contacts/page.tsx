@@ -2,6 +2,7 @@
 
 import { useContacts } from "@/hooks/use-contacts";
 import Link from "next/link";
+import { Plus } from "lucide-react";
 
 interface Contact {
   id: string;
@@ -22,59 +23,87 @@ export default function ContactsPage() {
   const { data, isLoading } = useContacts();
   const typed = data as unknown as ContactsResponse;
 
-  if (isLoading) {
-    return <div className="text-center py-8">Loading...</div>;
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Contacts</h1>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Contacts</h1>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">
+            {typed?.meta?.total_count ?? 0} contacts
+          </p>
+        </div>
         <Link
           href="/contacts/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+          className="btn-primary"
         >
+          <Plus className="h-4 w-4" />
           Add Contact
         </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+      <div className="card overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-[var(--border)]">
+              <th className="table-cell table-header text-left">Name</th>
+              <th className="table-cell table-header text-left">Email</th>
+              <th className="table-cell table-header text-left">Phone</th>
+              <th className="table-cell table-header text-left">Score</th>
+              <th className="table-cell table-header text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {typed?.data?.map((contact) => (
-              <tr key={contact.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:text-blue-500">
-                    {contact.first_name} {contact.last_name}
-                  </Link>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-500">{contact.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-500">{contact.phone}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    contact.lead_score >= 70 ? "bg-green-100 text-green-800" :
-                    contact.lead_score >= 40 ? "bg-yellow-100 text-yellow-800" :
-                    "bg-gray-100 text-gray-800"
-                  }`}>
-                    {contact.lead_score}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <Link href={`/contacts/${contact.id}`} className="text-blue-600 hover:text-blue-500">View</Link>
-                </td>
-              </tr>
-            ))}
+          <tbody className="divide-y divide-[var(--border-subtle)]">
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="table-row">
+                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-32 animate-pulse" /></td>
+                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-40 animate-pulse" /></td>
+                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-24 animate-pulse" /></td>
+                  <td className="table-cell"><div className="h-5 bg-[var(--bg-elevated)] rounded-full w-8 animate-pulse" /></td>
+                  <td className="table-cell text-right"><div className="h-4 bg-[var(--bg-elevated)] rounded w-12 animate-pulse ml-auto" /></td>
+                </tr>
+              ))
+            ) : (
+              typed?.data?.map((contact) => (
+                <tr key={contact.id} className="table-row">
+                  <td className="table-cell">
+                    <Link
+                      href={`/contacts/${contact.id}`}
+                      className="font-medium text-[var(--text-primary)] hover:text-[var(--accent-hover)] transition-colors"
+                    >
+                      {contact.first_name} {contact.last_name}
+                    </Link>
+                  </td>
+                  <td className="table-cell text-[var(--text-secondary)]">{contact.email}</td>
+                  <td className="table-cell text-[var(--text-secondary)]">{contact.phone}</td>
+                  <td className="table-cell">
+                    <span className={`badge ${
+                      contact.lead_score >= 70 ? "badge-success" :
+                      contact.lead_score >= 40 ? "badge-warning" :
+                      "badge-neutral"
+                    }`}>
+                      {contact.lead_score}
+                    </span>
+                  </td>
+                  <td className="table-cell text-right">
+                    <Link
+                      href={`/contacts/${contact.id}`}
+                      className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
+
+        {!isLoading && (!typed?.data || typed.data.length === 0) && (
+          <div className="px-5 py-12 text-center">
+            <p className="text-sm text-[var(--text-tertiary)]">No contacts found</p>
+          </div>
+        )}
       </div>
     </div>
   );

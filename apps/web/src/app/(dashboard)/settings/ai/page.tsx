@@ -18,20 +18,20 @@ export default function AISettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">AI Provider Settings</h1>
+      <h1 className="text-2xl font-semibold tracking-tight">AI Provider Settings</h1>
 
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="card p-6">
         <h2 className="text-lg font-semibold mb-4">Provider</h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Provider</label>
+            <label className="block text-sm font-medium text-[var(--text-primary)]">Provider</label>
             <select
               value={settings.provider}
               onChange={(e) =>
                 setSettings({ ...settings, provider: e.target.value as any })
               }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full px-3 py-2 border border-[var(--border)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--accent)] focus:border-[var(--accent)]"
             >
               {PROVIDERS.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -41,13 +41,13 @@ export default function AISettingsPage() {
               ))}
             </select>
             {currentProvider && (
-              <p className="mt-1 text-sm text-gray-500">{currentProvider.hint}</p>
+              <p className="mt-1 text-sm text-[var(--text-secondary)]">{currentProvider.hint}</p>
             )}
           </div>
 
           {currentProvider?.needsKey && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">API Key</label>
+              <label className="block text-sm font-medium text-[var(--text-primary)]">API Key</label>
               <input
                 type="password"
                 value={settings.keys[settings.provider] || ""}
@@ -58,16 +58,16 @@ export default function AISettingsPage() {
                   })
                 }
                 placeholder={currentProvider.keyPlaceholder}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-[var(--border)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--accent)] focus:border-[var(--accent)]"
               />
               {currentProvider.keyUrl && (
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-sm text-[var(--text-secondary)]">
                   Get your key at{" "}
                   <a
                     href={currentProvider.keyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-500"
+                    className="text-[var(--text-primary)] hover:text-[var(--accent-hover)] transition-colors"
                   >
                     {currentProvider.keyUrlLabel}
                   </a>
@@ -78,7 +78,7 @@ export default function AISettingsPage() {
 
           {currentProvider && currentProvider.models.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-gray-700">Model</label>
+              <label className="block text-sm font-medium text-[var(--text-primary)]">Model</label>
               <select
                 value={settings.models[settings.provider] || ""}
                 onChange={(e) =>
@@ -87,7 +87,7 @@ export default function AISettingsPage() {
                     models: { ...settings.models, [settings.provider]: e.target.value },
                   })
                 }
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full px-3 py-2 border border-[var(--border)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--accent)] focus:border-[var(--accent)]"
               >
                 {currentProvider.models.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -100,7 +100,7 @@ export default function AISettingsPage() {
 
           <button
             onClick={handleSave}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+            className="btn-primary"
           >
             {saved ? "Saved!" : "Save Settings"}
           </button>

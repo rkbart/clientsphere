@@ -33,3 +33,6 @@ coverage/
 # Generated
 openapi.yaml
 schema.d.ts
+
+# TypeScript build info
+*.tsbuildinfo

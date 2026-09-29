@@ -12,18 +12,19 @@ export function Topbar() {
   };
 
   return (
-    <div className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+    <header className="h-14 bg-[var(--bg-card)] border-b border-[var(--border)] flex items-center justify-between px-6">
       <div></div>
 
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-gray-600">{user?.name}</span>
+      <div className="flex items-center gap-3">
+        <span className="text-sm text-[var(--text-secondary)]">{user?.name}</span>
         <button
           onClick={handleLogout}
-          className="text-gray-400 hover:text-gray-600"
+          className="p-1.5 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)] transition-all duration-150"
+          aria-label="Logout"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-4 w-4" />
         </button>
       </div>
-    </div>
+    </header>
   );
 }

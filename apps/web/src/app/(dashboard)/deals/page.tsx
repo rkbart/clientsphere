@@ -2,6 +2,7 @@
 
 import { useDeals } from "@/hooks/use-deals";
 import Link from "next/link";
+import { Plus } from "lucide-react";
 
 interface Deal {
   id: string;
@@ -20,38 +21,79 @@ export default function DealsPage() {
   const { data, isLoading } = useDeals();
   const typed = data as unknown as DealsResponse;
 
-  if (isLoading) return <div className="text-center py-8">Loading...</div>;
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Deals</h1>
-        <Link href="/deals/new" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Add Deal</Link>
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Deals</h1>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">
+            {typed?.meta?.total_count ?? 0} deals
+          </p>
+        </div>
+        <Link href="/deals/new" className="btn-primary">
+          <Plus className="h-4 w-4" />
+          Add Deal
+        </Link>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+      <div className="card overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-[var(--border)]">
+              <th className="table-cell table-header text-left">Title</th>
+              <th className="table-cell table-header text-left">Amount</th>
+              <th className="table-cell table-header text-left">Close date</th>
+              <th className="table-cell table-header text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {typed?.data?.map((deal) => (
-              <tr key={deal.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Link href={`/deals/${deal.id}`} className="text-blue-600 hover:text-blue-500">{deal.title}</Link>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-gray-500">${deal.amount?.toLocaleString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                  <Link href={`/deals/${deal.id}`} className="text-blue-600 hover:text-blue-500">View</Link>
-                </td>
-              </tr>
-            ))}
+          <tbody className="divide-y divide-[var(--border-subtle)]">
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="table-row">
+                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-40 animate-pulse" /></td>
+                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-20 animate-pulse" /></td>
+                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-24 animate-pulse" /></td>
+                  <td className="table-cell text-right"><div className="h-4 bg-[var(--bg-elevated)] rounded w-12 animate-pulse ml-auto" /></td>
+                </tr>
+              ))
+            ) : (
+              typed?.data?.map((deal) => (
+                <tr key={deal.id} className="table-row">
+                  <td className="table-cell">
+                    <Link
+                      href={`/deals/${deal.id}`}
+                      className="font-medium text-[var(--text-primary)] hover:text-[var(--accent-hover)] transition-colors"
+                    >
+                      {deal.title}
+                    </Link>
+                  </td>
+                  <td className="table-cell text-[var(--text-secondary)] tabular-nums">
+                    ${deal.amount?.toLocaleString()}
+                  </td>
+                  <td className="table-cell text-[var(--text-secondary)]">
+                    {deal.expected_close_date
+                      ? new Date(deal.expected_close_date).toLocaleDateString()
+                      : "—"}
+                  </td>
+                  <td className="table-cell text-right">
+                    <Link
+                      href={`/deals/${deal.id}`}
+                      className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                    >
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
+
+        {!isLoading && (!typed?.data || typed.data.length === 0) && (
+          <div className="px-5 py-12 text-center">
+            <p className="text-sm text-[var(--text-tertiary)]">No deals found</p>
+          </div>
+        )}
       </div>
     </div>
   );
