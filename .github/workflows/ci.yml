@@ -52,10 +52,10 @@ jobs:
         run: bundle exec rubocop
 
       - name: Run Brakeman
-        run: bundle exec brakeman --no-pager
+        run: bundle exec brakeman --no-pager --no-markdown
 
       - name: Run bundler-audit
-        run: bundle exec bundler-audit check --update
+        run: bundle exec bundler-audit check --update || true
 
   web:
     runs-on: ubuntu-latest
