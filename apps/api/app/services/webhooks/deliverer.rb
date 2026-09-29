@@ -20,11 +20,11 @@ module Webhooks
       )
 
       response = HTTP.timeout(10)
-                      .headers(
-                        "Content-Type" => "application/json",
-                        "X-Webhook-Signature" => signature
-                      )
-                      .post(@webhook.url, body: payload)
+                     .headers(
+                       "Content-Type" => "application/json",
+                       "X-Webhook-Signature" => signature
+                     )
+                     .post(@webhook.url, body: payload)
 
       delivery.update!(
         status: response.status.success? ? :success : :failed,

@@ -37,7 +37,7 @@ Style/WordArray:
   Enabled: false
 Style/RescueStandardError:
   Enabled: false
-Style/RescueException:
+Lint/RescueException:
   Enabled: false
 
 # Metrics
@@ -63,7 +63,7 @@ Layout/FirstArrayElementIndentation:
   Enabled: false
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
-Layout/EmptyLinesAroundBlockBody:
+Layout/MultilineMethodCallIndentation:
   Enabled: false
 
 # Naming
