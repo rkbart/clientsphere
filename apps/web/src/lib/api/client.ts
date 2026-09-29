@@ -3,26 +3,24 @@ import type { paths } from "./schema";
 
 const API_BASE = "/api/v1";
 
+function getAuthHeaders(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem("clientsphere-auth");
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    const token = parsed?.state?.token;
+    if (!token) return {};
+    return { Authorization: `Bearer ${token}` };
+  } catch {
+    return {};
+  }
+}
+
 export const apiClient = createClient<paths>({
   baseUrl: API_BASE,
 });
 
-let authToken: string | null = null;
-
-export function setAuthToken(token: string) {
-  authToken = token;
-}
-
-export function clearAuthToken() {
-  authToken = null;
-}
-
-export function getHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-  if (authToken) {
-    headers["Authorization"] = `Bearer ${authToken}`;
-  }
-  return headers;
+export function getAuthHeadersForApi(): Record<string, string> {
+  return getAuthHeaders();
 }

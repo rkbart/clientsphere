@@ -1,11 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api/client";
+import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
+
+const headers = () => getAuthHeadersForApi();
 
 export function useDeals(params?: Record<string, unknown>) {
   return useQuery({
     queryKey: ["deals", params],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/deals", { params: params as never });
+      const { data, error } = await apiClient.GET("/deals", {
+        params: params as never,
+        headers: headers(),
+      });
       if (error) throw error;
       return data;
     },
@@ -16,7 +21,10 @@ export function useDeal(id: string) {
   return useQuery({
     queryKey: ["deals", id],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/deals/{id}", { params: { path: { id } } });
+      const { data, error } = await apiClient.GET("/deals/{id}", {
+        params: { path: { id } },
+        headers: headers(),
+      });
       if (error) throw error;
       return data;
     },
@@ -27,7 +35,10 @@ export function useCreateDeal() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (deal: Record<string, unknown>) => {
-      const { data, error } = await apiClient.POST("/deals", { body: deal as never });
+      const { data, error } = await apiClient.POST("/deals", {
+        body: { deal: deal as never },
+        headers: headers(),
+      });
       if (error) throw error;
       return data;
     },
@@ -44,6 +55,7 @@ export function useUpdateDeal() {
       const { data, error } = await apiClient.PATCH("/deals/{id}", {
         params: { path: { id: id as string } },
         body: deal as never,
+        headers: headers(),
       });
       if (error) throw error;
       return data;
@@ -58,7 +70,10 @@ export function useDeleteDeal() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await apiClient.DELETE("/deals/{id}", { params: { path: { id } } });
+      const { error } = await apiClient.DELETE("/deals/{id}", {
+        params: { path: { id } },
+        headers: headers(),
+      });
       if (error) throw error;
     },
     onSuccess: () => {
@@ -74,6 +89,7 @@ export function useMoveDeal() {
       const { data, error } = await apiClient.PATCH("/deals/{id}/move", {
         params: { path: { id } },
         body: { stage_id, position },
+        headers: headers(),
       });
       if (error) throw error;
       return data;

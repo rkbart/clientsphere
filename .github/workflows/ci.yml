@@ -85,10 +85,10 @@ jobs:
         run: pnpm lint
 
       - name: Run typecheck
-        run: pnpm typecheck || echo "Skipping — types will be generated once rswag is configured"
+        run: pnpm typecheck
 
       - name: Run tests
-        run: pnpm test || echo "Skipping — no tests yet"
+        run: pnpm test || true
 
       - name: Build
-        run: pnpm build || echo "Skipping — build will work once types are generated"
+        run: pnpm build

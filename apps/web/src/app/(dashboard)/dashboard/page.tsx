@@ -1,33 +1,32 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api/client";
+import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 
 export default function DashboardPage() {
+  const headers = () => getAuthHeadersForApi();
+
   const { data: contacts } = useQuery({
     queryKey: ["contacts"],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/contacts");
-      if (error) throw error;
-      return data;
+      const { data } = await apiClient.GET("/contacts", { headers: headers() });
+      return data as { data: Array<{ id: string; first_name: string; last_name: string }>; meta: { total_count: number } };
     },
   });
 
   const { data: deals } = useQuery({
     queryKey: ["deals"],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/deals");
-      if (error) throw error;
-      return data;
+      const { data } = await apiClient.GET("/deals", { headers: headers() });
+      return data as { data: Array<{ id: string; title: string; amount: number }>; meta: { total_count: number } };
     },
   });
 
   const { data: activities } = useQuery({
     queryKey: ["activities"],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/activities");
-      if (error) throw error;
-      return data;
+      const { data } = await apiClient.GET("/activities", { headers: headers() });
+      return data as { data: Array<{ id: string; subject: string; kind: string; created_at: string }>; meta: { total_count: number } };
     },
   });
 
@@ -55,7 +54,7 @@ export default function DashboardPage() {
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
         <div className="space-y-4">
-          {activities?.data?.slice(0, 5).map((activity: any) => (
+          {activities?.data?.slice(0, 5).map((activity) => (
             <div key={activity.id} className="flex items-center justify-between border-b pb-2">
               <div>
                 <p className="font-medium">{activity.subject}</p>

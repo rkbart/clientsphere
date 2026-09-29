@@ -1,11 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api/client";
+import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
+
+const headers = () => getAuthHeadersForApi();
 
 export function useCompanies(params?: Record<string, unknown>) {
   return useQuery({
     queryKey: ["companies", params],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/companies", { params: params as never });
+      const { data, error } = await apiClient.GET("/companies", {
+        params: params as never,
+        headers: headers(),
+      });
       if (error) throw error;
       return data;
     },
@@ -16,7 +21,10 @@ export function useCompany(id: string) {
   return useQuery({
     queryKey: ["companies", id],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/companies/{id}", { params: { path: { id } } });
+      const { data, error } = await apiClient.GET("/companies/{id}", {
+        params: { path: { id } },
+        headers: headers(),
+      });
       if (error) throw error;
       return data;
     },
@@ -27,7 +35,10 @@ export function useCreateCompany() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (company: Record<string, unknown>) => {
-      const { data, error } = await apiClient.POST("/companies", { body: company as never });
+      const { data, error } = await apiClient.POST("/companies", {
+        body: { company: company as never },
+        headers: headers(),
+      });
       if (error) throw error;
       return data;
     },
@@ -44,6 +55,7 @@ export function useUpdateCompany() {
       const { data, error } = await apiClient.PATCH("/companies/{id}", {
         params: { path: { id: id as string } },
         body: company as never,
+        headers: headers(),
       });
       if (error) throw error;
       return data;
@@ -58,7 +70,10 @@ export function useDeleteCompany() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await apiClient.DELETE("/companies/{id}", { params: { path: { id } } });
+      const { error } = await apiClient.DELETE("/companies/{id}", {
+        params: { path: { id } },
+        headers: headers(),
+      });
       if (error) throw error;
     },
     onSuccess: () => {

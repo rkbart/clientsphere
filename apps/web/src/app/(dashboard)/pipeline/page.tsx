@@ -1,30 +1,26 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "@/lib/api/client";
+import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
+
+interface PipelineData {
+  id: string;
+  name: string;
+  is_default: boolean;
+}
 
 export default function PipelinePage() {
+  const headers = () => getAuthHeadersForApi();
+
   const { data: pipelines, isLoading } = useQuery({
     queryKey: ["pipelines"],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/pipelines");
-      if (error) throw error;
-      return data;
+      const { data } = await apiClient.GET("/pipelines", { headers: headers() });
+      return data as unknown as { data: PipelineData[] };
     },
   });
 
-  const { data: deals } = useQuery({
-    queryKey: ["deals"],
-    queryFn: async () => {
-      const { data, error } = await apiClient.GET("/deals");
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  if (isLoading) {
-    return <div className="text-center py-8">Loading...</div>;
-  }
+  if (isLoading) return <div className="text-center py-8">Loading...</div>;
 
   const pipeline = pipelines?.data?.[0];
 
@@ -39,7 +35,7 @@ export default function PipelinePage() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow p-6 text-center">
-          <p className="text-gray-500">No pipelines found. Create one in Settings.</p>
+          <p className="text-gray-500">No pipelines found.</p>
         </div>
       )}
     </div>
