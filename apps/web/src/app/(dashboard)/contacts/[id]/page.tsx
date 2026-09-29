@@ -3,6 +3,8 @@
 import { useContact } from "@/hooks/use-contacts";
 import { NotesSection } from "@/components/shared/notes-section";
 import { ContactTags } from "@/components/contacts/contact-tags";
+import { AiDraftEmail } from "@/components/ai/ai-draft-email";
+import { AiInsights } from "@/components/ai/ai-insights";
 
 interface ContactData {
   id: string;
@@ -46,6 +48,11 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
             ))}
           </ul>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <AiDraftEmail contactId={contact.id} />
+        <AiInsights recordType="Contact" recordId={contact.id} />
       </div>
 
       <ContactTags contactId={contact.id} />

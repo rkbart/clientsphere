@@ -63,3 +63,61 @@ export function useAiChat() {
     },
   });
 }
+
+export function useDraftEmail() {
+  return useMutation({
+    mutationFn: async ({ contactId, purpose }: { contactId: string; purpose?: string }) => {
+      const { data, error } = await apiClient.POST("/ai/draft_email", {
+        body: { contact_id: contactId, purpose },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as { draft?: string };
+    },
+  });
+}
+
+export function useSuggestNextAction() {
+  return useMutation({
+    mutationFn: async ({ recordType, recordId }: { recordType: string; recordId: string }) => {
+      const { data, error } = await apiClient.POST("/ai/suggest_next_action", {
+        body: { record_type: recordType, record_id: recordId },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as { suggestion?: string };
+    },
+  });
+}
+
+export function useSummarizeDeal() {
+  return useMutation({
+    mutationFn: async (dealId: string) => {
+      const { data, error } = await apiClient.POST("/ai/summarize_deal", {
+        body: { deal_id: dealId },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as { summary?: string };
+    },
+  });
+}
+
+export function useEnrichCompany() {
+  return useMutation({
+    mutationFn: async (domain: string) => {
+      const { data, error } = await apiClient.POST("/ai/enrich", {
+        body: { domain },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as {
+        name?: string;
+        industry?: string;
+        description?: string;
+        size_range?: string;
+        annual_revenue?: number | string | null;
+      };
+    },
+  });
+}

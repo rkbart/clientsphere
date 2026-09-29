@@ -3,6 +3,7 @@
 import { useDeal } from "@/hooks/use-deals";
 import { useStages, usePipelines } from "@/hooks/use-pipelines";
 import { NotesSection } from "@/components/shared/notes-section";
+import { AiInsights } from "@/components/ai/ai-insights";
 
 interface DealData {
   id: string;
@@ -53,6 +54,8 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
           </div>
         </div>
       </div>
+
+      <AiInsights recordType="Deal" recordId={deal.id} />
 
       <NotesSection notableType="Deal" notableId={deal.id} />
     </div>
