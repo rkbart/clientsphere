@@ -32,6 +32,6 @@ Be concise and actionable.`,
   scoreContact: (contact: Contact, company?: Company) => `
 Score this contact's lead potential from 0-100 based on available information.
 Contact: ${JSON.stringify(contact)}
-${company ? `Company: ${JSON.stringify(company)` : ""}
+${company ? `Company: ${JSON.stringify(company)}` : ""}
 Return JSON: {"score": number, "reasoning": "..."}`,
 };

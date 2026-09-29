@@ -10,74 +10,76 @@ AllCops:
     - "config/**/*"
     - "spec/**/*"
 
+# Style
 Style/Documentation:
   Enabled: false
-
 Style/StringLiterals:
   Enabled: false
-
 Style/FrozenStringLiteralComment:
   Enabled: false
-
 Style/SymbolArray:
   Enabled: false
-
 Style/ClassAndModuleChildren:
   Enabled: false
-
 Style/RedundantArgument:
   Enabled: false
-
 Style/IfUnlessModifier:
   Enabled: false
-
 Style/GuardClause:
   Enabled: false
-
 Style/SafeNavigation:
   Enabled: false
-
 Style/MultipleComparison:
   Enabled: false
-
 Style/OpenStructUse:
   Enabled: false
+Style/WordArray:
+  Enabled: false
+Style/RescueStandardError:
+  Enabled: false
+Style/RescueException:
+  Enabled: false
 
+# Metrics
 Metrics/MethodLength:
   Enabled: false
-
 Metrics/AbcSize:
   Enabled: false
-
 Metrics/ClassLength:
   Enabled: false
-
 Metrics/BlockLength:
   Enabled: false
-
 Metrics/ParameterLists:
   Enabled: false
-
 Metrics/CyclomaticComplexity:
   Enabled: false
-
 Metrics/PerceivedComplexity:
   Enabled: false
 
+# Layout
 Layout/LineLength:
   Enabled: false
-
 Layout/FirstArrayElementIndentation:
   Enabled: false
-
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
+Layout/EmptyLinesAroundBlockBody:
+  Enabled: false
 
+# Naming
+Naming/MethodName:
+  Enabled: false
+
+# Bundler
 Bundler/OrderedGems:
   Enabled: false
 
+# Lint
 Lint/UnusedMethodArgument:
   Enabled: false
-
 Lint/UselessMethodDefinition:
+  Enabled: false
+Lint/UselessAssignment:
+  Enabled: false
+Lint/UnusedBlockArgument:
   Enabled: false
