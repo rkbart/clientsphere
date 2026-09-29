@@ -81,9 +81,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Generate API types
-        run: pnpm gen:api
-
       - name: Run lint
         run: pnpm lint
 

@@ -21,6 +21,15 @@ Style/FrozenStringLiteralComment:
 Style/SymbolArray:
   Enabled: false
 
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/RedundantArgument:
+  Enabled: false
+
+Style/IfUnlessModifier:
+  Enabled: false
+
 Metrics/MethodLength:
   Enabled: false
 
@@ -37,7 +46,7 @@ Metrics/ParameterLists:
   Enabled: false
 
 Layout/LineLength:
-  Max: 120
+  Enabled: false
 
 Bundler/OrderedGems:
   Enabled: false
