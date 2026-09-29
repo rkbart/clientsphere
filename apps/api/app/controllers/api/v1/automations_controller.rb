@@ -52,6 +52,12 @@ class Api::V1::AutomationsController < Api::V1::BaseController
   end
 
   def automation_params
-    params.require(:automation).permit(:name, :trigger_type, :trigger_config, :conditions, :actions, :is_active)
+    permitted = params.require(:automation).permit(
+      :name, :trigger_type, :is_active,
+      actions: [:type, :subject, :description, :due_days, :tag_name, :stage_id, :webhook_id, :body]
+    )
+    conditions = params[:automation][:conditions]
+    permitted[:conditions] = conditions.to_unsafe_h if conditions.is_a?(ActionController::Parameters)
+    permitted
   end
 end

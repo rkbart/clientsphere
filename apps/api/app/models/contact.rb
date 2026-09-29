@@ -17,6 +17,9 @@ class Contact < ApplicationRecord
   validates :first_name, presence: true
   validates :email, uniqueness: { scope: :account_id }, allow_blank: true
 
+  after_create_commit { Automations::Trigger.call(account, :contact_created, self) }
+  after_update_commit { Automations::Trigger.call(account, :contact_updated, self) }
+
   scope :search, ->(query) { where("first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ?", "%#{query}%", "%#{query}%", "%#{query}%") }
 
   def full_name

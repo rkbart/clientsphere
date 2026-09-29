@@ -3,16 +3,18 @@ class Api::V1::EmailSequenceStepsController < Api::V1::BaseController
   before_action :set_step, only: [:show, :update, :destroy]
 
   def index
-    steps = @email_sequence.steps
+    authorize @email_sequence, :show?
+    steps = policy_scope(EmailSequenceStep).where(sequence: @email_sequence)
     render json: steps
   end
 
   def show
+    authorize @email_sequence, :show?
     render json: @step
   end
 
   def create
-    step = @email_sequence.steps.new(step_params)
+    step = @email_sequence.steps.new(step_params.merge(account_id: @email_sequence.account_id))
     authorize step
     step.save!
     render json: step, status: :created
@@ -33,7 +35,7 @@ class Api::V1::EmailSequenceStepsController < Api::V1::BaseController
   private
 
   def set_email_sequence
-    @email_sequence = EmailSequence.find(params[:email_sequence_id])
+    @email_sequence = Current.account.email_sequences.find(params[:email_sequence_id])
   end
 
   def set_step

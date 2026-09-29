@@ -1,4 +1,5 @@
 class SequenceEnrollment < ApplicationRecord
+  belongs_to :account
   belongs_to :sequence, class_name: "EmailSequence"
   belongs_to :contact
 

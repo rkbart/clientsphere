@@ -16,6 +16,9 @@ class Deal < ApplicationRecord
   validates :title, presence: true
   validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
+  after_create_commit { Automations::Trigger.call(account, :deal_created, self) }
+  after_update_commit :trigger_deal_update_events
+
   scope :by_stage, ->(stage_id) { where(stage_id: stage_id) }
   scope :open, -> { where(closed_at: nil) }
   scope :won, -> { where.not(closed_at: nil).where(stage: { kind: :won }) }
@@ -29,5 +32,16 @@ class Deal < ApplicationRecord
       siblings.insert(index, self)
       siblings.each_with_index { |deal, i| deal.update_column(:position, i) }
     end
+  end
+
+  private
+
+  def trigger_deal_update_events
+    return unless previous_changes.key?("stage_id")
+
+    Automations::Trigger.call(account, :deal_stage_changed, self)
+    new_stage = Stage.find_by(id: stage_id)
+    Automations::Trigger.call(account, :deal_won, self) if new_stage&.won?
+    Automations::Trigger.call(account, :deal_lost, self) if new_stage&.lost?
   end
 end

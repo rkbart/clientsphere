@@ -12,7 +12,17 @@ class Activity < ApplicationRecord
 
   validates :subject, presence: true
 
+  after_update_commit :trigger_activity_completed
+
   scope :incomplete, -> { where(completed_at: nil) }
   scope :complete, -> { where.not(completed_at: nil) }
   scope :due_soon, -> { where("due_at < ?", 3.days.from_now).incomplete }
+
+  private
+
+  def trigger_activity_completed
+    return unless previous_changes.key?("completed_at") && completed_at.present?
+
+    Automations::Trigger.call(account, :activity_completed, self)
+  end
 end

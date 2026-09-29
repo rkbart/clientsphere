@@ -35,14 +35,19 @@ class Api::V1::EmailSequencesController < Api::V1::BaseController
 
   def enroll
     authorize @email_sequence
-    contact = Contact.find(params[:contact_id])
+    contact = Current.account.contacts.find(params[:contact_id])
+    first_step = @email_sequence.steps.first
+    return render json: { error: "Sequence has no steps yet." }, status: :unprocessable_entity unless first_step
+
     enrollment = SequenceEnrollment.create!(
+      account: Current.account,
       sequence: @email_sequence,
       contact: contact,
-      current_step: 1,
+      current_step: first_step.step_order,
       status: :active,
-      next_send_at: Time.current + @email_sequence.steps.first.delay_days.days
+      next_send_at: Time.current + first_step.delay_days.days
     )
+    SequenceStepJob.set(wait_until: enrollment.next_send_at).perform_later(enrollment.id)
     render json: enrollment, status: :created
   end
 

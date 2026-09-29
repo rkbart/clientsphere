@@ -1,4 +1,5 @@
 class EmailSequenceStep < ApplicationRecord
+  belongs_to :account
   belongs_to :sequence, class_name: "EmailSequence"
 
   validates :step_order, presence: true

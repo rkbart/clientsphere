@@ -13,6 +13,7 @@ class Account < ApplicationRecord
   has_many :saved_views, dependent: :destroy
   has_many :automations, dependent: :destroy
   has_many :email_sequences, dependent: :destroy
+  has_many :sequence_enrollments, dependent: :destroy
   has_many :webhooks, dependent: :destroy
   has_one :ai_setting, dependent: :destroy
 

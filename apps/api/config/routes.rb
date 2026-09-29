@@ -72,8 +72,14 @@ Rails.application.routes.draw do
       # Email Sequences
       resources :email_sequences do
         resources :steps, controller: "email_sequence_steps"
+        resources :enrollments, controller: "sequence_enrollments", only: [:index]
         member do
           post :enroll
+        end
+      end
+      resources :sequence_enrollments, only: [:destroy] do
+        member do
+          post :unsubscribe
         end
       end
 

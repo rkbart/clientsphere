@@ -35,6 +35,7 @@ module Automations
 
     def execute_actions(record)
       run = @automation.automation_runs.create!(
+        account_id: @automation.account_id,
         status: :running,
         trigger_data: { record_type: record.class.name, record_id: record.id }
       )
@@ -67,13 +68,34 @@ module Automations
         description: action["description"],
         contact_id: record.is_a?(Contact) ? record.id : nil,
         deal_id: record.is_a?(Deal) ? record.id : nil,
-        creator_id: record.respond_to?(:creator_id) ? record.creator_id : nil,
+        creator_id: task_creator_id(record),
         due_at: action["due_days"]&.days&.from_now || 1.day.from_now
       )
     end
 
+    def task_creator_id(record)
+      return record.creator_id if record.respond_to?(:creator_id) && record.creator_id.present?
+
+      @automation.account.memberships.find_by(role: :owner)&.user_id ||
+        @automation.account.users.first&.id
+    end
+
     def send_email(record, action)
-      # Implementation depends on email service
+      contact =
+        if record.is_a?(Contact)
+          record
+        elsif record.respond_to?(:contact)
+          record.contact
+        end
+      return unless contact
+
+      EmailService.send_email(
+        account: @automation.account,
+        contact: contact,
+        deal: record.is_a?(Deal) ? record : nil,
+        subject: action["subject"].to_s,
+        body: action["body"].to_s
+      )
     end
 
     def add_tag(record, action)
