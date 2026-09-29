@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAiSettings, useDraftEmail } from "@/hooks/use-ai";
 import { errMessage } from "@/lib/ai/error";
+import { isBrowserDirect, browserDirect } from "@/lib/ai/direct";
 import { Sparkles, Copy, Check, RefreshCw, X } from "lucide-react";
 
 const PURPOSES = ["follow-up", "introduction", "proposal", "check-in"];
@@ -13,18 +14,33 @@ export function AiDraftEmail({ contactId, dealId }: { contactId: string; dealId?
   const [purpose, setPurpose] = useState("follow-up");
   const [text, setText] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!settings?.enabled) return null;
 
   const generate = async () => {
     setError(null);
+    setBusy(true);
     try {
-      const result = await draftEmail.mutateAsync({ contactId, purpose, dealId });
-      setText(result.draft || "");
+      let draft: string;
+      if (isBrowserDirect(settings)) {
+        draft = await browserDirect(settings, {
+          kind: "draft_email",
+          contact_id: contactId,
+          purpose,
+          deal_id: dealId,
+        });
+      } else {
+        const result = await draftEmail.mutateAsync({ contactId, purpose, dealId });
+        draft = result.draft || "";
+      }
+      setText(draft);
       setCopied(false);
     } catch (e) {
       setError(errMessage(e, "Could not draft the email."));
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -67,8 +83,8 @@ export function AiDraftEmail({ contactId, dealId }: { contactId: string; dealId?
                 </option>
               ))}
             </select>
-            <button onClick={generate} disabled={draftEmail.isPending} className="btn-primary text-sm">
-              {draftEmail.isPending ? "Drafting…" : "Draft email"}
+            <button onClick={generate} disabled={busy} className="btn-primary text-sm">
+              {busy ? "Drafting…" : "Draft email"}
             </button>
           </div>
           {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
@@ -87,9 +103,9 @@ export function AiDraftEmail({ contactId, dealId }: { contactId: string; dealId?
               {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
               {copied ? "Copied" : "Copy"}
             </button>
-            <button onClick={generate} disabled={draftEmail.isPending} className="btn-ghost text-sm">
+            <button onClick={generate} disabled={busy} className="btn-ghost text-sm">
               <RefreshCw className="h-3.5 w-3.5" />
-              {draftEmail.isPending ? "Redrafting…" : "Regenerate"}
+              {busy ? "Redrafting…" : "Regenerate"}
             </button>
           </div>
           {error && <p className="text-sm text-[var(--danger)]">{error}</p>}

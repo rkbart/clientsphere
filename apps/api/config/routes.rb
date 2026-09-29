@@ -91,6 +91,7 @@ Rails.application.routes.draw do
       get "ai/settings", to: "ai#settings"
       patch "ai/settings", to: "ai#update_settings"
       post "ai/test_connection", to: "ai#test_connection"
+      post "ai/prompts", to: "ai#prompts"
       post "ai/chat", to: "ai#chat"
       post "ai/draft_email", to: "ai#draft_email"
       post "ai/suggest_next_action", to: "ai#suggest_next_action"

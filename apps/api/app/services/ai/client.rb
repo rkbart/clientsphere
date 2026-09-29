@@ -40,6 +40,12 @@ module Ai
       call("summarize_deal", Prompts.summarize_deal(deal, activities), "Summarize the deal now.")
     end
 
+    # Applies the redaction toggle to a prompt pair without invoking the
+    # provider — used by browser-direct mode.
+    def prepare(system_prompt, user_prompt)
+      [mask_pii(system_prompt), mask_pii(user_prompt)]
+    end
+
     private
 
     def call(action, system_prompt, user_prompt)
@@ -73,6 +79,7 @@ module Ai
       client = OpenAI::Client.new(**options)
       response = client.chat.completions.create(
         model: @setting.model,
+        max_tokens: 1024,
         messages: [
           { role: "system", content: system_prompt },
           { role: "user", content: user_prompt }

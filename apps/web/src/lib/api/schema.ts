@@ -1361,6 +1361,31 @@ export interface paths {
       };
     };
   };
+  "/ai/prompts": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            kind?: string;
+            message?: string;
+            contact_id?: string;
+            purpose?: string;
+            deal_id?: string;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              system_prompt?: string;
+              user_prompt?: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/ai/chat": {
     post: {
       requestBody: {

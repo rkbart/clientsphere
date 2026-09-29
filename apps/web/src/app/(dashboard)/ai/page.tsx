@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useAiSettings, useAiChat } from "@/hooks/use-ai";
 import { PROVIDERS } from "@/lib/ai/providers";
+import { isBrowserDirect, browserDirect } from "@/lib/ai/direct";
 import { Send, Bot, User, AlertCircle, Sparkles } from "lucide-react";
 
 interface Message {
@@ -19,6 +20,7 @@ const SUGGESTIONS = [
 ];
 
 function errMessage(error: unknown): string {
+  if (error instanceof Error && error.message) return error.message;
   if (typeof error === "object" && error !== null && "error" in error) {
     const e = (error as { error: unknown }).error;
     if (typeof e === "string") return e;
@@ -33,31 +35,38 @@ export default function AIPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [nextId, setNextId] = useState(1);
+  const [busy, setBusy] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, chat.isPending]);
+  }, [messages, busy]);
 
   const send = async (text: string) => {
     const message = text.trim();
-    if (!message || chat.isPending) return;
+    if (!message || busy) return;
     const userId = nextId;
     const assistantId = nextId + 1;
     setNextId((id) => id + 2);
     setMessages((prev) => [...prev, { id: userId, role: "user", text: message }]);
     setInput("");
+    setBusy(true);
     try {
-      const result = await chat.mutateAsync(message);
-      setMessages((prev) => [
-        ...prev,
-        { id: assistantId, role: "assistant", text: result.response || "(empty response)" },
-      ]);
+      let reply: string;
+      if (settings && isBrowserDirect(settings)) {
+        reply = await browserDirect(settings, { kind: "chat", message });
+      } else {
+        const result = await chat.mutateAsync(message);
+        reply = result.response || "(empty response)";
+      }
+      setMessages((prev) => [...prev, { id: assistantId, role: "assistant", text: reply }]);
     } catch (error) {
       setMessages((prev) => [
         ...prev,
         { id: assistantId, role: "assistant", text: `⚠ ${errMessage(error)}` },
       ]);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -146,7 +155,7 @@ export default function AIPage() {
             </div>
           ))}
 
-          {chat.isPending && (
+          {busy && (
             <div className="flex gap-3 items-center">
               <div className="w-7 h-7 rounded-full bg-[var(--bg-elevated)] flex items-center justify-center shrink-0">
                 <Bot className="h-4 w-4 text-[var(--text-secondary)]" />
@@ -185,7 +194,7 @@ export default function AIPage() {
             className="input resize-none flex-1 min-h-[42px] max-h-32"
             aria-label="Message"
           />
-          <button type="submit" disabled={!input.trim() || chat.isPending} className="btn-primary self-end" aria-label="Send">
+          <button type="submit" disabled={!input.trim() || busy} className="btn-primary self-end" aria-label="Send">
             <Send className="h-4 w-4" />
           </button>
         </form>

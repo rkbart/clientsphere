@@ -1,6 +1,6 @@
 class Api::V1::AiController < Api::V1::BaseController
   before_action :authorize_ai
-  before_action :require_ai_enabled, only: [:chat, :draft_email, :suggest_next_action, :enrich, :summarize_deal]
+  before_action :require_ai_enabled, only: [:prompts, :chat, :draft_email, :suggest_next_action, :enrich, :summarize_deal]
 
   rescue_from Ai::Error, with: :ai_error
 
@@ -22,6 +22,24 @@ class Api::V1::AiController < Api::V1::BaseController
     return render json: { success: false, message: "AI is not configured yet." }, status: :unprocessable_entity unless setting
 
     render json: setting.test_connection!
+  end
+
+  # Returns the assembled prompts without calling the provider, so the browser
+  # can send them directly to a local model (browser-direct mode).
+  def prompts
+    system, user =
+      case params[:kind]
+      when "chat"
+        context = Ai::Context.new(Current.account, params[:message]).chat
+        [Ai::Prompts.chat(context), params[:message].to_s]
+      when "draft_email"
+        contact = find_in_account(Contact, params[:contact_id])
+        [Ai::Prompts.draft_email(contact, params[:purpose], draft_deal_context), "Write the email now."]
+      else
+        raise Ai::Error, "Unknown prompt kind."
+      end
+    system_prompt, user_prompt = ai_client.prepare(system, user)
+    render json: { system_prompt: system_prompt, user_prompt: user_prompt }
   end
 
   def chat
@@ -55,8 +73,8 @@ class Api::V1::AiController < Api::V1::BaseController
 
     deal = find_in_account(Deal, params[:deal_id])
     {
-      deal: Prompts.deal_payload(deal),
-      recent_activities: Prompts.activity_list(deal.activities.order(created_at: :desc).limit(5))
+      deal: Ai::Prompts.deal_payload(deal),
+      recent_activities: Ai::Prompts.activity_list(deal.activities.order(created_at: :desc).limit(5))
     }
   end
 

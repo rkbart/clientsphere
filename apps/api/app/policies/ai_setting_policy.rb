@@ -15,6 +15,10 @@ class AiSettingPolicy < ApplicationPolicy
     member_or_above?
   end
 
+  def prompts?
+    member_or_above?
+  end
+
   def draft_email?
     member_or_above?
   end
