@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useDeals } from "@/hooks/use-deals";
+import { AiNextAction } from "@/components/ai/ai-next-action";
 import { TrendingUp, Users, Activity, ChevronRight, CheckCircle2, Circle } from "lucide-react";
 
 const headers = () => getAuthHeadersForApi();
@@ -23,6 +24,9 @@ interface DealRow {
   id: string;
   stage_id: string;
   amount: string | null;
+  title?: string;
+  expected_close_date?: string | null;
+  closed_at?: string | null;
 }
 
 export default function DashboardPage() {
@@ -84,6 +88,16 @@ export default function DashboardPage() {
     });
   }, [stages, deals]);
   const maxCount = Math.max(1, ...stageStats.map((s) => s.count));
+
+  const nextDeal = useMemo(() => {
+    const open = deals.filter((d) => !d.closed_at);
+    if (open.length === 0) return null;
+    return [...open].sort((a, b) => {
+      const da = a.expected_close_date || "9999-12-31";
+      const db = b.expected_close_date || "9999-12-31";
+      return da < db ? -1 : da > db ? 1 : 0;
+    })[0];
+  }, [deals]);
 
   const statCards = [
     { label: "Contacts", value: stats?.contacts ?? 0, icon: Users, color: "text-[var(--text-primary)]" },
@@ -200,6 +214,16 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Next best action */}
+      {nextDeal && (
+        <AiNextAction
+          recordType="Deal"
+          recordId={nextDeal.id}
+          recordLabel={nextDeal.title}
+          href={`/deals/${nextDeal.id}`}
+        />
+      )}
 
       {/* Recent Activity */}
       <div className="card">
