@@ -1,6 +1,6 @@
 "use client";
 
-import { useContact } from "@/hooks/use-contacts";
+import { useContact, useScoreContact } from "@/hooks/use-contacts";
 import { NotesSection } from "@/components/shared/notes-section";
 import { ContactTags } from "@/components/contacts/contact-tags";
 import { AiDraftEmail } from "@/components/ai/ai-draft-email";
@@ -20,6 +20,7 @@ interface ContactData {
 
 export default function ContactDetailPage({ params }: { params: { id: string } }) {
   const { data, isLoading } = useContact(params.id);
+  const scoreContact = useScoreContact();
   const contact = data as unknown as ContactData | undefined;
 
   if (isLoading) return <div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>;
@@ -41,7 +42,16 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
         </div>
 
         <div className="card p-6">
-          <h2 className="text-lg font-semibold mb-4">Lead Score Reasons</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Lead Score Reasons</h2>
+            <button
+              onClick={() => scoreContact.mutate(contact.id)}
+              disabled={scoreContact.isPending}
+              className="btn-ghost text-xs border border-[var(--border)]"
+            >
+              {scoreContact.isPending ? "Scoring…" : "Re-score"}
+            </button>
+          </div>
           <ul className="space-y-2">
             {contact.score_reasons?.map((reason: string, index: number) => (
               <li key={index} className="text-sm text-[var(--text-primary)]">{reason}</li>

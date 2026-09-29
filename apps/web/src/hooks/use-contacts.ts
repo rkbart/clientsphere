@@ -31,6 +31,24 @@ export function useContact(id: string) {
   });
 }
 
+export function useScoreContact() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await apiClient.POST("/contacts/{id}/score", {
+        params: { path: { id } },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      queryClient.invalidateQueries({ queryKey: ["contacts", id] });
+    },
+  });
+}
+
 export function useCreateContact() {
   const queryClient = useQueryClient();
   return useMutation({
