@@ -19,7 +19,7 @@ export function Topbar() {
         <span className="text-sm text-[var(--text-secondary)]">{user?.name}</span>
         <button
           onClick={handleLogout}
-          className="p-1.5 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)] transition-all duration-150"
+          className="p-1.5 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)]"
           aria-label="Logout"
         >
           <LogOut className="h-4 w-4" />

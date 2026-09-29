@@ -38,9 +38,16 @@
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.08);
 
-  --transition-fast: 120ms cubic-bezier(0.25, 0.1, 0.25, 1);
-  --transition-normal: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
-  --transition-slow: 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  /* Strong easing curves (built-in CSS easings are too weak) */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);      /* entering/exiting */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);  /* on-screen movement */
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);        /* hover/color changes */
+
+  /* Durations — UI stays under 300ms */
+  --duration-press: 160ms;   /* button press feedback (100–160ms) */
+  --duration-fast: 120ms;    /* hover/color changes */
+  --duration-normal: 200ms;  /* entrances, feedback */
+  --duration-slow: 300ms;    /* staggered group items */
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
@@ -68,13 +75,34 @@ body {
   min-height: 100vh;
 }
 
-/* Smooth transitions for interactive elements */
-button, a, input, select, textarea {
-  transition: all var(--transition-fast);
+/* Interactive transitions — exact properties only, never `transition: all` */
+button:not(:disabled),
+a,
+.btn {
+  transition:
+    transform var(--duration-press) var(--ease-out),
+    color var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease),
+    opacity var(--duration-fast) var(--ease);
 }
 
-button:active, a:active {
-  transform: scale(0.98);
+input,
+select,
+textarea {
+  transition:
+    color var(--duration-fast) var(--ease),
+    background-color var(--duration-fast) var(--ease),
+    border-color var(--duration-fast) var(--ease),
+    box-shadow var(--duration-fast) var(--ease);
+}
+
+/* Press feedback — scale(0.97) over 160ms ease-out, interruptible */
+button:not(:disabled):active,
+a:active,
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 /* Focus styles */
@@ -109,10 +137,15 @@ button:active, a:active {
   color: var(--text-inverse);
 }
 
-/* Animations */
+/* Animations — entrance = ease-out, never scale(0) */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOnly {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideIn {
@@ -126,20 +159,20 @@ button:active, a:active {
 }
 
 .animate-fade-in {
-  animation: fadeIn var(--transition-normal) ease-out;
+  animation: fadeIn var(--duration-normal) var(--ease-out) both;
 }
 
 .animate-slide-in {
-  animation: slideIn var(--transition-normal) ease-out;
+  animation: slideIn var(--duration-normal) var(--ease-out) both;
 }
 
 .animate-scale-in {
-  animation: scaleIn var(--transition-normal) ease-out;
+  animation: scaleIn var(--duration-normal) var(--ease-out) both;
 }
 
-/* Stagger children */
+/* Stagger children — 50ms increments (30–80ms band), never blocks interaction */
 .stagger > * {
-  animation: fadeIn var(--transition-normal) ease-out both;
+  animation: fadeIn var(--duration-slow) var(--ease-out) both;
 }
 
 .stagger > *:nth-child(1) { animation-delay: 0ms; }
@@ -152,7 +185,8 @@ button:active, a:active {
 /* Table styles */
 @layer components {
   .table-row {
-    @apply border-b border-[var(--border-subtle)] transition-colors duration-150;
+    @apply border-b border-[var(--border-subtle)];
+    transition: background-color var(--duration-fast) var(--ease);
   }
 
   .table-row:hover {
@@ -169,20 +203,17 @@ button:active, a:active {
 
   /* Card */
   .card {
-    @apply bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)] transition-shadow duration-200;
+    @apply bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)];
+    transition: box-shadow var(--duration-normal) var(--ease);
   }
 
   .card:hover {
     box-shadow: var(--shadow-md);
   }
 
-  /* Button */
+  /* Button — transitions come from the unlayered interactive block above */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 rounded-[var(--radius-md)] disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn:active:not(:disabled) {
-    transform: scale(0.97);
+    @apply inline-flex items-center justify-center gap-2 font-medium rounded-[var(--radius-md)] disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-primary {
@@ -212,7 +243,7 @@ button:active, a:active {
 
   /* Input */
   .input {
-    @apply w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-md)] bg-[var(--bg-card)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] transition-all duration-150;
+    @apply w-full px-3 py-2 text-sm border border-[var(--border)] rounded-[var(--radius-md)] bg-[var(--bg-card)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)];
   }
 
   .input:focus {
@@ -244,5 +275,22 @@ button:active, a:active {
 
   .badge-neutral {
     @apply badge bg-[var(--accent-soft)] text-[var(--text-secondary)];
+  }
+}
+
+/* Reduced motion — fewer and gentler, not zero: keep fades, drop movement */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-in,
+  .animate-scale-in,
+  .stagger > * {
+    animation: fadeOnly 0.2s ease both;
+    animation-delay: 0ms;
+  }
+
+  button:not(:disabled):active,
+  a:active,
+  .btn:active:not(:disabled) {
+    transform: none;
   }
 }

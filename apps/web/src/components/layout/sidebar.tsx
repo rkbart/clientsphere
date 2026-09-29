@@ -56,7 +56,7 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm transition-all duration-150 group ${
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm group ${
                 isActive
                   ? "bg-[var(--bg-sidebar-active)] text-white"
                   : "text-[var(--text-sidebar)] hover:bg-[var(--bg-sidebar-hover)] hover:text-white"
@@ -81,7 +81,7 @@ export function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm transition-all duration-150 ${
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm ${
                 isActive
                   ? "bg-[var(--bg-sidebar-active)] text-white"
                   : "text-[var(--text-sidebar)] hover:bg-[var(--bg-sidebar-hover)] hover:text-white"
