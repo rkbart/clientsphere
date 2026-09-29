@@ -131,7 +131,7 @@ export async function testLocalConnection(config?: AIConfig): Promise<string> {
     return "Server-side only for this provider";
   }
   try {
-    await callLocalAI(config ?? {}, "Reply with exactly: ok", "ok");
+    await callLocalAI(config ?? { provider: "ollama" }, "Reply with exactly: ok", "ok");
     return "Connected.";
   } catch (err) {
     throw new Error(`${displayName(r.def)} connection failed: ${err instanceof Error ? err.message : "Unknown error"}`);

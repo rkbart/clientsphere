@@ -5,15 +5,24 @@ const API_BASE = "/api/v1";
 
 export const apiClient = createClient<paths>({
   baseUrl: API_BASE,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
+let authToken: string | null = null;
+
 export function setAuthToken(token: string) {
-  apiClient.headers.Authorization = `Bearer ${token}`;
+  authToken = token;
 }
 
 export function clearAuthToken() {
-  delete apiClient.headers.Authorization;
+  authToken = null;
+}
+
+export function getHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+  return headers;
 }

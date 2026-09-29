@@ -23,7 +23,7 @@ module Leads
       score_email_engagement
       score_missing_fields
 
-      @score = [[@score, 0].max, 100].min
+      @score = @score.clamp(0, 100)
 
       @contact.update!(
         lead_score: @score,
@@ -49,7 +49,7 @@ module Leads
         @reasons << "Active within 30 days (+#{WEIGHTS[:recency] / 2})"
       else
         @score -= WEIGHTS[:recency]
-        @reasons << "No activity in #{days_since} days (−#{WEIGHTS[:recency]})"
+        @reasons << "No activity in #{days_since} days (\u2212#{WEIGHTS[:recency]})"
       end
     end
 
@@ -83,7 +83,7 @@ module Leads
       return if deals.empty?
 
       won_count = deals.count { |d| d.stage.kind == "won" }
-      if won_count > 0
+      if won_count.positive?
         @score += WEIGHTS[:stage_progress]
         @reasons << "Won #{won_count} deal(s) (+#{WEIGHTS[:stage_progress]})"
       end

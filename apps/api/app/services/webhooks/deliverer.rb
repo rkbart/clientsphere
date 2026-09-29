@@ -19,30 +19,27 @@ module Webhooks
         status: :pending
       )
 
-      begin
-        response = HTTP.timeout(10)
-          .headers(
-            "Content-Type" => "application/json",
-            "X-Webhook-Signature" => signature
-          )
-          .post(@webhook.url, body: payload)
+      response = HTTP.timeout(10)
+                      .headers(
+                        "Content-Type" => "application/json",
+                        "X-Webhook-Signature" => signature
+                      )
+                      .post(@webhook.url, body: payload)
 
-        delivery.update!(
-          status: response.status.success? ? :success : :failed,
-          response_status: response.status,
-          delivered_at: Time.current
-        )
-      rescue HTTP::Error, HTTP::TimeoutError => e
-        delivery.update!(
-          status: :failed,
-          response_status: 0,
-          attempts: delivery.attempts + 1
-        )
+      delivery.update!(
+        status: response.status.success? ? :success : :failed,
+        response_status: response.status,
+        delivered_at: Time.current
+      )
+    rescue HTTP::Error, HTTP::TimeoutError
+      delivery.update!(
+        status: :failed,
+        response_status: 0,
+        attempts: delivery.attempts + 1
+      )
 
-        # Retry with backoff
-        if delivery.attempts < 3
-          WebhookDeliveryJob.set(wait: (2 ** delivery.attempts).minutes).perform_later(delivery.id)
-        end
+      if delivery.attempts < 3
+        WebhookDeliveryJob.set(wait: (2**delivery.attempts).minutes).perform_later(delivery.id)
       end
     end
   end
