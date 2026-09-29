@@ -34,32 +34,28 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version-file: apps/api/.ruby-version
           bundler-cache: true
+          working-directory: apps/api
 
       - name: Set up database
         env:
           DATABASE_URL: postgres://clientsphere:clientsphere@localhost:5432/clientsphere_test
-        run: |
-          bin/rails db:setup
+        run: bin/rails db:setup
 
       - name: Run RSpec
         env:
           DATABASE_URL: postgres://clientsphere:clientsphere@localhost:5432/clientsphere_test
-        run: |
-          bundle exec rspec
+        run: bundle exec rspec
 
       - name: Run RuboCop
-        run: |
-          bundle exec rubocop
+        run: bundle exec rubocop
 
       - name: Run Brakeman
-        run: |
-          bundle exec brakeman --no-pager
+        run: bundle exec brakeman --no-pager
 
       - name: Run bundler-audit
-        run: |
-          bundle exec bundler-audit check --update
+        run: bundle exec bundler-audit check --update
 
   web:
     runs-on: ubuntu-latest
@@ -70,14 +66,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
-
-      - name: Install pnpm
-        run: npm install -g pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Install dependencies
         run: pnpm install
