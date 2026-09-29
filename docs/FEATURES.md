@@ -10,14 +10,14 @@
 - Soft delete (discard)
 - Unique email per account
 - Lead scoring with explainable reasons + Re-score button
-- Create/edit forms: not yet in the UI (API + CSV import available)
+- Create/edit forms (full-page, server 422 displayed inline)
 
 ### Companies
 - List with search, detail pages
 - Linked contacts and deals
 - Enrichment from domain (user-confirmed)
 - Soft delete
-- Create/edit forms: not yet in the UI (API + CSV import available)
+- Create/edit forms (full-page, server 422 displayed inline)
 
 ### Deals
 - Pipelines with customizable stages (API)
@@ -32,7 +32,7 @@
 - Due dates and completion tracking
 - Assigned to team members
 - Surfaced in the dashboard (tasks due, recent activity)
-- Logging UI: not yet in the UI (API available)
+- Logging UI on the Activities page (new + edit)
 
 ### Notes
 - Polymorphic notes on any record

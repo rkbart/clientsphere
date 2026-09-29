@@ -18,8 +18,8 @@ Go to Contacts. Use the debounced search box, the status filter
 (lead / customer / churned) and the tag filter. "Clear filters" resets
 everything. Open a contact to see details, notes and tags.
 
-> Record create/edit forms are not in the UI yet — add records through
-> CSV import (Step 9) or the API.
+> "Add Contact/Company/Deal" buttons open full-page forms; each detail
+> page has an Edit button. Validation errors show inline.
 
 ## Step 4: Work the pipeline
 

@@ -9,7 +9,7 @@
 - [x] Dashboard (open deals by stage, tasks due, recent activity)
 - [x] CSV import/export (basic mapping, error report)
 - [x] Foundations (hand-written typed client, CI, Docker Compose, seeds; Swagger UI deferred)
-- [ ] Create/edit forms for contacts, companies, deals, activities (backend CRUD ready; UI pending)
+- [x] Create/edit forms for contacts, companies, deals, activities (full-page forms + detail Edit buttons)
 
 ## Phase 2: Intelligence (Weeks 5–8)
 
