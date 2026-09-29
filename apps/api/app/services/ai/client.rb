@@ -1,6 +1,4 @@
 module Ai
-  class Error < StandardError; end
-
   class Client
     EMAIL_PATTERN = /\b[\w.%+-]+@[\w.-]+\.\w{2,}\b/
     PHONE_PATTERN = /\+?\d[\d\s().-]{7,}\d/

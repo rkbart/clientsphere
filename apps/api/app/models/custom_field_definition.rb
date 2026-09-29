@@ -15,7 +15,7 @@ class CustomFieldDefinition < ApplicationRecord
     currency: 10,
     percentage: 11,
     text_area: 12
-  }
+  }, scopes: false
 
   validates :key, presence: true, uniqueness: { scope: [:account_id, :entity_type] }
   validates :label, presence: true
