@@ -10,7 +10,7 @@ interface ContactData {
   last_name: string;
   email: string;
   phone: string;
-  status: number;
+  status: "lead" | "customer" | "churned" | null;
   lead_score: number;
   score_reasons: string[];
   created_at: string;
@@ -33,7 +33,7 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
           <dl className="space-y-3">
             <div><dt className="text-sm text-[var(--text-secondary)]">Email</dt><dd className="mt-1">{contact.email}</dd></div>
             <div><dt className="text-sm text-[var(--text-secondary)]">Phone</dt><dd className="mt-1">{contact.phone}</dd></div>
-            <div><dt className="text-sm text-[var(--text-secondary)]">Status</dt><dd className="mt-1 capitalize">{contact.status}</dd></div>
+            <div><dt className="text-sm text-[var(--text-secondary)]">Status</dt><dd className="mt-1 capitalize">{contact.status ?? "lead"}</dd></div>
             <div><dt className="text-sm text-[var(--text-secondary)]">Lead Score</dt><dd className="mt-1">{contact.lead_score}</dd></div>
           </dl>
         </div>

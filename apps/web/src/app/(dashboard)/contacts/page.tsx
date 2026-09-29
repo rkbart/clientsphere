@@ -13,8 +13,21 @@ interface Contact {
   email: string;
   phone: string;
   lead_score: number;
-  status: number;
+  status: "lead" | "customer" | "churned" | null;
 }
+
+const STATUS_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "lead", label: "Lead" },
+  { value: "customer", label: "Customer" },
+  { value: "churned", label: "Churned" },
+];
+
+const STATUS_BADGE: Record<string, string> = {
+  lead: "badge-warning",
+  customer: "badge-success",
+  churned: "badge-neutral",
+};
 
 interface ContactsResponse {
   data: Contact[];
@@ -25,6 +38,7 @@ export default function ContactsPage() {
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [tagId, setTagId] = useState("");
+  const [status, setStatus] = useState("");
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedQ(q), 300);
@@ -34,11 +48,12 @@ export default function ContactsPage() {
   const { data, isLoading } = useContacts({
     q: debouncedQ || undefined,
     tag_id: tagId || undefined,
+    status: status || undefined,
     per_page: 25,
   });
   const { data: tags } = useTags();
   const typed = data as unknown as ContactsResponse;
-  const isFiltered = !!debouncedQ || !!tagId;
+  const isFiltered = !!debouncedQ || !!tagId || !!status;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -72,6 +87,18 @@ export default function ContactsPage() {
         </div>
         <div className="flex gap-2">
           <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="input w-auto"
+            aria-label="Filter by status"
+          >
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <select
             value={tagId}
             onChange={(e) => setTagId(e.target.value)}
             className="input w-auto min-w-[10rem]"
@@ -89,6 +116,7 @@ export default function ContactsPage() {
               onClick={() => {
                 setQ("");
                 setTagId("");
+                setStatus("");
               }}
               className="btn-ghost"
               aria-label="Clear filters"
@@ -101,11 +129,12 @@ export default function ContactsPage() {
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px]">
+        <table className="w-full min-w-[680px]">
           <thead>
             <tr className="border-b border-[var(--border)]">
               <th className="table-cell table-header text-left">Name</th>
               <th className="table-cell table-header text-left">Email</th>
+              <th className="table-cell table-header text-left">Status</th>
               <th className="table-cell table-header text-left">Phone</th>
               <th className="table-cell table-header text-left">Score</th>
               <th className="table-cell table-header text-right">Actions</th>
@@ -117,6 +146,7 @@ export default function ContactsPage() {
                 <tr key={i} className="table-row">
                   <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-32 animate-pulse" /></td>
                   <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-40 animate-pulse" /></td>
+                  <td className="table-cell"><div className="h-5 bg-[var(--bg-elevated)] rounded-full w-16 animate-pulse" /></td>
                   <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-24 animate-pulse" /></td>
                   <td className="table-cell"><div className="h-5 bg-[var(--bg-elevated)] rounded-full w-8 animate-pulse" /></td>
                   <td className="table-cell text-right"><div className="h-4 bg-[var(--bg-elevated)] rounded w-12 animate-pulse ml-auto" /></td>
@@ -134,6 +164,11 @@ export default function ContactsPage() {
                     </Link>
                   </td>
                   <td className="table-cell text-[var(--text-secondary)]">{contact.email}</td>
+                  <td className="table-cell">
+                    <span className={`badge ${contact.status ? STATUS_BADGE[contact.status] : "badge-neutral"}`}>
+                      {contact.status ?? "lead"}
+                    </span>
+                  </td>
                   <td className="table-cell text-[var(--text-secondary)]">{contact.phone}</td>
                   <td className="table-cell">
                     <span className={`badge ${

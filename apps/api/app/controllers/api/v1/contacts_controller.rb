@@ -1,10 +1,18 @@
 class Api::V1::ContactsController < Api::V1::BaseController
   before_action :set_contact, only: [:show, :update, :destroy, :export, :erase, :score]
+  before_action :validate_contact_status, only: [:create, :update]
 
   def index
     contacts = policy_scope(Contact)
     contacts = contacts.search(params[:q]) if params[:q].present?
-    contacts = contacts.where(status: params[:status]) if params[:status].present?
+    if params[:status].present?
+      unless Contact.statuses.key?(params[:status])
+        return render json: { error: "status must be one of: #{Contact.statuses.keys.join(', ')}" },
+                      status: :unprocessable_entity
+      end
+
+      contacts = contacts.where(status: params[:status])
+    end
     contacts = contacts.joins(:taggings).where(taggings: { tag_id: params[:tag_id] }) if params[:tag_id].present?
     contacts = contacts.order(params[:sort] || :created_at).reverse_order
 
@@ -65,6 +73,14 @@ class Api::V1::ContactsController < Api::V1::BaseController
 
   def set_contact
     @contact = Contact.find(params[:id])
+  end
+
+  def validate_contact_status
+    status = params.dig(:contact, :status)
+    return if status.blank? || Contact.statuses.key?(status)
+
+    render json: { error: "status must be one of: #{Contact.statuses.keys.join(', ')}" },
+           status: :unprocessable_entity
   end
 
   def contact_params

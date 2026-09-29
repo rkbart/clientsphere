@@ -5,7 +5,7 @@ export interface paths {
       parameters: {
         query: {
           q?: string;
-          status?: number;
+          status?: string;
           tag_id?: string;
           sort?: string;
           page?: number;

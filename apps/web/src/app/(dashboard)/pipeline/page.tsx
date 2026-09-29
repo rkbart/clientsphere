@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
-import { usePipelines, useStages, type Stage } from "@/hooks/use-pipelines";
+import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
+import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useDeals, useMoveDeal } from "@/hooks/use-deals";
 
 interface Deal {
@@ -35,9 +36,6 @@ export default function PipelinePage() {
   );
   const moveDeal = useMoveDeal();
 
-  const [dragId, setDragId] = useState<string | null>(null);
-  const [overStage, setOverStage] = useState<string | null>(null);
-
   const deals = (dealsRes as unknown as DealsResponse)?.data ?? [];
 
   const byStage = useMemo(() => {
@@ -50,28 +48,15 @@ export default function PipelinePage() {
     return map;
   }, [deals, stages]);
 
-  const handleDrop = (e: React.DragEvent, stage: Stage) => {
-    e.preventDefault();
-    const id = e.dataTransfer.getData("text/plain") || dragId;
-    setOverStage(null);
-    setDragId(null);
-    if (!id) return;
-
-    const cards = Array.from(
-      e.currentTarget.querySelectorAll<HTMLElement>("[data-deal-card]")
-    );
-    let index = cards.length;
-    for (let i = 0; i < cards.length; i++) {
-      const rect = cards[i].getBoundingClientRect();
-      if (e.clientY < rect.top + rect.height / 2) {
-        index = i;
-        break;
-      }
-    }
-    const fromIdx = cards.findIndex((c) => c.dataset.dealId === id);
-    if (fromIdx !== -1 && fromIdx < index) index -= 1;
-
-    moveDeal.mutate({ id, stage_id: stage.id, position: index });
+  const handleDragEnd = (result: DropResult) => {
+    const { draggableId, destination, source } = result;
+    if (!destination) return;
+    if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+    moveDeal.mutate({
+      id: draggableId,
+      stage_id: destination.droppableId,
+      position: destination.index,
+    });
   };
 
   if (pipelinesLoading || stagesLoading || dealsLoading) {
@@ -97,98 +82,88 @@ export default function PipelinePage() {
       </div>
 
       {stages && stages.length > 0 ? (
-        <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-          {stages.map((stage) => {
-            const list = byStage[stage.id] ?? [];
-            const total = list.reduce((sum, d) => sum + (parseFloat(d.amount || "0") || 0), 0);
-            const isOver = overStage === stage.id;
-            return (
-              <div
-                key={stage.id}
-                data-stage-column={stage.id}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.dataTransfer.dropEffect = "move";
-                  if (overStage !== stage.id) setOverStage(stage.id);
-                }}
-                onDragLeave={(e) => {
-                  if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                    setOverStage(null);
-                  }
-                }}
-                onDrop={(e) => handleDrop(e, stage)}
-                className={`w-72 shrink-0 bg-[var(--bg-card)] border rounded-[var(--radius-lg)] flex flex-col max-h-[calc(100vh-240px)] transition-shadow duration-200 ${
-                  isOver
-                    ? "border-[var(--accent)] shadow-[var(--shadow-md)]"
-                    : "border-[var(--border)]"
-                }`}
-              >
-                <div className="px-4 py-3 border-b border-[var(--border-subtle)]">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                      style={{ backgroundColor: stage.color || "#a8a29e" }}
-                    />
-                    <span className="text-sm font-medium truncate">{stage.name}</span>
-                    <span className="ml-auto badge badge-neutral">{list.length}</span>
-                  </div>
-                  <p className="text-xs text-[var(--text-tertiary)] mt-1 tabular-nums">
-                    {formatMoney(total)}
-                    {stage.kind !== "open" && ` · ${stage.probability}%`}
-                  </p>
-                </div>
-
-                <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[80px]">
-                  {list.map((deal) => (
-                    <Link
-                      key={deal.id}
-                      href={`/deals/${deal.id}`}
-                      data-deal-card
-                      data-deal-id={deal.id}
-                      draggable
-                      onDragStart={(e) => {
-                        e.dataTransfer.setData("text/plain", deal.id);
-                        e.dataTransfer.effectAllowed = "move";
-                        setDragId(deal.id);
-                      }}
-                      onDragEnd={() => {
-                        setDragId(null);
-                        setOverStage(null);
-                      }}
-                      onClick={(e) => {
-                        if (dragId) e.preventDefault();
-                      }}
-                      className={`block bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-md)] p-3 cursor-grab active:cursor-grabbing transition-opacity duration-150 hover:border-[var(--text-tertiary)] ${
-                        dragId === deal.id ? "opacity-40" : ""
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+            {stages.map((stage) => {
+              const list = byStage[stage.id] ?? [];
+              const total = list.reduce((sum, d) => sum + (parseFloat(d.amount || "0") || 0), 0);
+              return (
+                <Droppable key={stage.id} droppableId={stage.id}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`w-72 shrink-0 bg-[var(--bg-card)] border rounded-[var(--radius-lg)] flex flex-col max-h-[calc(100vh-240px)] transition-shadow duration-200 ${
+                        snapshot.isDraggingOver
+                          ? "border-[var(--accent)] shadow-[var(--shadow-md)]"
+                          : "border-[var(--border)]"
                       }`}
                     >
-                      <p className="text-sm font-medium leading-snug">{deal.title}</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-sm text-[var(--text-secondary)] tabular-nums">
-                          {deal.amount ? `$${parseFloat(deal.amount).toLocaleString()}` : "—"}
-                        </span>
-                        {deal.expected_close_date && (
-                          <span className="text-xs text-[var(--text-tertiary)]">
-                            {new Date(deal.expected_close_date).toLocaleDateString(undefined, {
-                              month: "short",
-                              day: "numeric",
-                            })}
-                          </span>
-                        )}
+                      <div className="px-4 py-3 border-b border-[var(--border-subtle)]">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: stage.color || "#a8a29e" }}
+                          />
+                          <span className="text-sm font-medium truncate">{stage.name}</span>
+                          <span className="ml-auto badge badge-neutral">{list.length}</span>
+                        </div>
+                        <p className="text-xs text-[var(--text-tertiary)] mt-1 tabular-nums">
+                          {formatMoney(total)}
+                          {stage.kind !== "open" && ` · ${stage.probability}%`}
+                        </p>
                       </div>
-                    </Link>
-                  ))}
 
-                  {list.length === 0 && isOver && (
-                    <div className="h-16 border border-dashed border-[var(--border)] rounded-[var(--radius-md)] flex items-center justify-center text-xs text-[var(--text-tertiary)]">
-                      Drop here
+                      <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[80px]">
+                        {list.map((deal, index) => (
+                          <Draggable key={deal.id} draggableId={deal.id} index={index}>
+                            {(cardProvided, cardSnapshot) => (
+                              <div
+                                ref={cardProvided.innerRef}
+                                {...cardProvided.draggableProps}
+                                {...cardProvided.dragHandleProps}
+                                style={cardProvided.draggableProps.style}
+                              >
+                                <Link
+                                  href={`/deals/${deal.id}`}
+                                  className={`block bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-md)] p-3 cursor-grab active:cursor-grabbing transition-opacity duration-150 hover:border-[var(--text-tertiary)] ${
+                                    cardSnapshot.isDragging ? "opacity-40 shadow-[var(--shadow-md)]" : ""
+                                  }`}
+                                >
+                                  <p className="text-sm font-medium leading-snug">{deal.title}</p>
+                                  <div className="flex items-center justify-between mt-2">
+                                    <span className="text-sm text-[var(--text-secondary)] tabular-nums">
+                                      {deal.amount ? `$${parseFloat(deal.amount).toLocaleString()}` : "—"}
+                                    </span>
+                                    {deal.expected_close_date && (
+                                      <span className="text-xs text-[var(--text-tertiary)]">
+                                        {new Date(deal.expected_close_date).toLocaleDateString(undefined, {
+                                          month: "short",
+                                          day: "numeric",
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+                                </Link>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+
+                        {list.length === 0 && snapshot.isDraggingOver && (
+                          <div className="h-16 border border-dashed border-[var(--border)] rounded-[var(--radius-md)] flex items-center justify-center text-xs text-[var(--text-tertiary)]">
+                            Drop here
+                          </div>
+                        )}
+                        {provided.placeholder}
+                      </div>
                     </div>
                   )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                </Droppable>
+              );
+            })}
+          </div>
+        </DragDropContext>
       ) : (
         <div className="card p-6 text-center">
           <p className="text-[var(--text-secondary)]">No pipeline found.</p>

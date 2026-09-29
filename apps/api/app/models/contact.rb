@@ -2,6 +2,8 @@ class Contact < ApplicationRecord
   include Discard::Model
   include PaperTrail::Model
 
+  enum :status, { lead: 0, customer: 1, churned: 2 }, default: :lead
+
   belongs_to :account
   belongs_to :company, optional: true
   belongs_to :owner, class_name: "User", optional: true
