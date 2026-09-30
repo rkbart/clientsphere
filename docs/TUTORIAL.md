@@ -1,98 +1,398 @@
-# Tutorial
+# ClientSphere Tutorial
 
-## Step 1: Set up your account
+A complete guide to using your CRM — from first login to advanced automation.
 
-Sign up with email/password. Your account and workspace are created automatically.
+## Getting Started
 
-## Step 2: Explore your data
+### Sign up
 
-Seeded demo data (Bean & Brew Coffee Supplies) gives you contacts, companies,
-deals and activities to explore. Browse Contacts, Companies and Deals from
-the sidebar.
+1. Go to `/signup`
+2. Enter your name, email, password (min 8 characters), and workspace name
+3. You're logged in immediately — your workspace is ready
 
-Sign-in for the seed data: `sarah@beanandbrew.com` / `password123`.
+### Explore the demo data
 
-## Step 3: Filter contacts and save the view
+Sign in with the seed account to explore:
 
-Go to Contacts. Use the debounced search box, the status filter
-(lead / customer / churned) and the tag filter. "Clear filters" resets
-everything. Open a contact to see details, notes and tags.
+```
+Email: sarah@beanandbrew.com
+Password: password123
+```
 
-With filters set, click **Save view**, give it a name, and optionally share
-it with the team. Re-apply it anytime from the view dropdown. Manage or
-rename views in Settings → Saved Views.
+The demo workspace (Bean & Brew Coffee Supplies) includes:
+- 11 contacts across 8 companies
+- 9 deals in various stages (including won/lost)
+- Tags, notes, activities, and email history
+- A default sales pipeline with 6 stages
 
-## Step 3b: Custom fields
+---
 
-Settings → Custom Fields defines typed extra fields per record type (text,
-number, date, select, …). They appear automatically on create/edit forms
-and on detail pages, and list endpoints accept `?custom[key]=value` filters.
+## Dashboard
 
-## Step 4: Work the pipeline
+Your home screen shows:
 
-> "Add Contact/Company/Deal" buttons open full-page forms; each detail
-> page has an Edit button. Validation errors show inline.
+- **Stats** — total contacts, deals, and activities
+- **Pipeline by stage** — visual bar chart of deal value per stage
+- **Outcomes & win rate** — donut chart of open/won/lost deals
+- **Deals by source** — pie chart showing where deals come from
+- **Tasks due** — open activities sorted by due date
+- **Next best action** — AI-suggested next step for your most urgent deal
+- **Recent activity** — latest actions across all records
 
-## Step 4: Work the pipeline
+---
 
-Go to Pipeline. Drag deal cards between stages (works with mouse and
-touch). Open a deal to see stage, pipeline, value and notes.
+## Contacts
 
-## Step 5: Take notes and tag records
+### List view
 
-On any contact, company or deal detail page: add notes in the Notes
-section, and attach/detach tags with the tag chips.
+- **Search** — debounced search across name and email
+- **Filter by status** — lead, customer, or churned
+- **Filter by tag** — click a tag to filter
+- **Saved views** — save filter combinations for quick access
 
-## Step 6: Configure AI
+### Detail page
 
-Go to Settings → AI. Pick a provider (Groq for free, or Ollama for local),
-add your API key if the provider needs one, choose a model, then **Test
-connection** and **Save**. Turn on **Enable AI** — the page shows whether
-your data goes through the server (Server) or straight to a local model
-from your browser (Local).
+Click any contact to see:
+- Contact info (email, phone, status, lead score)
+- Lead score reasons (click **Re-score** to recalculate)
+- Custom fields (if defined)
+- Tags — add/remove with the tag chips
+- Notes — add notes with ⌘/Ctrl + Enter to save
+- AI features — draft email, insights, next action
 
-## Step 7: Use AI features
+### Create / edit
 
-- **AI Assistant** (`/ai` in the sidebar): ask questions about your CRM data
-- **Contact page**: "Draft Email" card + "AI Insights" (next action) +
-  "Re-score" button
-- **Deal page**: draft an email to the deal's contact, suggest next action,
-  summarize the deal
-- **Company page**: "Enrich Company" previews suggested fields — apply only
-  what you want
-- **Dashboard**: "Next best action" widget for your most urgent open deal
+Click **Add Contact** or the **Edit** button on any detail page. The form includes:
+- Standard fields (name, email, phone, status, company)
+- Custom fields (automatically appear if defined)
+- Validation errors show inline
 
-## Step 8: Import existing data
+---
 
-Go to Settings → Import/Export. Upload a CSV of contacts: map each column
-to a field (headers like "First Name" auto-match), choose Skip vs Update
-for existing emails, and review the per-row error report. Export buttons
-on the same page download contacts, companies or deals.
+## Companies
 
-## Step 9: Export your data
+Same pattern as contacts:
+- List with search and filters
+- Detail page with notes, tags, and custom fields
+- **Enrich Company** (AI) — previews suggested fields from the company domain; apply only what you want
 
-Same page: export contacts, companies or deals as CSV for backup or
-migration. Individual contact export/erase also exist on the API.
+---
 
-## Step 10: Automate and integrate
+## Deals & Pipeline
 
-- **Automations** (`/automations`): trigger/action rules (create tasks, tag,
-  move stages, call webhooks) with a run history
-- **Sequences** (`/sequences`): multi-step email drips with unsubscribe links
-- **Webhooks** (Settings → Webhooks): signed deliveries with a log
-- **Jobs** (`http://localhost:3000/jobs`, basic auth): Solid Queue dashboard
-- **API tokens** (Settings → API Tokens): `csk_…` tokens for scripts, used as
-  `Authorization: Bearer` — see the live reference at `/api-docs`
-- **Team** (Settings → Team): invite members by email, manage roles
+### Pipeline board
 
-## Step 11: Make it yours
+Go to **Pipeline** to see a Kanban board:
+- Drag cards between stages (mouse or touch)
+- Click a card to open the deal
+- Visual stage colors and probability indicators
 
-- Toggle dark mode from the top bar (follows your OS setting by default)
-- Dashboard analytics: pipeline value by stage, win rate, deals by source
-- "Continue with Google" appears once `GOOGLE_CLIENT_ID/SECRET` are set
-  (see [SETUP.md](SETUP.md))
+### Deal detail
 
-## Coming later (see [ROADMAP.md](ROADMAP.md))
+- Title, amount, currency, source
+- Pipeline and stage
+- Linked contact and company
+- Expected close date and probability
+- Custom fields, notes, tags
+- AI features — draft email, summarize, next action
 
-- Visual workflow builder, custom objects, GraphQL API
-- Email/calendar sync, Zapier/Make, plugin system
+### Create a deal
+
+Click **Add Deal**. You must select a pipeline and stage. The form includes:
+- Standard fields (title, amount, probability, dates)
+- Custom fields (automatically appear)
+- Contact and company links
+
+---
+
+## Activities & Calendar
+
+### Activities list
+
+Go to **Activities** to see all calls, meetings, tasks, and emails:
+- Filter by kind (call, meeting, task, email, other)
+- Filter by completion status
+- Click to edit or complete
+
+### Calendar view
+
+Go to **Calendar** for a month grid:
+- Activities shown on their due date
+- Color dots indicate activity type
+- Click an activity to edit it
+- Navigate months with arrows or arrow keys
+- **Today** button jumps to current month
+
+### Log an activity
+
+Click **Log Activity** from the activities or calendar page:
+- Choose kind (call, meeting, task, email, other)
+- Add subject, description, due date
+- Link to a contact, company, or deal
+- Assign to a team member
+
+---
+
+## Notes & Tags
+
+### Notes
+
+On any contact, company, or deal detail page:
+- Type in the Notes section
+- Press ⌘/Ctrl + Enter to save
+- Notes are visible on the record's timeline
+
+### Tags
+
+- **Add** — type a tag name in the tag section and press Enter
+- **Remove** — click the × on any tag chip
+- **Filter** — use the tag filter on list pages to find records by tag
+
+---
+
+## AI Features
+
+### Setup
+
+Go to **Settings → AI**:
+1. Pick a provider (Groq for free API key, or Ollama for local)
+2. Enter your API key (if required)
+3. Choose a model
+4. Click **Test connection** to verify
+5. Click **Save**
+6. Toggle **Enable AI** on
+
+### Privacy modes
+
+- **Server** — AI calls go through your server (API key stored encrypted)
+- **Local** — for Ollama/LM Studio, calls go browser-direct (data never leaves your device)
+
+### What you can do
+
+- **AI Assistant** (`/ai`) — chat with your CRM data; ask questions like "What deals are closing this week?"
+- **Draft Email** — on contact/deal pages, generate contextual emails
+- **AI Insights** — next-best-action suggestions on records
+- **Re-score** — recalculate lead scores with AI
+- **Enrich Company** — AI-suggested company fields from domain
+- **Summarize Deal** — AI summary of deal context
+
+---
+
+## Custom Fields
+
+Go to **Settings → Custom Fields** to define extra fields per record type:
+
+1. Select entity type (Contact, Company, or Deal)
+2. Click **New Field**
+3. Choose label, key (snake_case), and type:
+   - Text, text area, number, currency, percentage
+   - Boolean (checkbox), date, datetime
+   - Email, phone, URL
+   - Select (dropdown), multi-select
+4. For select types, enter comma-separated choices
+5. Toggle **Required** if needed
+6. Set **Position** for ordering
+
+Custom fields automatically appear on create/edit forms and detail pages. List endpoints accept `?custom[key]=value` for filtering.
+
+---
+
+## Custom Objects
+
+Go to **Settings → Custom Objects** to define entirely new record types:
+
+1. Click **New Object**
+2. Enter a name and icon (emoji)
+3. Add fields (same types as custom fields)
+4. Save
+
+Custom objects let you track anything — projects, invoices, tickets, etc. Records are stored as JSON with full CRUD API support.
+
+---
+
+## Saved Views
+
+Save any filter combination for quick access:
+
+1. Set filters on the contacts list (search, status, tag)
+2. Click **Save view**
+3. Name it and optionally share with the team
+4. Re-apply from the view dropdown anytime
+
+Manage views in **Settings → Saved Views** — rename, toggle sharing, or delete.
+
+---
+
+## Automations
+
+### Visual workflow builder
+
+Go to **Automations** and click **New Automation**:
+
+1. **Name** your workflow
+2. **Trigger** — choose when it fires:
+   - Contact created/updated
+   - Deal created, stage changed, won, or lost
+   - Activity completed or overdue
+3. **Conditions** (optional) — all must match:
+   - Minimum deal amount
+   - Status equals
+   - Has tag
+4. **Actions** — add one or more:
+   - Create task (with subject, description, due days)
+   - Send email (with subject and body)
+   - Add tag
+   - Move stage (select pipeline and stage)
+   - Call webhook (select a webhook)
+5. Drag actions to reorder them
+6. Toggle **Active** to enable/disable
+
+### Run history
+
+Each automation shows recent runs with status (completed, failed, running) and any error messages.
+
+---
+
+## Email Sequences
+
+Go to **Sequences** to create multi-step email drips:
+
+1. Click **New Sequence**
+2. Add steps with:
+   - Subject and body (supports `{{first_name}}`, `{{last_name}}`, `{{email}}`, `{{company}}`)
+   - Delay before sending (days)
+3. Enroll contacts manually or via automation
+4. Each email includes an unsubscribe link (signed, per-enrollment)
+
+---
+
+## Webhooks & Plugins
+
+### Webhooks
+
+Go to **Settings → Webhooks**:
+1. Click **New Webhook**
+2. Enter a URL
+3. Select events to subscribe to (or leave empty for all)
+4. Save
+
+Deliveries are signed with HMAC-SHA256 and logged. Failed deliveries retry 3 times with exponential backoff.
+
+### Plugins
+
+Go to **Settings → Plugins**:
+1. Click **New Plugin**
+2. Enter a name and webhook URL
+3. Select trigger events
+4. Save
+
+Plugins fire on matching events and deliver JSON payloads to your webhook URL.
+
+---
+
+## Team Management
+
+Go to **Settings → Team**:
+
+### Invite members
+
+1. Enter their email
+2. Choose a role (admin, member, viewer)
+3. Click **Send invite**
+4. They receive an email with an accept link (or copy the link directly)
+
+### Manage roles
+
+- **Owner** — full access, can't be removed
+- **Admin** — full access, can manage team
+- **Member** — can create/edit records
+- **Viewer** — read-only access
+
+Change roles or remove members from the team table.
+
+---
+
+## Import / Export
+
+Go to **Settings → Import/Export**:
+
+### Import contacts
+
+1. Upload a CSV file
+2. Map columns to fields (auto-matches common headers like "First Name")
+3. Choose **Skip** or **Update** for existing emails
+4. Click **Import contacts**
+5. Review the per-row error report
+
+### Export data
+
+Click **Export Contacts**, **Export Companies**, or **Export Deals** to download CSV files.
+
+---
+
+## API & Integrations
+
+### API tokens
+
+Go to **Settings → API Tokens**:
+1. Click **New Token**
+2. Name it and optionally set an expiry
+3. Copy the token (shown once)
+4. Use as `Authorization: Bearer csk_…`
+
+### GraphQL
+
+Send POST requests to `/graphql` with a JSON body:
+
+```json
+{
+  "query": "{ contacts { edges { node { firstName email } } } }"
+}
+```
+
+### REST API
+
+Full reference at `/api-docs` (Swagger UI). All endpoints accept Bearer tokens and return JSON.
+
+### Zapier / Make / n8n
+
+See [INTEGRATIONS.md](INTEGRATIONS.md) for webhook triggers and API action examples.
+
+---
+
+## Settings
+
+### Dark mode
+
+Click the sun/moon icon in the top bar. Follows your OS setting by default; your choice is saved.
+
+### Profile
+
+Go to **Settings → Profile** to update your name and email.
+
+### AI provider
+
+Go to **Settings → AI** to configure or change your AI provider.
+
+---
+
+## Tips
+
+- **Keyboard**: Tab through forms, ⌘/Ctrl + Enter saves notes, Escape closes menus
+- **Mobile**: The sidebar becomes a hamburger menu; tables scroll horizontally
+- **Search**: Use the search box on any list page — it's debounced for performance
+- **Filters**: Combine search, status, and tags for powerful filtering
+- **Views**: Save frequently-used filter combinations as saved views
+- **AI**: Start with the AI Assistant to ask questions about your data
+- **Automations**: Start simple — one trigger, one action — then build up
+
+---
+
+## Getting help
+
+- **API docs**: `/api-docs` (Swagger UI)
+- **Integrations guide**: [INTEGRATIONS.md](INTEGRATIONS.md)
+- **Setup guide**: [SETUP.md](SETUP.md)
+- **Deployment guide**: [DEPLOYMENT.md](DEPLOYMENT.md)
+- **Security**: [SECURITY.md](SECURITY.md)
+- **Privacy**: [PRIVACY.md](PRIVACY.md)
