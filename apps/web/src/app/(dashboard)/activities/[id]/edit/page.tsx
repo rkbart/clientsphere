@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ActivityForm, type ActivityFormValues } from "@/components/activities/activity-form";
 import { useActivity, useUpdateActivity } from "@/hooks/use-activities";
@@ -19,9 +19,11 @@ interface ActivityRecord {
   due_at?: string | null;
 }
 
-export default function EditActivityPage({ params }: { params: { id: string } }) {
+export default function EditActivityPage() {
   const router = useRouter();
-  const { data, isLoading } = useActivity(params.id);
+  const routeParams = useParams<{ id: string }>();
+  const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const { data, isLoading } = useActivity(id);
   const update = useUpdateActivity();
   const [error, setError] = useState<string | null>(null);
   const activity = data as unknown as ActivityRecord | undefined;
@@ -58,14 +60,14 @@ export default function EditActivityPage({ params }: { params: { id: string } })
           <>
             <FormError message={error} />
             <ActivityForm
-              key={params.id}
+              key={id}
               initial={initial}
               submitting={update.isPending}
               submitLabel="Save changes"
               onSubmit={async (values) => {
                 setError(null);
                 try {
-                  await update.mutateAsync({ id: params.id, ...values });
+                  await update.mutateAsync({ id, ...values });
                   router.push("/activities");
                 } catch (e) {
                   setError(errMessage(e, "Could not save the activity."));

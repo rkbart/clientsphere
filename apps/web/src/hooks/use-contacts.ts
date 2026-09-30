@@ -17,9 +17,10 @@ export function useContacts(params?: Record<string, unknown>) {
   });
 }
 
-export function useContact(id: string) {
+export function useContact(id: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["contacts", id],
+    enabled: options?.enabled ?? !!id,
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/contacts/{id}", {
         params: { path: { id } },

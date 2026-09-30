@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { WorkflowBuilder, type WorkflowValues } from "@/components/automations/workflow-builder";
 import { useAutomation, useUpdateAutomation, useAutomationRuns } from "@/hooks/use-automations";
@@ -32,10 +32,12 @@ const RUN_BADGE: Record<string, string> = {
   running: "badge-info",
 };
 
-export default function EditAutomationPage({ params }: { params: { id: string } }) {
+export default function EditAutomationPage() {
   const router = useRouter();
-  const { data, isLoading } = useAutomation(params.id);
-  const { data: runsRes } = useAutomationRuns(params.id);
+  const routeParams = useParams<{ id: string }>();
+  const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const { data, isLoading } = useAutomation(id);
+  const { data: runsRes } = useAutomationRuns(id);
   const update = useUpdateAutomation();
   const [error, setError] = useState<string | null>(null);
   const automation = data as unknown as AutomationRecord | undefined;
@@ -83,12 +85,12 @@ export default function EditAutomationPage({ params }: { params: { id: string } 
           <>
             <FormError message={error} />
             <WorkflowBuilder
-              key={params.id}
+              key={id}
               initial={initial}
               onSubmit={async (values) => {
                 setError(null);
                 try {
-                  await update.mutateAsync({ id: params.id, ...values });
+                  await update.mutateAsync({ id, ...values });
                   router.push("/automations");
                 } catch (e) {
                   setError(errMessage(e, "Could not save the automation."));

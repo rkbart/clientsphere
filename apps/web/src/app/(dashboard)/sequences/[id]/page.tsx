@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Field, FormError } from "@/components/forms/fields";
 import {
   useSequence,
@@ -156,14 +157,16 @@ function StepRow({
   );
 }
 
-export default function SequenceDetailPage({ params }: { params: { id: string } }) {
-  const { data: sequence } = useSequence(params.id);
+export default function SequenceDetailPage() {
+  const routeParams = useParams<{ id: string }>();
+  const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const { data: sequence } = useSequence(id);
   const update = useUpdateSequence();
-  const { data: stepsRes } = useSequenceSteps(params.id);
-  const createStep = useCreateStep(params.id);
-  const enroll = useEnrollContact(params.id);
-  const { data: enrollmentsRes } = useEnrollments(params.id);
-  const unsubscribe = useUnsubscribeEnrollment(params.id);
+  const { data: stepsRes } = useSequenceSteps(id);
+  const createStep = useCreateStep(id);
+  const enroll = useEnrollContact(id);
+  const { data: enrollmentsRes } = useEnrollments(id);
+  const unsubscribe = useUnsubscribeEnrollment(id);
   const { data: contactsRes } = useContacts({ per_page: 100 });
   const [error, setError] = useState<string | null>(null);
   const [contactId, setContactId] = useState("");
@@ -198,7 +201,7 @@ export default function SequenceDetailPage({ params }: { params: { id: string } 
                 onChange={async (e) => {
                   setError(null);
                   try {
-                    await update.mutateAsync({ id: params.id, is_active: e.target.checked });
+                    await update.mutateAsync({ id, is_active: e.target.checked });
                   } catch (err) {
                     setError(errMessage(err, "Could not update the sequence."));
                   }
@@ -239,7 +242,7 @@ export default function SequenceDetailPage({ params }: { params: { id: string } 
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {steps.map((s) => (
-            <StepRow key={s.id} step={s} sequenceId={params.id} />
+            <StepRow key={s.id} step={s} sequenceId={id} />
           ))}
           {steps.length === 0 && (
             <li className="px-5 py-6 text-sm text-[var(--text-tertiary)] text-center">

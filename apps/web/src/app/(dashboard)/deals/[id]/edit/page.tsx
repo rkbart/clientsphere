@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { DealForm, type DealFormValues } from "@/components/deals/deal-form";
 import { useDeal, useUpdateDeal } from "@/hooks/use-deals";
@@ -22,9 +22,11 @@ interface DealRecord {
   custom_data?: Record<string, unknown> | null;
 }
 
-export default function EditDealPage({ params }: { params: { id: string } }) {
+export default function EditDealPage() {
   const router = useRouter();
-  const { data, isLoading } = useDeal(params.id);
+  const routeParams = useParams<{ id: string }>();
+  const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const { data, isLoading } = useDeal(id);
   const update = useUpdateDeal();
   const [error, setError] = useState<string | null>(null);
   const deal = data as unknown as DealRecord | undefined;
@@ -46,7 +48,7 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div>
         <Link
-          href={`/deals/${params.id}`}
+          href={`/deals/${id}`}
           className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -64,15 +66,15 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
           <>
             <FormError message={error} />
             <DealForm
-              key={params.id}
+              key={id}
               initial={initial}
               submitting={update.isPending}
               submitLabel="Save changes"
               onSubmit={async (values) => {
                 setError(null);
                 try {
-                  await update.mutateAsync({ id: params.id, ...values });
-                  router.push(`/deals/${params.id}`);
+                  await update.mutateAsync({ id, ...values });
+                  router.push(`/deals/${id}`);
                 } catch (e) {
                   setError(errMessage(e, "Could not save the deal."));
                 }

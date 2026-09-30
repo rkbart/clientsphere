@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Field, FormError } from "@/components/forms/fields";
 import { useWebhook, useUpdateWebhook, useWebhookDeliveries } from "@/hooks/use-webhooks";
 import { errMessage } from "@/lib/ai/error";
@@ -24,9 +25,11 @@ const DELIVERY_BADGE: Record<string, string> = {
   retrying: "badge-warning",
 };
 
-export default function WebhookDetailPage({ params }: { params: { id: string } }) {
-  const { data: webhook, isLoading } = useWebhook(params.id);
-  const { data: deliveriesRes } = useWebhookDeliveries(params.id);
+export default function WebhookDetailPage() {
+  const routeParams = useParams<{ id: string }>();
+  const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const { data: webhook, isLoading } = useWebhook(id);
+  const { data: deliveriesRes } = useWebhookDeliveries(id);
   const update = useUpdateWebhook();
   const [error, setError] = useState<string | null>(null);
 
@@ -67,7 +70,7 @@ export default function WebhookDetailPage({ params }: { params: { id: string } }
                 setError(null);
                 try {
                   await update.mutateAsync({
-                    id: params.id,
+                    id,
                     url: shownUrl.trim(),
                     events: shownEvents.split(",").map((s) => s.trim()).filter(Boolean),
                   });
@@ -100,7 +103,7 @@ export default function WebhookDetailPage({ params }: { params: { id: string } }
                   onChange={async (e) => {
                     setError(null);
                     try {
-                      await update.mutateAsync({ id: params.id, is_active: e.target.checked });
+                      await update.mutateAsync({ id, is_active: e.target.checked });
                     } catch (err) {
                       setError(errMessage(err, "Could not update the webhook."));
                     }

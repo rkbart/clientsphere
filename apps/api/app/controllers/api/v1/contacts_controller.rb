@@ -3,7 +3,7 @@ class Api::V1::ContactsController < Api::V1::BaseController
   before_action :validate_contact_status, only: [:create, :update]
 
   def index
-    contacts = policy_scope(Contact)
+    contacts = policy_scope(Contact).kept
     contacts = contacts.search(params[:q]) if params[:q].present?
     if params[:status].present?
       unless Contact.statuses.key?(params[:status])
@@ -15,14 +15,24 @@ class Api::V1::ContactsController < Api::V1::BaseController
     end
     contacts = contacts.joins(:taggings).where(taggings: { tag_id: params[:tag_id] }) if params[:tag_id].present?
     contacts = CustomFields::Filter.apply(contacts, Current.account, "Contact", params[:custom])
-    contacts = contacts.order(params[:sort] || :created_at).reverse_order
 
-    paginate(contacts)
+    sort_direction = params[:direction] == "desc" ? :desc : :asc
+    contacts = case params[:sort].to_s
+               when "email"
+                 contacts.order(email: sort_direction, id: sort_direction)
+               when "company"
+                 contacts.left_joins(:company)
+                         .order("companies.name #{sort_direction.to_s.upcase} NULLS LAST, contacts.id #{sort_direction.to_s.upcase}")
+               else
+                 contacts.order(first_name: sort_direction, last_name: sort_direction, id: sort_direction)
+               end
+
+    paginate(contacts, include_associations: [:company, :tags])
   end
 
   def show
     authorize @contact
-    render json: @contact
+    render json: @contact.as_json(include: { company: { only: [:id, :name] }, tags: { only: [:id, :name, :color] } })
   end
 
   def create
@@ -73,7 +83,7 @@ class Api::V1::ContactsController < Api::V1::BaseController
   private
 
   def set_contact
-    @contact = Contact.find(params[:id])
+    @contact = policy_scope(Contact).kept.find(params[:id])
   end
 
   def validate_contact_status

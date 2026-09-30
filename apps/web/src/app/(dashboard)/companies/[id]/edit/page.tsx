@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { CompanyForm, type CompanyFormValues } from "@/components/companies/company-form";
 import { useCompany, useUpdateCompany } from "@/hooks/use-companies";
@@ -19,9 +19,11 @@ interface CompanyRecord {
   custom_data?: Record<string, unknown> | null;
 }
 
-export default function EditCompanyPage({ params }: { params: { id: string } }) {
+export default function EditCompanyPage() {
   const router = useRouter();
-  const { data, isLoading } = useCompany(params.id);
+  const routeParams = useParams<{ id: string }>();
+  const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const { data, isLoading } = useCompany(id);
   const update = useUpdateCompany();
   const [error, setError] = useState<string | null>(null);
   const company = data as unknown as CompanyRecord | undefined;
@@ -40,7 +42,7 @@ export default function EditCompanyPage({ params }: { params: { id: string } }) 
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div>
         <Link
-          href={`/companies/${params.id}`}
+          href={`/companies/${id}`}
           className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
         >
           <ChevronLeft className="h-4 w-4" />
@@ -58,15 +60,15 @@ export default function EditCompanyPage({ params }: { params: { id: string } }) 
           <>
             <FormError message={error} />
             <CompanyForm
-              key={params.id}
+              key={id}
               initial={initial}
               submitting={update.isPending}
               submitLabel="Save changes"
               onSubmit={async (values) => {
                 setError(null);
                 try {
-                  await update.mutateAsync({ id: params.id, ...values });
-                  router.push(`/companies/${params.id}`);
+                  await update.mutateAsync({ id, ...values });
+                  router.push(`/companies/${id}`);
                 } catch (e) {
                   setError(errMessage(e, "Could not save the company."));
                 }

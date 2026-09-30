@@ -1,5 +1,6 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { useCompany } from "@/hooks/use-companies";
 import { NotesSection } from "@/components/shared/notes-section";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
@@ -18,8 +19,10 @@ interface CompanyData {
   custom_data?: Record<string, unknown> | null;
 }
 
-export default function CompanyDetailPage({ params }: { params: { id: string } }) {
-  const { data, isLoading } = useCompany(params.id);
+export default function CompanyDetailPage() {
+  const routeParams = useParams<{ id: string }>();
+  const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const { data, isLoading } = useCompany(id);
   const company = data as unknown as CompanyData | undefined;
 
   if (isLoading) return <div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>;

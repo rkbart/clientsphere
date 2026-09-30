@@ -57,14 +57,15 @@ class Api::V1::BaseController < ActionController::API
     render json: { error: "Forbidden" }, status: :forbidden
   end
 
-  def paginate(collection)
+  def paginate(collection, include_associations: [])
     page = (params[:page] || 1).to_i
     per_page = [params[:per_page]&.to_i || 25, 100].min
 
     paginated = collection.page(page).per(per_page)
+    records = include_associations.any? ? paginated.includes(*include_associations) : paginated
 
     render json: {
-      data: paginated,
+      data: records.as_json(include: include_associations.to_h { |a| [a, { only: [:id, :name, :color] }] }),
       meta: {
         current_page: paginated.current_page,
         total_pages: paginated.total_pages,

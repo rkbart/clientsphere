@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useNotes, useCreateNote, type Note } from "@/hooks/use-notes";
-import { StickyNote } from "lucide-react";
+import { useNotes, useCreateNote, useDeleteNote, type Note } from "@/hooks/use-notes";
+import { ConfirmDialog } from "@/components/ui/modal";
+import { StickyNote, Trash2 } from "lucide-react";
 
 export function NotesSection({
   notableType,
@@ -13,7 +14,9 @@ export function NotesSection({
 }) {
   const { data: notes, isLoading } = useNotes(notableType, notableId);
   const createNote = useCreateNote();
+  const deleteNote = useDeleteNote();
   const [body, setBody] = useState("");
+  const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
 
   const submit = () => {
     const trimmed = body.trim();
@@ -74,8 +77,18 @@ export function NotesSection({
           )}
 
           {notes?.map((note: Note) => (
-            <div key={note.id} className="border-l-2 border-[var(--border)] pl-3">
-              <p className="text-sm whitespace-pre-wrap">{note.body}</p>
+            <div key={note.id} className="border-l-2 border-[var(--border)] pl-3 group">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm whitespace-pre-wrap flex-1">{note.body}</p>
+                <button
+                  onClick={() => setNoteToDelete(note)}
+                  className="p-1 rounded-[var(--radius-sm)] text-[var(--text-tertiary)] hover:text-[var(--danger)] hover:bg-[var(--accent-soft)] transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+                  aria-label="Delete note"
+                  title="Delete note"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
               <p className="text-xs text-[var(--text-tertiary)] mt-1">
                 {new Date(note.created_at).toLocaleString(undefined, {
                   month: "short",
@@ -92,6 +105,20 @@ export function NotesSection({
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!noteToDelete}
+        onClose={() => setNoteToDelete(null)}
+        onConfirm={() =>
+          noteToDelete &&
+          deleteNote.mutate(noteToDelete.id, { onSuccess: () => setNoteToDelete(null) })
+        }
+        title="Delete note?"
+        message="This note will be permanently removed. This action cannot be undone."
+        confirming={deleteNote.isPending}
+        error={deleteNote.isError ? "Could not delete the note. Try again." : null}
+      />
     </div>
   );
 }
+

@@ -1,5 +1,6 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { useDeal } from "@/hooks/use-deals";
 import { useStages, usePipelines } from "@/hooks/use-pipelines";
 import { NotesSection } from "@/components/shared/notes-section";
@@ -24,8 +25,10 @@ interface DealData {
   created_at: string;
 }
 
-export default function DealDetailPage({ params }: { params: { id: string } }) {
-  const { data, isLoading } = useDeal(params.id);
+export default function DealDetailPage() {
+  const routeParams = useParams<{ id: string }>();
+  const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const { data, isLoading } = useDeal(id);
   const deal = data as unknown as DealData | undefined;
   const { data: pipelines } = usePipelines();
   const { data: stages } = useStages(deal?.pipeline_id);
