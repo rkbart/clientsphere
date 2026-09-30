@@ -15,6 +15,7 @@ class Deal < ApplicationRecord
 
   validates :title, presence: true
   validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validate :custom_data_matches_definitions
 
   after_create_commit { Automations::Trigger.call(account, :deal_created, self) }
   after_update_commit :trigger_deal_update_events
@@ -35,6 +36,12 @@ class Deal < ApplicationRecord
   end
 
   private
+
+  def custom_data_matches_definitions
+    return if account.nil?
+
+    CustomFields::Validator.new(account, "Deal").validate(self)
+  end
 
   def trigger_deal_update_events
     return unless previous_changes.key?("stage_id")

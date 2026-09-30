@@ -17,6 +17,7 @@ class Contact < ApplicationRecord
 
   validates :first_name, presence: true
   validates :email, uniqueness: { scope: :account_id }, allow_blank: true
+  validate :custom_data_matches_definitions
 
   after_create_commit { Automations::Trigger.call(account, :contact_created, self) }
   after_update_commit { Automations::Trigger.call(account, :contact_updated, self) }
@@ -29,5 +30,13 @@ class Contact < ApplicationRecord
 
   def score!
     Leads::Scorer.new(self).call
+  end
+
+  private
+
+  def custom_data_matches_definitions
+    return if account.nil?
+
+    CustomFields::Validator.new(account, "Contact").validate(self)
   end
 end

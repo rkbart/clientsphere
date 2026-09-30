@@ -4,6 +4,7 @@ class Api::V1::CompaniesController < Api::V1::BaseController
   def index
     companies = policy_scope(Company)
     companies = companies.where("name ILIKE ?", "%#{params[:q]}%") if params[:q].present?
+    companies = CustomFields::Filter.apply(companies, Current.account, "Company", params[:custom])
     companies = companies.order(params[:sort] || :created_at).reverse_order
 
     paginate(companies)
@@ -42,6 +43,6 @@ class Api::V1::CompaniesController < Api::V1::BaseController
   end
 
   def company_params
-    params.require(:company).permit(:name, :domain, :industry, :size_range, :annual_revenue, :description, :owner_id)
+    params.require(:company).permit(:name, :domain, :industry, :size_range, :annual_revenue, :description, :owner_id, custom_data: {})
   end
 end

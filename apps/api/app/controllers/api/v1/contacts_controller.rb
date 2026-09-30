@@ -14,6 +14,7 @@ class Api::V1::ContactsController < Api::V1::BaseController
       contacts = contacts.where(status: params[:status])
     end
     contacts = contacts.joins(:taggings).where(taggings: { tag_id: params[:tag_id] }) if params[:tag_id].present?
+    contacts = CustomFields::Filter.apply(contacts, Current.account, "Contact", params[:custom])
     contacts = contacts.order(params[:sort] || :created_at).reverse_order
 
     paginate(contacts)
@@ -84,7 +85,7 @@ class Api::V1::ContactsController < Api::V1::BaseController
   end
 
   def contact_params
-    params.require(:contact).permit(:first_name, :last_name, :email, :phone, :company_id, :owner_id, :status, :source)
+    params.require(:contact).permit(:first_name, :last_name, :email, :phone, :company_id, :owner_id, :status, :source, custom_data: {})
   end
 
   def generate_csv(contact)
