@@ -73,6 +73,12 @@ Rails.application.routes.draw do
       # Custom Fields
       resources :custom_field_definitions
 
+      # Custom Objects
+      resources :custom_object_definitions do
+        resources :records, controller: "custom_object_records", only: [:index, :create]
+      end
+      resources :custom_object_records, only: [:show, :update, :destroy]
+
       # Saved Views
       resources :saved_views
 

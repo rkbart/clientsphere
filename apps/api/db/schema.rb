@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_01_01_000012) do
+ActiveRecord::Schema[8.1].define(version: 2024_01_01_000013) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -187,6 +187,28 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_01_000012) do
     t.datetime "updated_at", null: false
     t.index ["account_id", "entity_type", "key"], name: "idx_on_account_id_entity_type_key_802e61c317", unique: true
     t.index ["account_id"], name: "index_custom_field_definitions_on_account_id"
+  end
+
+  create_table "custom_object_definitions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.string "name", null: false
+    t.string "icon", default: "📦"
+    t.jsonb "fields", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "name"], name: "index_custom_object_definitions_on_account_id_and_name", unique: true
+    t.index ["account_id"], name: "index_custom_object_definitions_on_account_id"
+  end
+
+  create_table "custom_object_records", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.uuid "custom_object_definition_id", null: false
+    t.jsonb "data", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "custom_object_definition_id"], name: "idx_on_account_id_custom_object_definition_id_64cdcb7416"
+    t.index ["account_id"], name: "index_custom_object_records_on_account_id"
+    t.index ["custom_object_definition_id"], name: "index_custom_object_records_on_custom_object_definition_id"
   end
 
   create_table "deals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -617,6 +639,9 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_01_000012) do
   add_foreign_key "contacts", "companies"
   add_foreign_key "contacts", "users", column: "owner_id"
   add_foreign_key "custom_field_definitions", "accounts"
+  add_foreign_key "custom_object_definitions", "accounts"
+  add_foreign_key "custom_object_records", "accounts"
+  add_foreign_key "custom_object_records", "custom_object_definitions"
   add_foreign_key "deals", "accounts"
   add_foreign_key "deals", "companies"
   add_foreign_key "deals", "contacts"

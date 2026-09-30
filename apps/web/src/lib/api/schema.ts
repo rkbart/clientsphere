@@ -792,6 +792,164 @@ export interface paths {
       };
     };
   };
+  "/custom_object_definitions": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            custom_object_definition?: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/custom_object_definitions/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            custom_object_definition?: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
+  "/custom_object_definitions/{custom_object_definition_id}/records": {
+    get: {
+      parameters: {
+        path: {
+          custom_object_definition_id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+    post: {
+      parameters: {
+        path: {
+          custom_object_definition_id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            custom_object_record?: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/custom_object_records/{id}": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            custom_object_record?: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
   "/saved_views": {
     get: {
       responses: {
