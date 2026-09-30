@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   # Solid Queue dashboard (HTTP basic auth, see config/initializers/mission_control_jobs.rb)
   mount MissionControl::Jobs::Engine, at: "/jobs"
 
+  # GraphQL API
+  post "/graphql", to: "graphql#execute"
+
   # Swagger UI + generated OpenAPI (see lib/tasks/openapi.rake)
   mount Rswag::Api::Engine => "/api-docs"
   mount Rswag::Ui::Engine => "/api-docs"

@@ -57,6 +57,10 @@ gem "omniauth"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
 
+# GraphQL API
+gem "graphql"
+gem "graphql-batch"
+
 # API docs
 gem "rswag-api"
 gem "rswag-ui"
