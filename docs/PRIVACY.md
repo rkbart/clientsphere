@@ -21,6 +21,7 @@ ClientSphere is a tool that helps you manage customer data. You are responsible 
 - **Per-contact export**: Export individual contact data
 - **Per-contact erase**: Delete individual contact data
 - **Account-level export**: Export all data for an account (CSV)
+- **Audit logging**: paper_trail versions on core models
 - **AI privacy**: AI calls are logged (metadata only, not content)
 
 ## AI data handling

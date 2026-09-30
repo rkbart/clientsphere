@@ -1169,6 +1169,24 @@ export interface paths {
       };
     };
   };
+  "/unsubscribe": {
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            token?: string;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
   "/webhooks": {
     get: {
       responses: {

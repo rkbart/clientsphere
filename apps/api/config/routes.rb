@@ -83,6 +83,9 @@ Rails.application.routes.draw do
         end
       end
 
+      # Public unsubscribe (signed token, no login)
+      post "unsubscribe", to: "unsubscribes#create"
+
       # Webhooks
       resources :webhooks do
         member do

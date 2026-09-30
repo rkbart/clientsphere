@@ -57,7 +57,7 @@ PostgreSQL (Neon free tier for demo, self-hosted for production)
 - `ai_conversations` + `ai_messages` — reserved for future chat persistence (not used yet)
 
 ### Audit
-- `versions` — created by paper_trail (gem installed, not yet enabled on models)
+- `versions` — paper_trail on contact, company, deal, activity, note, email, automation
 
 ## Migrations
 

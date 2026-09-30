@@ -94,23 +94,25 @@
 - Browser-direct for Ollama/LM Studio (chat + drafting)
 - Data never leaves the device
 
-## Automation (Phase 3 — backend scaffolded, UI in progress)
+## Automation (Phase 3 — in progress)
 
 ### Automations
 - Form-based trigger/action rules (engine + models in place)
 - Create tasks, tag, move stages, call webhooks
 - Enable/disable toggle
-- UI: coming in Phase 3 (page shows a placeholder)
+- UI: list, create/edit form, detail with runs
 
 ### Email Sequences
 - Steps with delays, enrollment
-- Stop on reply/unsubscribe: planned
-- Email sending itself is not wired yet
+- Sending via EmailService (Resend when configured, else draft record)
+- Unsubscribe: per-enrollment signed link + public page, stop on unsubscribe
+- Stop on reply: planned
 
 ### Webhooks
 - Signed deliveries (`X-Webhook-Signature`)
 - Retries with exponential backoff (3 attempts)
 - Delivery log
+- UI: list, create/edit form, detail with deliveries
 
 ## Customization
 

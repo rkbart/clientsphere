@@ -11,6 +11,7 @@ class Contact < ApplicationRecord
   has_many :activities, dependent: :destroy
   has_many :notes, as: :notable, dependent: :destroy
   has_many :emails, dependent: :destroy
+  has_many :sequence_enrollments, dependent: :destroy
   has_many :taggings, as: :taggable, dependent: :destroy
   has_many :tags, through: :taggings
 

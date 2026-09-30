@@ -23,9 +23,9 @@
 
 ## Phase 3: Automation (Weeks 9–12)
 
-- [ ] Automations (form-based trigger/action rules)
-- [ ] Email sequences (steps with delays, enrollment, unsubscribe)
-- [ ] Webhooks (signed deliveries, retries, delivery log)
+- [x] Automations (form-based trigger/action rules)
+- [x] Email sequences (steps with delays, enrollment, unsubscribe)
+- [x] Webhooks (signed deliveries, retries, delivery log)
 - [ ] Job visibility (Mission Control dashboard)
 - [ ] Scheduling (Solid Queue recurring tasks)
 

@@ -3,11 +3,12 @@
 # sequences and automations still leave an auditable trail.
 class EmailService
   def self.send_sequence_step(contact, step)
+    enrollment = contact.sequence_enrollments.find_by(sequence_id: step.sequence_id, status: :active)
     send_email(
       account: contact.account,
       contact: contact,
       subject: interpolate(step.subject, contact),
-      body: interpolate(step.body, contact)
+      body: interpolate(step.body, contact) + unsubscribe_footer(enrollment)
     )
   end
 
@@ -43,6 +44,14 @@ class EmailService
     ENV.fetch("EMAIL_FROM_ADDRESS", "noreply@example.com")
   end
 
+  def self.unsubscribe_footer(enrollment)
+    return "" unless enrollment
+
+    token = Rails.application.message_verifier("sequence_unsubscribe").generate(enrollment.id)
+    url = "#{ENV.fetch('WEB_URL', 'http://localhost:3001')}/unsubscribe/#{token}"
+    "\n\n---\n<a href=\"#{url}\">Unsubscribe</a>"
+  end
+
   def self.resend_configured?
     ENV["RESEND_API_KEY"].present?
   end
@@ -59,5 +68,5 @@ class EmailService
     email
   end
 
-  private_class_method :deliver, :from_address, :resend_configured?
+  private_class_method :deliver, :from_address, :resend_configured?, :unsubscribe_footer
 end
