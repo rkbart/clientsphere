@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { useAuthStore } from "@/store/auth-store";
 import {
   LayoutDashboard,
   Users,
@@ -40,6 +41,8 @@ export function Sidebar({
   onClose: () => void;
 }) {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
+  const initial = (user?.name ?? "?").trim().charAt(0).toUpperCase() || "?";
 
   useEffect(() => {
     if (!open) return;
@@ -71,14 +74,14 @@ export function Sidebar({
         </Link>
         <button
           onClick={onClose}
-          className="lg:hidden p-1.5 -mr-1.5 rounded-[var(--radius-md)] text-white/60 hover:text-white hover:bg-white/10"
+          className="lg:hidden p-2 -mr-1.5 rounded-[var(--radius-md)] text-white/60 hover:text-white hover:bg-white/10"
           aria-label="Close menu"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
-      <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <nav aria-label="Primary" className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         {navigation.map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -88,6 +91,7 @@ export function Sidebar({
               key={item.name}
               href={item.href}
               onClick={onClose}
+              aria-current={isActive ? "page" : undefined}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm group ${
                 isActive
                   ? "bg-[var(--bg-sidebar-active)] text-white"
@@ -120,6 +124,7 @@ export function Sidebar({
               key={item.name}
               href={item.href}
               onClick={onClose}
+              aria-current={isActive ? "page" : undefined}
               className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm ${
                 isActive
                   ? "bg-[var(--bg-sidebar-active)] text-white"
@@ -139,12 +144,12 @@ export function Sidebar({
 
       <div className="px-3 py-3 border-t border-white/5">
         <div className="flex items-center gap-2.5 px-3 py-2">
-          <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center">
-            <span className="text-white text-xs font-medium">SB</span>
+          <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center" aria-hidden="true">
+            <span className="text-white text-xs font-medium">{initial}</span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-sm font-medium truncate">Sarah</p>
-            <p className="text-[var(--text-tertiary)] text-xs truncate">Owner</p>
+            <p className="text-white text-sm font-medium truncate">{user?.name ?? "…"}</p>
+            <p className="text-[var(--text-tertiary)] text-xs truncate">{user?.email ?? ""}</p>
           </div>
         </div>
       </div>
@@ -171,6 +176,9 @@ export function Sidebar({
           links leave the focus order only after the exit finishes */}
       <aside
         data-nav-drawer
+        role="dialog"
+        aria-modal={open ? "true" : undefined}
+        aria-label="Navigation"
         aria-hidden={!open}
         className={`fixed inset-y-0 left-0 w-60 bg-[var(--bg-sidebar)] flex flex-col z-50 lg:hidden transition-[transform,visibility] duration-[250ms] ${
           open ? "translate-x-0 visible" : "-translate-x-full invisible"

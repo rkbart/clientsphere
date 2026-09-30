@@ -36,10 +36,13 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-[var(--bg-elevated)]">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <Sidebar open={navOpen} onClose={() => setNavOpen(false)} />
       <div className="lg:pl-60">
         <Topbar onMenuClick={() => setNavOpen(true)} />
-        <main className="p-4 sm:p-6">{children}</main>
+        <main id="main-content" className="p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

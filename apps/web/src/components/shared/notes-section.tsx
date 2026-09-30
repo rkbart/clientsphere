@@ -36,7 +36,11 @@ export function NotesSection({
 
       <div className="p-5 space-y-4">
         <div className="space-y-2">
+          <label htmlFor={`note-body-${notableType}-${notableId}`} className="sr-only">
+            Write a note
+          </label>
           <textarea
+            id={`note-body-${notableType}-${notableId}`}
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Write a note…"
