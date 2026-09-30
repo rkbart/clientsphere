@@ -14,6 +14,11 @@ module ClientSphere
     config.load_defaults 8.0
     config.api_only = true
 
+    # OmniAuth needs session middleware for OAuth state
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore, key: "_clientsphere_session"
+    config.middleware.use ActionDispatch::Flash
+
     config.active_record.encryption.primary_key = ENV.fetch("ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY", "primary-key")
     config.active_record.encryption.deterministic_key = ENV.fetch("ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY", "deterministic-key")
     config.active_record.encryption.key_derivation_salt = ENV.fetch("ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT", "key-derivation-salt")

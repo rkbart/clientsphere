@@ -1,7 +1,7 @@
 # Google OAuth callbacks (public; the signed Google response is the credential).
-# The frontend POSTs a form to /auth/google_oauth2 (proxied to the API),
-# Google redirects back here, and we bounce the browser to the web app with
-# a fresh session token, which it stores and strips from the URL.
+# The frontend links to /auth/google_oauth2 (rewritten to the API, GET request
+# phase), Google redirects back here, and we bounce the browser to the web app
+# with a fresh session token, which it stores and strips from the URL.
 class OmniauthCallbacksController < ActionController::API
   def callback
     auth = request.env["omniauth.auth"]

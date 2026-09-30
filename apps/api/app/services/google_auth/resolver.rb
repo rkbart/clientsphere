@@ -11,8 +11,13 @@ module GoogleAuth
 
       user = User.find_by(google_uid: uid) || User.find_by(email: email)
       if user
-        user.update!(google_uid: uid) if user.google_uid.nil?
-        user.update!(current_account: user.accounts.first) if user.current_account.nil? && user.accounts.any?
+        updates = {}
+        updates[:google_uid] = uid if user.google_uid.nil?
+        # Keep email in sync when Google reports a change for the same uid.
+        # Guard against collisions (another account already took the address).
+        updates[:email] = email if user.email != email && User.find_by(email: email).nil?
+        updates[:current_account] = user.accounts.first if user.current_account.nil? && user.accounts.any?
+        user.update!(updates) if updates.any?
         return user
       end
 
