@@ -12,6 +12,7 @@ import {
   GitBranch,
   Activity,
   Bot,
+  Calendar,
   Settings,
   Info,
   ChevronRight,
@@ -25,6 +26,7 @@ const navigation = [
   { name: "Deals", href: "/deals", icon: TrendingUp },
   { name: "Pipeline", href: "/pipeline", icon: GitBranch },
   { name: "Activities", href: "/activities", icon: Activity },
+  { name: "Calendar", href: "/calendar", icon: Calendar },
   { name: "AI Assistant", href: "/ai", icon: Bot },
 ];
 

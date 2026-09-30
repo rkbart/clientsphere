@@ -12,6 +12,7 @@ const titles: Record<string, string> = {
   deals: "Deals",
   pipeline: "Pipeline",
   activities: "Activities",
+  calendar: "Calendar",
   ai: "AI Assistant",
   automations: "Automations",
   sequences: "Sequences",
