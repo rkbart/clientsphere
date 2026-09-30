@@ -137,6 +137,11 @@
 - JSON-based field storage, CRUD API
 - Polymorphic records linked to accounts
 
+### Plugins
+- Webhook plugins that fire on CRM events (Settings → Plugins)
+- Trigger on contact/deal/activity events
+- Delivers JSON payloads to plugin webhook URLs
+
 ### Saved Views
 - Save filters, sort, columns
 - Per entity type

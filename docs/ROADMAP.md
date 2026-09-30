@@ -52,8 +52,8 @@
 - [x] Zapier/Make (signed webhook triggers + API-token actions, [guide](INTEGRATIONS.md))
 - [x] Visual workflow builder (drag-and-drop automation editor)
 - [x] Custom objects (user-defined record types with custom fields)
+- [x] Plugin system (webhook plugins for CRM events)
 - GraphQL API
 - React Native app
 - IMAP/Google/Microsoft email sync
-- Plugin system
 - Hosted multi-account SaaS offering
