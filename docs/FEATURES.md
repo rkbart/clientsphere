@@ -25,7 +25,7 @@
 - Won/lost tracking
 - Expected close dates
 - Deal value tracking
-- Create/edit forms: not yet in the UI (API available)
+- Create/edit forms in the UI
 
 ### Activities
 - Activity records: calls, meetings, tasks, emails
@@ -94,7 +94,7 @@
 - Browser-direct for Ollama/LM Studio (chat + drafting)
 - Data never leaves the device
 
-## Automation (Phase 3 — in progress)
+## Automation (Phase 3 — complete)
 
 ### Automations
 - Form-based trigger/action rules (engine + models in place)

@@ -89,7 +89,19 @@ class Api::V1::ContactsController < Api::V1::BaseController
   end
 
   def generate_csv(contact)
-    # TODO: Implement CSV export
-    "Name,Email,Phone\n#{contact.full_name},#{contact.email},#{contact.phone}"
+    require "csv"
+    CSV.generate do |csv|
+      csv << %w[first_name last_name email phone status source company lead_score]
+      csv << [
+        contact.first_name,
+        contact.last_name,
+        contact.email,
+        contact.phone,
+        contact.status,
+        contact.source,
+        contact.company&.name,
+        contact.lead_score,
+      ]
+    end
   end
 end

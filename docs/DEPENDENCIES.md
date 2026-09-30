@@ -17,9 +17,20 @@
 | `rack-cors` | CORS headers |
 | `rails-i18n` | Locale data |
 | `bootsnap` | Boot time caching |
-
-Installed but not yet wired: `acts_as_tenant`, `ransack`, `paper_trail`,
-`ssrf_filter`, `resend`, `jsonapi-serializer`.
+| `acts_as_tenant` | Multi-tenancy |
+| `ransack` | Search/filtering |
+| `paper_trail` | Audit logging |
+| `ssrf_filter` | SSRF protection for webhooks |
+| `resend` | Email delivery |
+| `jsonapi-serializer` | JSON serialization |
+| `solid_queue` | Background jobs |
+| `solid_cache` | Cache store |
+| `solid_cable` | Action Cable adapter |
+| `mission_control-jobs` | Job dashboard |
+| `propshaft` | Asset pipeline |
+| `rswag-api` / `rswag-ui` | OpenAPI generation + Swagger UI |
+| `graphql` / `graphql-batch` | GraphQL API |
+| `omniauth` / `omniauth-google-oauth2` | Google OAuth |
 
 ## Frontend (apps/web)
 
@@ -39,8 +50,6 @@ Installed but not yet wired: `acts_as_tenant`, `ransack`, `paper_trail`,
 | `tailwindcss` | Styling |
 | `class-variance-authority` | Component variants |
 | `clsx` + `tailwind-merge` | Class utilities |
-
-Installed but not yet wired: `axios`.
 
 ## Dev dependencies
 
