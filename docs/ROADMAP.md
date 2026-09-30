@@ -48,12 +48,12 @@
 
 ## Future ideas
 
+- [x] Calendar integration (month view of activities, due-date filters)
+- [x] Zapier/Make (signed webhook triggers + API-token actions, [guide](INTEGRATIONS.md))
 - Visual workflow builder
 - Custom objects
 - GraphQL API
 - React Native app
 - IMAP/Google/Microsoft email sync
-- Calendar integration
-- Zapier/Make
 - Plugin system
 - Hosted multi-account SaaS offering

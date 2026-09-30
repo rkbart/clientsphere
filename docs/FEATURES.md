@@ -98,9 +98,12 @@
 
 ### Automations
 - Form-based trigger/action rules (engine + models in place)
-- Create tasks, tag, move stages, call webhooks
+- Triggers: contact created/updated, deal created/stage-changed/won/lost,
+  activity completed/overdue (overdue fired hourly by the scheduler)
+- Actions: create tasks, send email, tag, move stages, call webhooks
 - Enable/disable toggle
 - UI: list, create/edit form, detail with runs
+- Zapier/Make/n8n: see [INTEGRATIONS.md](INTEGRATIONS.md)
 
 ### Email Sequences
 - Steps with delays, enrollment
