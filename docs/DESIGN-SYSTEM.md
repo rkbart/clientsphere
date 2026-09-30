@@ -29,12 +29,20 @@ actual CSS custom properties defined there.
 | `--bg-sidebar` | `#1c1917` | Sidebar |
 | `--text-primary` | `#1c1917` | Body text |
 | `--text-secondary` | `#78716c` | Secondary text |
-| `--text-tertiary` | `#a8a29e` | Placeholders, metadata |
+| `--text-tertiary` | `#6e6a66` | Placeholders, metadata (5.4:1 on white) |
 | `--border` / `--border-subtle` | `#e7e5e4` / `#f5f5f4` | Borders / dividers |
 | `--accent` / `--accent-hover` | `#292524` / `#44403c` | Primary buttons, focus |
 
 Status colors (`--success`, `--warning`, `--danger`, `--info`) back the
 badge variants.
+
+### Dark mode (`<html data-theme="dark">`)
+
+Same token names, stone-inverted values (`--bg #0c0a09`, `--bg-card
+#1c1917`, `--accent #fafaf9`, brightened status colors); badges and
+hardcoded red-50 error surfaces get translucent retunes in
+`globals.css`. Toggle in the topbar, persisted in `clientsphere-ui`,
+OS setting as default. Charts read the tokens via CSS vars.
 
 ### Radii, shadows, fonts
 

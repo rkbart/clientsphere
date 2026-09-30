@@ -39,12 +39,12 @@
 
 ## Phase 5: Polish (Weeks 17–20)
 
-- [ ] Dashboard charts (Recharts: pipeline value, win rate, sources)
-- [ ] Import polish (field mapping UI, dedupe on email)
-- [ ] Mobile responsive
-- [ ] Dark mode
-- [ ] Accessibility (keyboard navigation, contrast pass)
-- [ ] Docs & onboarding (tutorial, sample data, self-host guide)
+- [x] Dashboard charts (Recharts: pipeline value, win rate, sources)
+- [x] Import polish (field mapping UI, dedupe on email)
+- [x] Mobile responsive (drawer shell, stacking grids, scrollable tables)
+- [x] Dark mode (system default, persisted toggle)
+- [x] Accessibility (skip link, dialog semantics, contrast pass, labels)
+- [x] Docs & onboarding (tutorial, sample data, self-host guide)
 
 ## Future ideas
 

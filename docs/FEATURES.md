@@ -124,9 +124,10 @@
 
 ### Custom Fields
 - 13 field types (text, number, boolean, date, select, etc.)
-- Stored in `custom_data` jsonb
+- Stored in `custom_data` jsonb, validated per definition (type, required, choices)
 - CRUD via Settings → Custom Fields
-- Showing values in forms/tables/filters: Phase 4
+- Values captured in create/edit forms, shown on detail pages, exact-match
+  `?custom[key]=value` filters on list endpoints
 
 ### Saved Views
 - Save filters, sort, columns
@@ -139,21 +140,31 @@
 - Pundit policies on every action
 
 ### Invitations
-- Invitation records with expiring tokens
+- Invitation records with expiring tokens (7-day default)
 - Role assignment on acceptance
-- Email delivery not wired yet (token returned via API)
+- Email delivery via Resend when configured, invite link + copy button otherwise
 
 ## Import/Export
 
 ### CSV Import
-- Inline processing with per-row error report
-- Import status queryable via `GET /import/:id`
+- Inline processing with per-row error report (capped at 50, row numbers)
+- Column mapping UI with header auto-match ("First Name" → first_name)
+- Dedupe on email: skip or update (blanks never overwrite)
+- Supported fields: first_name, last_name, email, phone
 
 ### CSV Export
 - Contacts, companies, deals (Settings → Import/Export)
 - Formula injection prevention (escapes `=`, `+`, `-`, `@`)
 
 ## Interface
+
+### Dashboard analytics
+- Pipeline value by stage (bar chart), outcomes donut + win rate, deals by
+  source (Recharts, theme-aware)
+
+### Dark mode
+- System default with persisted override, top-bar toggle
+- Full token set + badge/error-surface retunes
 
 ### Responsive layout
 - Mobile-first: below `lg` (1024px) — including half-width browser
@@ -170,6 +181,9 @@
 - `prefers-reduced-motion` respected: fades kept, movement removed
 - Visible focus rings (`:focus-visible`), semantic landmarks, aria labels
   on icon-only buttons
+- Skip-to-content link, dialog semantics on the mobile nav drawer,
+  `aria-current` on active nav, labeled form controls
+- Body text contrast ≥ 4.5:1 in both themes; 32px header icon targets
 
 ### Design system
 - Warm-monochrome tokens and shared component classes

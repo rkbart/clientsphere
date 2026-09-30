@@ -12,11 +12,23 @@ the sidebar.
 
 Sign-in for the seed data: `sarah@beanandbrew.com` / `password123`.
 
-## Step 3: Filter contacts
+## Step 3: Filter contacts and save the view
 
 Go to Contacts. Use the debounced search box, the status filter
 (lead / customer / churned) and the tag filter. "Clear filters" resets
 everything. Open a contact to see details, notes and tags.
+
+With filters set, click **Save view**, give it a name, and optionally share
+it with the team. Re-apply it anytime from the view dropdown. Manage or
+rename views in Settings → Saved Views.
+
+## Step 3b: Custom fields
+
+Settings → Custom Fields defines typed extra fields per record type (text,
+number, date, select, …). They appear automatically on create/edit forms
+and on detail pages, and list endpoints accept `?custom[key]=value` filters.
+
+## Step 4: Work the pipeline
 
 > "Add Contact/Company/Deal" buttons open full-page forms; each detail
 > page has an Edit button. Validation errors show inline.
@@ -52,16 +64,35 @@ from your browser (Local).
 
 ## Step 8: Import existing data
 
-Go to Settings → Import/Export. Upload a CSV of contacts. Per-row errors are
-reported; re-export to check the result.
+Go to Settings → Import/Export. Upload a CSV of contacts: map each column
+to a field (headers like "First Name" auto-match), choose Skip vs Update
+for existing emails, and review the per-row error report. Export buttons
+on the same page download contacts, companies or deals.
 
 ## Step 9: Export your data
 
 Same page: export contacts, companies or deals as CSV for backup or
 migration. Individual contact export/erase also exist on the API.
 
+## Step 10: Automate and integrate
+
+- **Automations** (`/automations`): trigger/action rules (create tasks, tag,
+  move stages, call webhooks) with a run history
+- **Sequences** (`/sequences`): multi-step email drips with unsubscribe links
+- **Webhooks** (Settings → Webhooks): signed deliveries with a log
+- **Jobs** (`http://localhost:3000/jobs`, basic auth): Solid Queue dashboard
+- **API tokens** (Settings → API Tokens): `csk_…` tokens for scripts, used as
+  `Authorization: Bearer` — see the live reference at `/api-docs`
+- **Team** (Settings → Team): invite members by email, manage roles
+
+## Step 11: Make it yours
+
+- Toggle dark mode from the top bar (follows your OS setting by default)
+- Dashboard analytics: pipeline value by stage, win rate, deals by source
+- "Continue with Google" appears once `GOOGLE_CLIENT_ID/SECRET` are set
+  (see [SETUP.md](SETUP.md))
+
 ## Coming later (see [ROADMAP.md](ROADMAP.md))
 
-- Create/edit forms in the UI
-- Automations, email sequences, scheduling (Phase 3)
-- Saved-view editing UI, custom-field display in tables (Phase 4)
+- Visual workflow builder, custom objects, GraphQL API
+- Email/calendar sync, Zapier/Make, plugin system

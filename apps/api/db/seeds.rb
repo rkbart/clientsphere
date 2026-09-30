@@ -72,14 +72,15 @@ puts "Created #{contacts.count} contacts"
 
 # Create deals
 deals_data = [
-  { title: "TechStart Office Coffee Service", amount: 600, currency: "USD", contact: contacts[0], company: companies[0], stage: stages[2], expected_close_date: 7.days.from_now },
-  { title: "Green Leaf Catering Package", amount: 1200, currency: "USD", contact: contacts[1], company: companies[1], stage: stages[3], expected_close_date: 14.days.from_now },
-  { title: "Summit Construction Lunch Program", amount: 800, currency: "USD", contact: contacts[2], company: companies[2], stage: stages[1], expected_close_date: 21.days.from_now },
-  { title: "Pacific Legal Weekly Delivery", amount: 400, currency: "USD", contact: contacts[3], company: companies[3], stage: stages[0], expected_close_date: 30.days.from_now },
-  { title: "Coastal Fitness Protein Bars", amount: 300, currency: "USD", contact: contacts[4], company: companies[4], stage: stages[0], expected_close_date: 14.days.from_now },
-  { title: "Brightside Marketing Event", amount: 2000, currency: "USD", contact: contacts[5], company: companies[5], stage: stages[4], expected_close_date: -3.days.from_now, closed_at: 3.days.ago },
-  { title: "Harborview Open House", amount: 500, currency: "USD", contact: contacts[6], company: companies[6], stage: stages[1], expected_close_date: 10.days.from_now },
-  { title: "Oakfield School Fundraiser", amount: 1500, currency: "USD", contact: contacts[7], company: companies[7], stage: stages[2], expected_close_date: 21.days.from_now },
+  { title: "TechStart Office Coffee Service", amount: 600, currency: "USD", contact: contacts[0], company: companies[0], stage: stages[2], expected_close_date: 7.days.from_now, source: "referral" },
+  { title: "Green Leaf Catering Package", amount: 1200, currency: "USD", contact: contacts[1], company: companies[1], stage: stages[3], expected_close_date: 14.days.from_now, source: "event" },
+  { title: "Summit Construction Lunch Program", amount: 800, currency: "USD", contact: contacts[2], company: companies[2], stage: stages[1], expected_close_date: 21.days.from_now, source: "cold outreach" },
+  { title: "Pacific Legal Weekly Delivery", amount: 400, currency: "USD", contact: contacts[3], company: companies[3], stage: stages[0], expected_close_date: 30.days.from_now, source: "website" },
+  { title: "Coastal Fitness Protein Bars", amount: 300, currency: "USD", contact: contacts[4], company: companies[4], stage: stages[0], expected_close_date: 14.days.from_now, source: "social" },
+  { title: "Brightside Marketing Event", amount: 2000, currency: "USD", contact: contacts[5], company: companies[5], stage: stages[4], expected_close_date: -3.days.from_now, closed_at: 3.days.ago, source: "referral" },
+  { title: "Harborview Open House", amount: 500, currency: "USD", contact: contacts[6], company: companies[6], stage: stages[1], expected_close_date: 10.days.from_now, source: "website" },
+  { title: "Oakfield School Fundraiser", amount: 1500, currency: "USD", contact: contacts[7], company: companies[7], stage: stages[2], expected_close_date: 21.days.from_now, source: "event" },
+  { title: "Downtown Gym Trial", amount: 250, currency: "USD", contact: contacts[4], company: companies[4], stage: stages[5], expected_close_date: -10.days.from_now, closed_at: 10.days.ago, source: "cold outreach" },
 ]
 
 deals = deals_data.map do |data|
@@ -179,6 +180,23 @@ account.saved_views.create!(
 )
 
 puts "Created #{account.saved_views.count} saved views"
+
+# Demo custom fields (idempotent so re-seeding is safe)
+plan_field = account.custom_field_definitions.find_or_create_by!(entity_type: "Contact", key: "plan") do |f|
+  f.label = "Plan"
+  f.field_type = :select
+  f.options = { "choices" => %w[free pro enterprise] }
+  f.position = 0
+end
+renewal_field = account.custom_field_definitions.find_or_create_by!(entity_type: "Company", key: "renewal_date") do |f|
+  f.label = "Renewal date"
+  f.field_type = :date
+  f.position = 0
+end
+contacts[0].update!(custom_data: { "plan" => "enterprise" }) if contacts[0].custom_data.blank?
+contacts[1].update!(custom_data: { "plan" => "pro" }) if contacts[1].custom_data.blank?
+companies[0].update!(custom_data: { "renewal_date" => 90.days.from_now.to_date.iso8601 }) if companies[0].custom_data.blank?
+puts "Seeded #{account.custom_field_definitions.count} custom field definitions"
 
 puts "\n=== Seed Complete ==="
 puts "Login: sarah@beanandbrew.com / password123"

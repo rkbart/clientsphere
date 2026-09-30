@@ -29,7 +29,9 @@ Vercel (web)  ──►  Render free web service (Rails)  ──►  Neon free P
 ### Config
 
 - Env vars (API): `DATABASE_URL`, `SECRET_KEY_BASE`, `ACTIVE_RECORD_ENCRYPTION_*` keys,
-  `MISSION_CONTROL_USER` / `MISSION_CONTROL_PASSWORD` (for the `/jobs` dashboard)
+  `MISSION_CONTROL_USER` / `MISSION_CONTROL_PASSWORD` (for the `/jobs` dashboard),
+  `WEB_URL` (public web origin, used in email links — set to your Vercel/frontend URL),
+  `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` (optional OAuth)
 - Env vars (web): `API_INTERNAL_URL` (used by the Next rewrite)
 - Build (Render, root dir `apps/api`): `bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && bin/rails db:migrate`; start: `bundle exec puma -C config/puma.rb`, plus a background worker running `bin/jobs start`
 - Web (Vercel, root dir `apps/web`): framework auto-detected; set `API_INTERNAL_URL` to the Render URL
