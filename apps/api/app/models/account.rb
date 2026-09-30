@@ -12,6 +12,7 @@ class Account < ApplicationRecord
   has_many :custom_field_definitions, dependent: :destroy
   has_many :custom_object_definitions, dependent: :destroy
   has_many :custom_object_records, dependent: :destroy
+  has_many :plugins, dependent: :destroy
   has_many :saved_views, dependent: :destroy
   has_many :automations, dependent: :destroy
   has_many :automation_runs, dependent: :destroy

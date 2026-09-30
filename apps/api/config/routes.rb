@@ -79,6 +79,9 @@ Rails.application.routes.draw do
       end
       resources :custom_object_records, only: [:show, :update, :destroy]
 
+      # Plugins
+      resources :plugins
+
       # Saved Views
       resources :saved_views
 
