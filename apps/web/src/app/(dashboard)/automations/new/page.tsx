@@ -3,11 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { AutomationForm, EMPTY_AUTOMATION } from "@/components/automations/automation-form";
+import { WorkflowBuilder, type WorkflowValues } from "@/components/automations/workflow-builder";
 import { useCreateAutomation } from "@/hooks/use-automations";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
 import { ChevronLeft } from "lucide-react";
+
+const EMPTY_WORKFLOW: WorkflowValues = {
+  name: "",
+  trigger_type: "contact_created",
+  is_active: true,
+  min_amount: "",
+  status: "",
+  tag: "",
+  actions: [],
+};
 
 export default function NewAutomationPage() {
   const router = useRouter();
@@ -32,10 +42,8 @@ export default function NewAutomationPage() {
 
       <div className="card p-6 space-y-4">
         <FormError message={error} />
-        <AutomationForm
-          initial={EMPTY_AUTOMATION}
-          submitting={create.isPending}
-          submitLabel="Create automation"
+        <WorkflowBuilder
+          initial={EMPTY_WORKFLOW}
           onSubmit={async (values) => {
             setError(null);
             try {

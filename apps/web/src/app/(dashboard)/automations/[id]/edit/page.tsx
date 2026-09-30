@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { AutomationForm, type AutomationFormValues } from "@/components/automations/automation-form";
+import { WorkflowBuilder, type WorkflowValues } from "@/components/automations/workflow-builder";
 import { useAutomation, useUpdateAutomation, useAutomationRuns } from "@/hooks/use-automations";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
@@ -41,7 +41,7 @@ export default function EditAutomationPage({ params }: { params: { id: string } 
   const automation = data as unknown as AutomationRecord | undefined;
   const runs = ((runsRes as unknown as { data?: Run[] })?.data ?? []);
 
-  const initial: AutomationFormValues = {
+  const initial: WorkflowValues = {
     name: automation?.name ?? "",
     trigger_type: automation?.trigger_type ?? "contact_created",
     is_active: automation?.is_active ?? true,
@@ -55,6 +55,7 @@ export default function EditAutomationPage({ params }: { params: { id: string } 
       due_days: a.due_days ?? "",
       body: a.body ?? "",
       tag_name: a.tag_name ?? "",
+      pipeline_id: a.pipeline_id ?? "",
       stage_id: a.stage_id ?? "",
       webhook_id: a.webhook_id ?? "",
     })),
@@ -81,11 +82,9 @@ export default function EditAutomationPage({ params }: { params: { id: string } 
         ) : (
           <>
             <FormError message={error} />
-            <AutomationForm
+            <WorkflowBuilder
               key={params.id}
               initial={initial}
-              submitting={update.isPending}
-              submitLabel="Save changes"
               onSubmit={async (values) => {
                 setError(null);
                 try {
