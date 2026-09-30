@@ -6,6 +6,10 @@ Rails.application.routes.draw do
   mount Rswag::Api::Engine => "/api-docs"
   mount Rswag::Ui::Engine => "/api-docs"
 
+  # Google OAuth (OmniAuth request phase lives at /auth/google_oauth2)
+  match "/auth/:provider/callback", to: "omniauth_callbacks#callback", via: [:get, :post]
+  match "/auth/failure", to: "omniauth_callbacks#failure", via: [:get, :post]
+
   namespace :api do
     namespace :v1 do
       # Auth
@@ -13,6 +17,7 @@ Rails.application.routes.draw do
       post "auth/login", to: "auth#login"
       delete "auth/logout", to: "auth#logout"
       get "auth/me", to: "auth#me"
+      get "auth/providers", to: "auth#providers"
       post "auth/switch_account", to: "auth#switch_account"
 
       # Invitations

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_01_01_000009) do
+ActiveRecord::Schema[8.1].define(version: 2024_01_01_000010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -551,8 +551,10 @@ ActiveRecord::Schema[8.1].define(version: 2024_01_01_000009) do
     t.uuid "current_account_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "google_uid"
     t.index ["current_account_id"], name: "index_users_on_current_account_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
   create_table "versions", force: :cascade do |t|

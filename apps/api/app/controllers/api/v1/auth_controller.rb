@@ -1,7 +1,14 @@
 class Api::V1::AuthController < Api::V1::BaseController
-  skip_before_action :set_current_account_and_user, only: [:signup, :login]
+  skip_before_action :set_current_account_and_user, only: [:signup, :login, :providers]
   skip_after_action :verify_authorized
   skip_after_action :verify_policy_scoped
+
+  # Lets the frontend show/hide the "Continue with Google" button.
+  def providers
+    render json: {
+      google: ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?,
+    }
+  end
 
   def signup
     user = User.new(signup_params)

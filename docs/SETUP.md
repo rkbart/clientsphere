@@ -68,6 +68,22 @@ MISSION_CONTROL_USER=admin                 # /jobs dashboard login (dev only)
 MISSION_CONTROL_PASSWORD=<generate>
 ```
 
+### Google OAuth (optional)
+
+1. Create OAuth credentials at [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+   (type: Web application). Authorized redirect URI (dev):
+   `http://localhost:3000/auth/google_oauth2/callback`
+2. Set:
+   ```
+   GOOGLE_CLIENT_ID=<client-id>
+   GOOGLE_CLIENT_SECRET=<client-secret>
+   GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google_oauth2/callback  # prod: your API host + /auth/google_oauth2/callback
+   WEB_URL=http://localhost:3001                                           # where users land after Google
+   ```
+3. Restart the API. Login/signup pages show "Continue with Google" only when
+   configured. Google users link by email (invited users keep their workspace)
+   or get a personal workspace on first sign-in.
+
 The `ACTIVE_RECORD_ENCRYPTION_*` keys encrypt AI provider keys and webhook
 secrets. Development falls back to built-in defaults; set real values in
 production.

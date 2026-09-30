@@ -31,11 +31,11 @@
 
 ## Phase 4: Customization & Teams (Weeks 13–16)
 
-- [ ] Custom fields (12-15 types, jsonb storage)
-- [ ] Saved views (save/share filters, sort, columns)
-- [ ] Roles & invitations (RBAC UI, email invitations)
-- [ ] Google OAuth
-- [ ] API docs (Swagger UI polished, API tokens)
+- [x] Custom fields (13 types, jsonb storage, values in forms/detail/filters)
+- [x] Saved views (save/share filters on contacts, settings manager)
+- [x] Roles & invitations (RBAC UI, email invitations, last-owner guard)
+- [x] Google OAuth (env-gated; needs live credentials to verify end to end)
+- [x] API docs (generated Swagger UI, API tokens)
 
 ## Phase 5: Polish (Weeks 17–20)
 

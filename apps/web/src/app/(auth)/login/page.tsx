@@ -1,12 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth-store";
+import { GoogleButton } from "@/components/auth/google-button";
+
+const OAUTH_ERRORS: Record<string, string> = {
+  access_denied: "Google sign-in was cancelled.",
+  missing: "Google sign-in failed. Try again.",
+  linking: "Could not link your Google account. Contact support.",
+  denied: "Google sign-in was denied.",
+};
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const oauthError = searchParams.get("oauth_error");
   const { setAuth } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,9 +64,9 @@ export default function LoginPage() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
+          {(error || oauthError) && (
             <div className="p-3 rounded-[var(--radius-md)] bg-red-50 border border-red-100 text-red-600 text-sm animate-scale-in">
-              {error}
+              {error || OAUTH_ERRORS[oauthError ?? ""] || "Google sign-in failed."}
             </div>
           )}
 
@@ -110,6 +120,13 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 border-t border-[var(--border)]" />
+          <span className="text-xs text-[var(--text-tertiary)]">or</span>
+          <div className="flex-1 border-t border-[var(--border)]" />
+        </div>
+        <GoogleButton label="Continue with Google" />
 
         <p className="text-center text-sm text-[var(--text-secondary)] mt-6">
           Don&apos;t have an account?{" "}

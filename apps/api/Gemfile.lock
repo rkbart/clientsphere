@@ -79,11 +79,15 @@ GEM
       rails (>= 6.0)
     addressable (2.9.0)
       public_suffix (>= 2.0.2, < 8.0)
+    anonymous_loader (0.1.3)
+      version_gem (~> 1.1, >= 1.1.14)
     anthropic (1.74.0)
       base64 (~> 0.1)
       connection_pool (>= 2, < 4)
       standardwebhooks (~> 1.0)
     ast (2.4.3)
+    auth-sanitizer (0.2.3)
+      version_gem (~> 1.1, >= 1.1.14)
     base64 (0.3.0)
     bcrypt (3.1.22)
     bigdecimal (4.1.3)
@@ -132,11 +136,19 @@ GEM
       railties (>= 6.1.0)
     faker (3.8.0)
       i18n (>= 1.8.11, < 2)
+    faraday (2.14.4)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-net_http (3.4.4)
+      net-http (~> 0.5)
     fugit (1.14.0)
       et-orbi (~> 1.4)
       raabro (~> 1.4)
     globalid (1.4.0)
       activesupport (>= 6.1)
+    hashie (5.1.0)
+      logger
     http (6.0.4)
       http-cookie (~> 1.0)
       llhttp (~> 0.6.1)
@@ -161,6 +173,8 @@ GEM
     json (3.0.2)
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
+    jwt (3.3.0)
+      base64
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
       kaminari-actionview (= 1.2.2)
@@ -205,6 +219,8 @@ GEM
     msgpack (1.8.5)
     multi_xml (0.9.1)
       bigdecimal (>= 3.1, < 5)
+    net-http (0.9.1)
+      uri (>= 0.11.1)
     net-imap (0.6.7)
       date
       net-protocol
@@ -231,6 +247,32 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.4-x86_64-linux-musl)
       racc (~> 1.4)
+    oauth2 (2.0.25)
+      anonymous_loader (~> 0.1, >= 0.1.3)
+      auth-sanitizer (~> 0.2, >= 0.2.3)
+      faraday (>= 0.17.3, < 4.0)
+      jwt (>= 1.0, < 4.0)
+      logger (~> 1.2)
+      multi_xml (~> 0.5)
+      rack (>= 1.2, < 4)
+      snaky_hash (~> 2.0, >= 2.0.7)
+      version_gem (~> 1.1, >= 1.1.14)
+    omniauth (2.1.4)
+      hashie (>= 3.4.6)
+      logger
+      rack (>= 2.2.3)
+      rack-protection
+    omniauth-google-oauth2 (1.2.3)
+      jwt (>= 2.9.2, < 4)
+      oauth2 (~> 2.0)
+      omniauth (~> 2.0)
+      omniauth-oauth2 (~> 1.8)
+    omniauth-oauth2 (1.9.0)
+      oauth2 (>= 2.0.2, < 3)
+      omniauth (~> 2.0)
+    omniauth-rails_csrf_protection (2.0.1)
+      actionpack (>= 4.2)
+      omniauth (~> 2.0)
     openai (0.95.0)
       connection_pool (>= 2.2.3)
       logger
@@ -270,6 +312,10 @@ GEM
     rack-cors (3.0.0)
       logger
       rack (>= 3.0.14)
+    rack-protection (4.2.1)
+      base64 (>= 0.1.0)
+      logger (>= 1.6.0)
+      rack (>= 3.0.0, < 4)
     rack-session (2.1.2)
       base64 (>= 0.1.0)
       rack (>= 3.0.0)
@@ -396,6 +442,9 @@ GEM
       websocket (~> 1.0)
     shoulda-matchers (8.0.1)
       activesupport (>= 7.2)
+    snaky_hash (2.0.7)
+      hashie (>= 0.1.0, < 6)
+      version_gem (~> 1.1, >= 1.1.14)
     solid_cable (4.1.0)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -431,6 +480,7 @@ GEM
     unicode-emoji (4.3.0)
     uri (1.1.1)
     useragent (0.16.11)
+    version_gem (1.1.15)
     websocket (1.2.11)
     websocket-driver (0.8.2)
       base64
@@ -468,6 +518,9 @@ DEPENDENCIES
   jsonapi-serializer
   kaminari
   mission_control-jobs
+  omniauth
+  omniauth-google-oauth2
+  omniauth-rails_csrf_protection
   openai
   ostruct
   paper_trail
@@ -508,8 +561,10 @@ CHECKSUMS
   activesupport (8.1.4) sha256=891dd3fe43c4fc8391934b237b1189bb1f661c932a84a840043db9d46a4e80df
   acts_as_tenant (2.0.2) sha256=7becb42cbc97d90f87224f0517e35ff5a09fa2b37d3c183cfed4244e46ee9f13
   addressable (2.9.0) sha256=7fdf6ac3660f7f4e867a0838be3f6cf722ace541dd97767fa42bc6cfa980c7af
+  anonymous_loader (0.1.3) sha256=084a18e2439144d955447dc11dfc982f41fcd1583ad32d4d55151325dc44cb55
   anthropic (1.74.0) sha256=764d5daab0ef12a5bed885fa7940ecd9c52d4a276d19a22296e710672fb9d7f2
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
+  auth-sanitizer (0.2.3) sha256=db10aac92cfbe4c64ab637eebcbe1d67395d1694798041362173370f59933e3c
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   bcrypt (3.1.22) sha256=1f0072e88c2d705d94aff7f2c5cb02eb3f1ec4b8368671e19112527489f29032
   bigdecimal (4.1.3) sha256=61ebe1e5e559bdc3cc6f2c0ee7f427321fc838f59611c294356eb04d6e21cf66
@@ -537,8 +592,11 @@ CHECKSUMS
   factory_bot (6.6.0) sha256=1fc1b3b5620ec980a6a27aec1b6ec8c250ca82962e970e8a40f93e8d388d4b89
   factory_bot_rails (6.5.1) sha256=d3cc4851eae4dea8a665ec4a4516895045e710554d2b5ac9e68b94d351bc6d68
   faker (3.8.0) sha256=c147b308df73a90f27a4fc84f18d4c22ef0ad9c2a64b2b61c86fd0ca71753efc
+  faraday (2.14.4) sha256=9bb4408c44621b0dbaaaa39e5dbfc4dbe58cc6751b6eb94d16ae9e1f2f2fab6e
+  faraday-net_http (3.4.4) sha256=0e78af151747ed1b00f33e25973b4bc220d7f16c00c39676817c8b12331eb588
   fugit (1.14.0) sha256=e311a9cc85a54bb67649df45060e721282a1e2c8ebad40e41874a3a7d576f37e
   globalid (1.4.0) sha256=037f12fbf1d9d7a014d501c2d5c77356fd4ddd96d7a7991d6700bba96706f427
+  hashie (5.1.0) sha256=c266471896f323c446ea8207f8ffac985d2718df0a0ba98651a3057096ca3870
   http (6.0.4) sha256=3768f902489ea8309424f1881c668af8d3ca73675648a755dfe2cb0030d42d26
   http-cookie (1.1.6) sha256=ba4b82be64de61dc281243dac70e3c382c45142f20268ed9276a3670c93feaa9
   httparty (0.24.2) sha256=8fca6a54aa0c4aa4303a0fd33e5e2156175d6a5334f714263b458abd7fda9c38
@@ -548,6 +606,7 @@ CHECKSUMS
   irb (1.18.0) sha256=de9454a0703a54704b9811a5ef31a60c86949fbf4013fcf244fabc7c775248e3
   json (3.0.2) sha256=8e6d7e7b11384c21230430cef90b71f14849a34a1f4452796670f7c981bd19df
   jsonapi-serializer (2.2.0) sha256=f8141ac6f0c1e17e8513df68f8341afe2d7bffc285841d7090bc07f07efb0029
+  jwt (3.3.0) sha256=44cc34fbc341c148233cf66641522b4bce0dfb1ce55e8073f05c56f44f4ee546
   kaminari (1.2.2) sha256=c4076ff9adccc6109408333f87b5c4abbda5e39dc464bd4c66d06d9f73442a3e
   kaminari-actionview (1.2.2) sha256=1330f6fc8b59a4a4ef6a549ff8a224797289ebf7a3a503e8c1652535287cc909
   kaminari-activerecord (1.2.2) sha256=0dd3a67bab356a356f36b3b7236bcb81cef313095365befe8e98057dd2472430
@@ -565,6 +624,7 @@ CHECKSUMS
   mission_control-jobs (1.3.1) sha256=3230be224069b39fee2893eecd27c1c334fb5467290bf575e88b5c9121287b26
   msgpack (1.8.5) sha256=97419eaa7b35dfe3e462c0e6c1a3dfdcbfc8756605c09e46e4c6daef127517ba
   multi_xml (0.9.1) sha256=7ce766b59c17241ed62976caeae1fae9b2431b263398c35396239a68c4a64e57
+  net-http (0.9.1) sha256=25ba0b67c63e89df626ed8fac771d0ad24ad151a858af2cc8e6a716ca4336996
   net-imap (0.6.7) sha256=b5c9573be975d856de252ee851871724da66aa2d449b2482d5690bd12bc23660
   net-pop (0.1.2) sha256=848b4e982013c15b2f0382792268763b748cce91c9e91e36b0f27ed26420dff3
   net-protocol (0.4.0) sha256=f9f90c8c6f64794a45160bf422177a336db12809de3beeeaa26b88fcd2e8c853
@@ -578,6 +638,11 @@ CHECKSUMS
   nokogiri (1.19.4-x86_64-darwin) sha256=7fd17057d3e1f00e9954a74b3cd76595d3d4a5ef233b7ed9599047c204f70551
   nokogiri (1.19.4-x86_64-linux-gnu) sha256=379fae440b28915e3f19d752ce2dcf8465ed2b2fbefd2a7ca0dd497bc981a06a
   nokogiri (1.19.4-x86_64-linux-musl) sha256=17dfb7c1fa194ae02fbf7c51a7afc8d278045ab3fdacfd86f91d02d7b274470b
+  oauth2 (2.0.25) sha256=2f736a2f93c2caa67c1b08dc3c9889bb907d62643f3183fefaa1723cba6a82ac
+  omniauth (2.1.4) sha256=42a05b0496f0d22e1dd85d42aaf602f064e36bb47a6826a27ab55e5ba608763c
+  omniauth-google-oauth2 (1.2.3) sha256=bdbab67e64e50b7902eee2dcfc2225575cefba15ab89a3b6e92c8947987c1da9
+  omniauth-oauth2 (1.9.0) sha256=ed15f6d9d20991807ce114cc5b9c1453bce3645b64e51c68c90cff5ff153fee8
+  omniauth-rails_csrf_protection (2.0.1) sha256=c6e3204d7e3925bb537cb52d50fdfc9f05293f1a9d87c5d4ab4ca3a39ba8c32d
   openai (0.95.0) sha256=10d209731a53d18017ca43ad83a0fa8b0c7312dc82521a17ce955cc045cf6ec2
   ostruct (0.6.3) sha256=95a2ed4a4bd1d190784e666b47b2d3f078e4a9efda2fccf18f84ddc6538ed912
   paper_trail (17.0.0) sha256=1c2842061d3874ca7015908e821e2aa14f9b982af2acb2a7974713bf79021c85
@@ -602,6 +667,7 @@ CHECKSUMS
   rack (3.2.7) sha256=93e13e1c24f93556671d85d2d79fa228c3485815c50d7e2f265b5330c6528fb7
   rack-attack (6.8.0) sha256=f2499fdebf85bcc05573a22dff57d24305ac14ec2e4156cd3c28d47cafeeecf2
   rack-cors (3.0.0) sha256=7b95be61db39606906b61b83bd7203fa802b0ceaaad8fcb2fef39e097bf53f68
+  rack-protection (4.2.1) sha256=cf6e2842df8c55f5e4d1a4be015e603e19e9bc3a7178bae58949ccbb58558bac
   rack-session (2.1.2) sha256=595434f8c0c3473ae7d7ac56ecda6cc6dfd9d37c0b2b5255330aa1576967ffe8
   rack-test (2.2.0) sha256=005a36692c306ac0b4a9350355ee080fd09ddef1148a5f8b2ac636c720f5c463
   rackup (2.3.1) sha256=6c79c26753778e90983761d677a48937ee3192b3ffef6bc963c0950f94688868
@@ -637,6 +703,7 @@ CHECKSUMS
   securerandom (0.4.1) sha256=cc5193d414a4341b6e225f0cb4446aceca8e50d5e1888743fac16987638ea0b1
   selenium-webdriver (4.49.0) sha256=b430f091a3cababb356b6f6132e0e4f385b017819355f563557e1537819edc89
   shoulda-matchers (8.0.1) sha256=5dbb46e5765b9da225111b085e0819e8c8a121ff94bba430a153eb1ea2c60288
+  snaky_hash (2.0.7) sha256=7d02c70012a3f932e48860cd024577908300c9aa615e0cb9b450aaa749cbcb4d
   solid_cable (4.1.0) sha256=828e3d509207b82b4f05f4e9c85f696994710679b52d511aa7f97ebd212d3226
   solid_cache (1.0.10) sha256=bc05a2fb3ac78a6f43cbb5946679cf9db67dd30d22939ededc385cb93e120d41
   solid_queue (1.7.0) sha256=6566b70b801d1c317c81bba7bcdd5677c019afac584a30374b4164002ca356d3
@@ -653,6 +720,7 @@ CHECKSUMS
   unicode-emoji (4.3.0) sha256=11c02fa73290378c066bb0562cd4c87d8e1b706fbbe0059ca12746a4244de8ce
   uri (1.1.1) sha256=379fa58d27ffb1387eaada68c749d1426738bd0f654d812fcc07e7568f5c57c6
   useragent (0.16.11) sha256=700e6413ad4bb954bb63547fa098dddf7b0ebe75b40cc6f93b8d54255b173844
+  version_gem (1.1.15) sha256=a73241587b29252e3567e0c818ded80730eb754d43b508f6ce4db22ca9ba27d0
   websocket (1.2.11) sha256=b7e7a74e2410b5e85c25858b26b3322f29161e300935f70a0e0d3c35e0462737
   websocket-driver (0.8.2) sha256=97c556b019bf3410b4961002ac501621e9322d3f8a7bc02161a09301cc4c4146
   websocket-extensions (0.1.5) sha256=1c6ba63092cda343eb53fc657110c71c754c56484aad42578495227d717a8241

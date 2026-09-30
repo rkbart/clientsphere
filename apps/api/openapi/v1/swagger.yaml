@@ -456,6 +456,24 @@ paths:
           description: Missing or invalid token
       security:
       - bearerAuth: []
+  "/api/v1/auth/providers":
+    get:
+      summary: Providers auth
+      operationId: providers_api_v1_auth
+      tags:
+      - auth
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
   "/api/v1/auth/signup":
     post:
       summary: Sign up with email, password and workspace name

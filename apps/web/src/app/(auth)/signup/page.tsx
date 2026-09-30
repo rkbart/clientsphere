@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/store/auth-store";
+import { GoogleButton } from "@/components/auth/google-button";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -87,6 +88,13 @@ export default function SignupPage() {
             {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
+
+        <div className="flex items-center gap-3 my-6">
+          <div className="flex-1 border-t border-[var(--border)]" />
+          <span className="text-xs text-[var(--text-tertiary)]">or</span>
+          <div className="flex-1 border-t border-[var(--border)]" />
+        </div>
+        <GoogleButton label="Continue with Google" />
 
         <p className="text-center text-sm text-[var(--text-secondary)] mt-6">
           Already have an account?{" "}
