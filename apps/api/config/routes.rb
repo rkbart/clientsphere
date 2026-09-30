@@ -118,7 +118,6 @@ Rails.application.routes.draw do
 
       # Import/Export
       post "import/csv", to: "import#create"
-      get "import/:id", to: "import#show"
       get "export/csv/:type", to: "export#show"
 
       # Personal access tokens

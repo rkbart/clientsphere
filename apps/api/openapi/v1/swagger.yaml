@@ -2332,29 +2332,6 @@ paths:
               description: import attributes
       security:
       - bearerAuth: []
-  "/api/v1/import/{id}":
-    get:
-      summary: Show import
-      operationId: show_api_v1_import
-      tags:
-      - import
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-        '401':
-          description: Missing or invalid token
-      security:
-      - bearerAuth: []
   "/api/v1/invitations":
     post:
       summary: Create invitation
