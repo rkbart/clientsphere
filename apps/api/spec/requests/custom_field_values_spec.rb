@@ -26,6 +26,33 @@ RSpec.describe "Custom field values", type: :request do
          headers: headers, as: :json
   end
 
+  it "creates select definitions with choices through the API" do
+    post "/api/v1/custom_field_definitions",
+         params: {
+           custom_field_definition: {
+             entity_type: "Contact", key: "tier", label: "Tier",
+             field_type: "select", options: { choices: %w[bronze silver] },
+           },
+         },
+         headers: headers, as: :json
+
+    expect(response).to have_http_status(:created)
+    definition = account.custom_field_definitions.find_by(key: "tier")
+    expect(definition.options["choices"]).to eq(%w[bronze silver])
+  end
+
+  it "rejects select definitions without choices" do
+    post "/api/v1/custom_field_definitions",
+         params: {
+           custom_field_definition: {
+             entity_type: "Contact", key: "tier2", label: "Tier 2", field_type: "select",
+           },
+         },
+         headers: headers, as: :json
+
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   it "accepts valid custom values" do
     create_contact({ "plan" => "pro", "seat_count" => 5, "nickname" => "Addy" })
 

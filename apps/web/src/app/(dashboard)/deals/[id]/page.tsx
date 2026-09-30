@@ -3,6 +3,7 @@
 import { useDeal } from "@/hooks/use-deals";
 import { useStages, usePipelines } from "@/hooks/use-pipelines";
 import { NotesSection } from "@/components/shared/notes-section";
+import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { AiInsights } from "@/components/ai/ai-insights";
 import { AiDraftEmail } from "@/components/ai/ai-draft-email";
 import Link from "next/link";
@@ -19,6 +20,7 @@ interface DealData {
   expected_close_date: string;
   probability: number;
   closed_at: string | null;
+  custom_data?: Record<string, unknown> | null;
   created_at: string;
 }
 
@@ -69,6 +71,8 @@ export default function DealDetailPage({ params }: { params: { id: string } }) {
         {deal.contact_id && <AiDraftEmail contactId={deal.contact_id} dealId={deal.id} />}
         <AiInsights recordType="Deal" recordId={deal.id} />
       </div>
+
+      <CustomFieldValues entityType="Deal" values={deal.custom_data} />
 
       <NotesSection notableType="Deal" notableId={deal.id} />
     </div>

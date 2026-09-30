@@ -729,6 +729,13 @@ export interface paths {
       };
     };
     post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            custom_field_definition?: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -757,6 +764,13 @@ export interface paths {
       parameters: {
         path: {
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            custom_field_definition?: Record<string, unknown>;
+          };
         };
       };
       responses: {

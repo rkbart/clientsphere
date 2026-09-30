@@ -41,6 +41,9 @@ class Api::V1::CustomFieldDefinitionsController < Api::V1::BaseController
   end
 
   def custom_field_definition_params
-    params.require(:custom_field_definition).permit(:entity_type, :key, :label, :field_type, :options, :required, :position)
+    params.require(:custom_field_definition).permit(
+      :entity_type, :key, :label, :field_type, :required, :position,
+      options: { choices: [] },
+    )
   end
 end

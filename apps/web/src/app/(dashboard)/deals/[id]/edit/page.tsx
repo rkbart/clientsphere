@@ -18,6 +18,7 @@ interface DealRecord {
   company_id?: string | null;
   expected_close_date?: string | null;
   probability?: number | string | null;
+  custom_data?: Record<string, unknown> | null;
 }
 
 export default function EditDealPage({ params }: { params: { id: string } }) {
@@ -36,6 +37,7 @@ export default function EditDealPage({ params }: { params: { id: string } }) {
     company_id: deal?.company_id ?? "",
     expected_close_date: (deal?.expected_close_date ?? "").slice(0, 10),
     probability: deal?.probability == null ? "" : String(deal.probability),
+    custom_data: deal?.custom_data ?? {},
   };
 
   return (

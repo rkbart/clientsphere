@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Field } from "@/components/forms/fields";
+import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/custom-field-inputs";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useContacts } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
@@ -15,6 +16,7 @@ export interface DealFormValues {
   company_id: string;
   expected_close_date: string;
   probability: string;
+  custom_data: CustomData;
 }
 
 export const EMPTY_DEAL: DealFormValues = {
@@ -26,6 +28,7 @@ export const EMPTY_DEAL: DealFormValues = {
   company_id: "",
   expected_close_date: "",
   probability: "",
+  custom_data: {},
 };
 
 export function DealForm({
@@ -77,6 +80,7 @@ export function DealForm({
           company_id: values.company_id || null,
           expected_close_date: values.expected_close_date || null,
           probability: values.probability.trim() === "" ? null : Number(values.probability),
+          custom_data: values.custom_data,
         });
       }}
     >
@@ -168,6 +172,11 @@ export function DealForm({
           onChange={set("expected_close_date")}
         />
       </Field>
+      <CustomFieldInputs
+        entityType="Deal"
+        values={values.custom_data}
+        onChange={(custom_data) => setValues((v) => ({ ...v, custom_data }))}
+      />
       <button
         type="submit"
         disabled={submitting || !values.title.trim() || !values.pipeline_id || !values.stage_id}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Field } from "@/components/forms/fields";
+import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/custom-field-inputs";
 import { useCompanies } from "@/hooks/use-companies";
 
 export interface ContactFormValues {
@@ -11,6 +12,7 @@ export interface ContactFormValues {
   phone: string;
   status: string;
   company_id: string;
+  custom_data: CustomData;
 }
 
 export const EMPTY_CONTACT: ContactFormValues = {
@@ -20,6 +22,7 @@ export const EMPTY_CONTACT: ContactFormValues = {
   phone: "",
   status: "lead",
   company_id: "",
+  custom_data: {},
 };
 
 export function ContactForm({
@@ -53,6 +56,7 @@ export function ContactForm({
           phone: values.phone.trim() || null,
           status: values.status,
           company_id: values.company_id || null,
+          custom_data: values.custom_data,
         });
       }}
     >
@@ -118,6 +122,11 @@ export function ContactForm({
           </select>
         </Field>
       </div>
+      <CustomFieldInputs
+        entityType="Contact"
+        values={values.custom_data}
+        onChange={(custom_data) => setValues((v) => ({ ...v, custom_data }))}
+      />
       <button type="submit" disabled={submitting || !values.first_name.trim()} className="btn-primary">
         {submitting ? "Saving…" : submitLabel}
       </button>

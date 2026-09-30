@@ -16,6 +16,7 @@ interface ContactRecord {
   phone?: string | null;
   status?: string | null;
   company_id?: string | null;
+  custom_data?: Record<string, unknown> | null;
 }
 
 export default function EditContactPage({ params }: { params: { id: string } }) {
@@ -32,6 +33,7 @@ export default function EditContactPage({ params }: { params: { id: string } }) 
     phone: contact?.phone ?? "",
     status: contact?.status ?? "lead",
     company_id: contact?.company_id ?? "",
+    custom_data: contact?.custom_data ?? {},
   };
 
   return (

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Field } from "@/components/forms/fields";
+import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/custom-field-inputs";
 
 export interface CompanyFormValues {
   name: string;
@@ -10,6 +11,7 @@ export interface CompanyFormValues {
   size_range: string;
   annual_revenue: string;
   description: string;
+  custom_data: CustomData;
 }
 
 export const EMPTY_COMPANY: CompanyFormValues = {
@@ -19,6 +21,7 @@ export const EMPTY_COMPANY: CompanyFormValues = {
   size_range: "",
   annual_revenue: "",
   description: "",
+  custom_data: {},
 };
 
 export function CompanyForm({
@@ -50,6 +53,7 @@ export function CompanyForm({
           size_range: values.size_range.trim() || null,
           annual_revenue: values.annual_revenue.trim() === "" ? null : Number(values.annual_revenue),
           description: values.description.trim() || null,
+          custom_data: values.custom_data,
         });
       }}
     >
@@ -102,6 +106,11 @@ export function CompanyForm({
           onChange={set("description")}
         />
       </Field>
+      <CustomFieldInputs
+        entityType="Company"
+        values={values.custom_data}
+        onChange={(custom_data) => setValues((v) => ({ ...v, custom_data }))}
+      />
       <button type="submit" disabled={submitting || !values.name.trim()} className="btn-primary">
         {submitting ? "Saving…" : submitLabel}
       </button>

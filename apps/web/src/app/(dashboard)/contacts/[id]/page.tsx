@@ -3,6 +3,7 @@
 import { useContact, useScoreContact } from "@/hooks/use-contacts";
 import { NotesSection } from "@/components/shared/notes-section";
 import { ContactTags } from "@/components/contacts/contact-tags";
+import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { AiDraftEmail } from "@/components/ai/ai-draft-email";
 import { AiInsights } from "@/components/ai/ai-insights";
 import Link from "next/link";
@@ -17,6 +18,7 @@ interface ContactData {
   status: "lead" | "customer" | "churned" | null;
   lead_score: number;
   score_reasons: string[];
+  custom_data?: Record<string, unknown> | null;
   created_at: string;
 }
 
@@ -74,6 +76,8 @@ export default function ContactDetailPage({ params }: { params: { id: string } }
       </div>
 
       <ContactTags contactId={contact.id} />
+
+      <CustomFieldValues entityType="Contact" values={contact.custom_data} />
 
       <NotesSection notableType="Contact" notableId={contact.id} />
     </div>

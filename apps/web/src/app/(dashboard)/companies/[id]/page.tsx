@@ -2,6 +2,7 @@
 
 import { useCompany } from "@/hooks/use-companies";
 import { NotesSection } from "@/components/shared/notes-section";
+import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { AiEnrich } from "@/components/ai/ai-enrich";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
@@ -14,6 +15,7 @@ interface CompanyData {
   size_range: string;
   annual_revenue: number;
   description: string;
+  custom_data?: Record<string, unknown> | null;
 }
 
 export default function CompanyDetailPage({ params }: { params: { id: string } }) {
@@ -51,6 +53,8 @@ export default function CompanyDetailPage({ params }: { params: { id: string } }
       </div>
 
       <AiEnrich company={company} />
+
+      <CustomFieldValues entityType="Company" values={company.custom_data} />
 
       <NotesSection notableType="Company" notableId={company.id} />
     </div>

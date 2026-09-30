@@ -16,6 +16,7 @@ interface CompanyRecord {
   size_range?: string | null;
   annual_revenue?: number | string | null;
   description?: string | null;
+  custom_data?: Record<string, unknown> | null;
 }
 
 export default function EditCompanyPage({ params }: { params: { id: string } }) {
@@ -32,6 +33,7 @@ export default function EditCompanyPage({ params }: { params: { id: string } }) 
     size_range: company?.size_range ?? "",
     annual_revenue: company?.annual_revenue == null ? "" : String(company.annual_revenue),
     description: company?.description ?? "",
+    custom_data: company?.custom_data ?? {},
   };
 
   return (
