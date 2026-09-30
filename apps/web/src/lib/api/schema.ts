@@ -803,6 +803,13 @@ export interface paths {
       };
     };
     post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            saved_view?: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -831,6 +838,13 @@ export interface paths {
       parameters: {
         path: {
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            saved_view?: Record<string, unknown>;
+          };
         };
       };
       responses: {

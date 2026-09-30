@@ -21,8 +21,8 @@ class SavedViewPolicy < ApplicationPolicy
 
   class Scope < Scope
     def resolve
-      if user.role_for(account) == "viewer"
-        super.where(shared: true).or(super.where(user: user))
+      if @user.role_for(@account) == "viewer"
+        super.where(shared: true).or(super.where(user: @user))
       else
         super
       end

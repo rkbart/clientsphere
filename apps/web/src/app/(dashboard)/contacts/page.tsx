@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useContacts } from "@/hooks/use-contacts";
 import { useTags } from "@/hooks/use-tags";
+import { SavedViewSwitcher, type ViewFilters } from "@/components/saved-views/saved-view-switcher";
 import Link from "next/link";
 import { Plus, Search, X } from "lucide-react";
 
@@ -55,6 +56,14 @@ export default function ContactsPage() {
   const typed = data as unknown as ContactsResponse;
   const isFiltered = !!debouncedQ || !!tagId || !!status;
 
+  const applyView = (filters: ViewFilters) => {
+    const q = filters.q ?? "";
+    setQ(q);
+    setDebouncedQ(q);
+    setStatus(filters.status ?? "");
+    setTagId(filters.tag_id ?? "");
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -72,6 +81,16 @@ export default function ContactsPage() {
           Add Contact
         </Link>
       </div>
+
+      <SavedViewSwitcher
+        entityType="Contact"
+        currentFilters={{
+          ...(debouncedQ ? { q: debouncedQ } : {}),
+          ...(status ? { status } : {}),
+          ...(tagId ? { tag_id: tagId } : {}),
+        }}
+        onApply={applyView}
+      />
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">

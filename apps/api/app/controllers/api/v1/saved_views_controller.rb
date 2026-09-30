@@ -42,6 +42,6 @@ class Api::V1::SavedViewsController < Api::V1::BaseController
   end
 
   def saved_view_params
-    params.require(:saved_view).permit(:entity_type, :name, :filters, :sort, :columns, :shared)
+    params.require(:saved_view).permit(:entity_type, :name, :shared, filters: {}, sort: {}, columns: {})
   end
 end
