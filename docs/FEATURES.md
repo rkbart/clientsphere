@@ -132,6 +132,11 @@
 - Values captured in create/edit forms, shown on detail pages, exact-match
   `?custom[key]=value` filters on list endpoints
 
+### Custom Objects
+- User-defined record types with custom fields (Settings → Custom Objects)
+- JSON-based field storage, CRUD API
+- Polymorphic records linked to accounts
+
 ### Saved Views
 - Save filters, sort, columns
 - Per entity type

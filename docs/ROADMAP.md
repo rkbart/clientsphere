@@ -50,8 +50,8 @@
 
 - [x] Calendar integration (month view of activities, due-date filters)
 - [x] Zapier/Make (signed webhook triggers + API-token actions, [guide](INTEGRATIONS.md))
-- Visual workflow builder
-- Custom objects
+- [x] Visual workflow builder (drag-and-drop automation editor)
+- [x] Custom objects (user-defined record types with custom fields)
 - GraphQL API
 - React Native app
 - IMAP/Google/Microsoft email sync
