@@ -1,10 +1,17 @@
-default: &default
-
 development:
-  <<: *default
+  database: primary
+  store_options:
+    max_size: <%= 256.megabytes %>
+    namespace: development
 
 test:
-  <<: *default
+  database: primary
+  store_options:
+    max_size: <%= 256.megabytes %>
+    namespace: test
 
 production:
-  <<: *default
+  database: primary
+  store_options:
+    max_size: <%= 256.megabytes %>
+    namespace: production

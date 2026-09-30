@@ -1,16 +1,11 @@
-default: &default
-  adapter: solid_cable
-  connects_to:
-    database:
-      writing: primary
-  polling_interval: 0.1 seconds
-  message_retention: 1 day
-
+# Solid Cable (single database — no connects_to, uses primary)
 development:
-  <<: *default
+  adapter: async
 
 test:
-  <<: *default
+  adapter: test
 
 production:
-  <<: *default
+  adapter: solid_cable
+  polling_interval: <%= 0.1 %>
+  message_retention: <%= 1.day.to_i %>

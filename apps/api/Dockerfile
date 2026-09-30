@@ -15,6 +15,10 @@ RUN bundle install
 
 COPY . .
 
+# Precompile assets for production without requiring secret RAILS_MASTER_KEY
+# (serves the Mission Control jobs dashboard via Propshaft)
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+
 EXPOSE 3000
 
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

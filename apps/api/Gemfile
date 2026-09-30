@@ -45,6 +45,13 @@ gem "resend"
 # Serialization
 gem "jsonapi-serializer"
 
+# Background Jobs, Cache, Cable
+gem "solid_queue"
+gem "solid_cache"
+gem "solid_cable"
+gem "mission_control-jobs"
+gem "propshaft"
+
 # HTTP client for webhooks
 gem "http"
 

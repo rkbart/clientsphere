@@ -114,6 +114,12 @@
 - Delivery log
 - UI: list, create/edit form, detail with deliveries
 
+### Jobs & Scheduling
+- Solid Queue on the same Postgres (no extra infra), worker via `bin/jobs`
+- Dashboard at `/jobs` (Mission Control, HTTP basic auth, closed by default)
+- Recurring maintenance (finished-job cleanup, hourly, `config/recurring.yml`)
+- Sequence chains self-schedule their next step and survive restarts
+
 ## Customization
 
 ### Custom Fields

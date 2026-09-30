@@ -24,7 +24,16 @@ cd apps/web
 pnpm install
 pnpm dev                      # http://localhost:3001  (next dev -p 3001)
 # next.config.ts rewrites /api/* → http://localhost:3000
+
+# Worker (new terminal — processes sequences, webhooks, automations)
+cd apps/api
+bin/jobs start
 ```
+
+Seeded login: `sarah@beanandbrew.com` / `password123`.
+
+Job dashboard: `http://localhost:3000/jobs` (HTTP basic auth via
+`MISSION_CONTROL_USER` / `MISSION_CONTROL_PASSWORD`, else 401).
 
 Seeded login: `sarah@beanandbrew.com` / `password123`.
 
@@ -35,6 +44,7 @@ API types are hand-written in `apps/web/src/lib/api/schema.ts` (no codegen step)
 ```bash
 # API
 bin/rails s · bin/rails c · bin/rails db:migrate · bin/rails db:seed
+bin/jobs start                                # Solid Queue worker (sequences, webhooks, automations)
 bundle exec rubocop · bundle exec brakeman · bundle exec bundler-audit check
 bundle exec rspec                       # request specs (scaffold, currently minimal)
 
@@ -53,6 +63,8 @@ SECRET_KEY_BASE=<generate with rails secret>          # dev generates one automa
 ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY=<generate>
 ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY=<generate>
 ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT=<generate>
+MISSION_CONTROL_USER=admin                 # /jobs dashboard login (dev only)
+MISSION_CONTROL_PASSWORD=<generate>
 ```
 
 The `ACTIVE_RECORD_ENCRYPTION_*` keys encrypt AI provider keys and webhook

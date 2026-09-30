@@ -22,8 +22,23 @@ services:
       DATABASE_URL: postgres://clientsphere:clientsphere@postgres:5432/clientsphere_development
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      MISSION_CONTROL_USER: ${MISSION_CONTROL_USER}
+      MISSION_CONTROL_PASSWORD: ${MISSION_CONTROL_PASSWORD}
     depends_on:
       - postgres
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: bin/jobs start
+    environment:
+      DATABASE_URL: postgres://clientsphere:clientsphere@postgres:5432/clientsphere_development
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+    depends_on:
+      - postgres
+      - api
 
   web:
     build:

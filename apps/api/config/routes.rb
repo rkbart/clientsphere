@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Solid Queue dashboard (HTTP basic auth, see config/initializers/mission_control_jobs.rb)
+  mount MissionControl::Jobs::Engine, at: "/jobs"
+
   namespace :api do
     namespace :v1 do
       # Auth

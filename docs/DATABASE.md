@@ -51,6 +51,11 @@ PostgreSQL (Neon free tier for demo, self-hosted for production)
 ### Integrations
 - `webhooks` + `webhook_deliveries`
 
+### Jobs & cache (Solid Queue / Cache / Cable, same database)
+- `solid_queue_*` — jobs, executions, recurring tasks, semaphores, batches
+- `solid_cache_entries` — Rails cache store (production)
+- `solid_cable_messages` — Action Cable adapter (production)
+
 ### AI
 - `ai_settings` — per-account AI config (encrypted `api_key`, `enabled`, `redact_pii`)
 - `ai_logs` — metadata-only usage log (action, provider, model, success, duration)

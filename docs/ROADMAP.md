@@ -26,8 +26,8 @@
 - [x] Automations (form-based trigger/action rules)
 - [x] Email sequences (steps with delays, enrollment, unsubscribe)
 - [x] Webhooks (signed deliveries, retries, delivery log)
-- [ ] Job visibility (Mission Control dashboard)
-- [ ] Scheduling (Solid Queue recurring tasks)
+- [x] Job visibility (Mission Control dashboard)
+- [x] Scheduling (Solid Queue recurring tasks)
 
 ## Phase 4: Customization & Teams (Weeks 13–16)
 

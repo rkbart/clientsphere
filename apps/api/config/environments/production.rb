@@ -10,4 +10,7 @@ Rails.application.configure do
   config.active_support.disallowed_deprecation_warnings = []
   config.log_tags = [:request_id]
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+
+  # Solid Cache + Solid Queue back the app in production (single database).
+  config.cache_store = :solid_cache_store
 end
