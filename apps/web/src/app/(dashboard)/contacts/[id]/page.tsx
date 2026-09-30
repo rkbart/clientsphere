@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useContact, useDeleteContact, useUpdateContact } from "@/hooks/use-contacts";
 import { useCompany } from "@/hooks/use-companies";
 import { NotesSection } from "@/components/shared/notes-section";
-import { ContactTags } from "@/components/contacts/contact-tags";
+import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { ContactForm, type ContactFormValues } from "@/components/contacts/contact-form";
@@ -107,7 +107,7 @@ export default function ContactDetailPage() {
         </dl>
       </div>
 
-      <ContactTags contactId={contact.id} />
+      <TagEditor entity="Contact" entityId={contact.id} />
 
       <CustomFieldValues entityType="Contact" values={contact.custom_data} />
 

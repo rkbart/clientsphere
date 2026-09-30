@@ -5,7 +5,7 @@ module Exports
     end
 
     def contacts
-      generate_csv(@account.contacts) do |contact|
+      generate_csv(@account.contacts.kept) do |contact|
         {
           "First Name" => contact.first_name,
           "Last Name" => contact.last_name,
@@ -20,7 +20,7 @@ module Exports
     end
 
     def companies
-      generate_csv(@account.companies) do |company|
+      generate_csv(@account.companies.kept) do |company|
         {
           "Name" => company.name,
           "Domain" => escape_formula(company.domain),
@@ -33,7 +33,7 @@ module Exports
     end
 
     def deals
-      generate_csv(@account.deals.includes(:stage, :contact, :company)) do |deal|
+      generate_csv(@account.deals.kept.includes(:stage, :contact, :company)) do |deal|
         {
           "Title" => deal.title,
           "Amount" => deal.amount,

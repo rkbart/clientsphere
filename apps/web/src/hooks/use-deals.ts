@@ -17,9 +17,10 @@ export function useDeals(params?: Record<string, unknown>) {
   });
 }
 
-export function useDeal(id: string) {
+export function useDeal(id: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["deals", id],
+    enabled: options?.enabled ?? !!id,
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/deals/{id}", {
         params: { path: { id } },

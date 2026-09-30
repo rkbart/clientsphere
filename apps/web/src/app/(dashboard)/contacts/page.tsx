@@ -3,13 +3,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useContacts, useCreateContact } from "@/hooks/use-contacts";
-import { useTags, useContactTags } from "@/hooks/use-tags";
+import { useTags } from "@/hooks/use-tags";
+import { TagsCell } from "@/components/shared/tags-cell";
 import type { Tag } from "@/hooks/use-tags";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { ContactForm, EMPTY_CONTACT } from "@/components/contacts/contact-form";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight, Plus, Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
+import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import type { SortDir } from "@/components/shared/sort-header";
 
 interface Contact {
   id: string;
@@ -35,61 +38,11 @@ const STATUS_BADGE: Record<string, string> = {
   churned: "badge-neutral",
 };
 
-const PER_PAGE_OPTIONS = [10, 25, 50];
-
 type SortKey = "first_name" | "email" | "company";
-type SortDir = "asc" | "desc";
 
 interface ContactsResponse {
   data: Contact[];
   meta: { total_count: number; total_pages: number; current_page: number; per_page: number };
-}
-
-function ContactTagsCell({ contactId, fallback }: { contactId: string; fallback?: Tag[] }) {
-  const { data: live } = useContactTags(contactId);
-  const tags = live ?? fallback ?? [];
-  if (tags.length === 0) return <span className="text-[var(--text-tertiary)]">—</span>;
-  return (
-    <span className="flex flex-wrap gap-1 max-w-[16rem]">
-      {tags.slice(0, 3).map((tag) => (
-        <span
-          key={tag.id}
-          className="badge badge-neutral"
-          style={tag.color ? { backgroundColor: `${tag.color}1a`, color: tag.color } : undefined}
-        >
-          {tag.name}
-        </span>
-      ))}
-      {tags.length > 3 && <span className="badge badge-neutral">+{tags.length - 3}</span>}
-    </span>
-  );
-}
-
-function SortHeader({
-  label,
-  sortKey,
-  activeKey,
-  direction,
-  onSort,
-}: {
-  label: string;
-  sortKey: SortKey;
-  activeKey: SortKey;
-  direction: SortDir;
-  onSort: (key: SortKey) => void;
-}) {
-  const active = activeKey === sortKey;
-  const Icon = !active ? ArrowUpDown : direction === "asc" ? ArrowUp : ArrowDown;
-  return (
-    <button
-      onClick={() => onSort(sortKey)}
-      className="inline-flex items-center gap-1 hover:text-[var(--text-primary)] transition-colors"
-      aria-label={`Sort by ${label}`}
-    >
-      {label}
-      <Icon className="h-3.5 w-3.5" />
-    </button>
-  );
 }
 
 export default function ContactsPage() {
@@ -130,18 +83,52 @@ export default function ContactsPage() {
   const currentPage = typed?.meta?.current_page ?? page;
   const totalCount = typed?.meta?.total_count ?? 0;
   const rowsOnPage = typed?.data?.length ?? 0;
-  const pageStart = rowsOnPage === 0 ? 0 : (currentPage - 1) * perPage + 1;
-  const pageEnd = (currentPage - 1) * perPage + rowsOnPage;
 
-  const handleSort = (key: SortKey) => {
+  const handleSort = (key: string) => {
     if (key === sort) {
       setDirection((d) => (d === "asc" ? "desc" : "asc"));
     } else {
-      setSort(key);
+      setSort(key as SortKey);
       setDirection("asc");
     }
     setPage(1);
   };
+
+  const columns: DataTableColumn<Contact>[] = [
+    {
+      key: "first_name",
+      label: "Name",
+      sortable: true,
+      minWidth: "w-[240px]",
+      render: (c) => (
+        <span className="font-medium text-[var(--text-primary)]">
+          {c.first_name} {c.last_name}
+        </span>
+      ),
+    },
+    {
+      key: "email",
+      label: "Email",
+      sortable: true,
+      render: (c) => <span className="text-[var(--text-secondary)]">{c.email || "—"}</span>,
+    },
+    {
+      key: "company",
+      label: "Company",
+      sortable: true,
+      render: (c) => <span className="text-[var(--text-secondary)]">{c.company?.name || "—"}</span>,
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (c) => (
+        <span className={`badge ${c.status ? STATUS_BADGE[c.status] : "badge-neutral"}`}>
+          {c.status ?? "lead"}
+        </span>
+      ),
+    },
+    { key: "tags", label: "Tags", render: (c) => <TagsCell tags={c.tags} /> },
+  ];
 
   const clearFilters = () => {
     setQ("");
@@ -219,65 +206,16 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px]">
-            <thead>
-              <tr className="border-b border-[var(--border)]">
-                <th className="table-cell table-header text-left">
-                  <SortHeader label="Name" sortKey="first_name" activeKey={sort} direction={direction} onSort={handleSort} />
-                </th>
-                <th className="table-cell table-header text-left">
-                  <SortHeader label="Email" sortKey="email" activeKey={sort} direction={direction} onSort={handleSort} />
-                </th>
-                <th className="table-cell table-header text-left">
-                  <SortHeader label="Company" sortKey="company" activeKey={sort} direction={direction} onSort={handleSort} />
-                </th>
-                <th className="table-cell table-header text-left">Status</th>
-                <th className="table-cell table-header text-left">Tags</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[var(--border-subtle)]">
-              {isLoading ? (
-                Array.from({ length: 5 }).map((_, i) => (
-                  <tr key={i} className="table-row">
-                    <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-32 animate-pulse" /></td>
-                    <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-40 animate-pulse" /></td>
-                    <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-24 animate-pulse" /></td>
-                    <td className="table-cell"><div className="h-5 bg-[var(--bg-elevated)] rounded-full w-16 animate-pulse" /></td>
-                    <td className="table-cell"><div className="h-5 bg-[var(--bg-elevated)] rounded-full w-20 animate-pulse" /></td>
-                  </tr>
-                ))
-              ) : (
-                typed?.data?.map((contact) => (
-                  <tr
-                    key={contact.id}
-                    onClick={() => router.push(`/contacts/${contact.id}`)}
-                    onKeyDown={(e) => { if (e.key === "Enter") router.push(`/contacts/${contact.id}`); }}
-                    tabIndex={0}
-                    className="table-row cursor-pointer"
-                  >
-                    <td className="table-cell font-medium text-[var(--text-primary)]">
-                      {contact.first_name} {contact.last_name}
-                    </td>
-                    <td className="table-cell text-[var(--text-secondary)]">{contact.email || "—"}</td>
-                    <td className="table-cell text-[var(--text-secondary)]">{contact.company?.name || "—"}</td>
-                    <td className="table-cell">
-                      <span className={`badge ${contact.status ? STATUS_BADGE[contact.status] : "badge-neutral"}`}>
-                        {contact.status ?? "lead"}
-                      </span>
-                    </td>
-                    <td className="table-cell" onClick={(e) => e.stopPropagation()}>
-                      <ContactTagsCell contactId={contact.id} fallback={contact.tags} />
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {!isLoading && (!typed?.data || typed.data.length === 0) && (
+      <DataTable
+        columns={columns}
+        rows={typed?.data}
+        isLoading={isLoading}
+        onRowClick={(c) => router.push(`/contacts/${c.id}`)}
+        sortKey={sort}
+        direction={direction}
+        onSort={handleSort}
+        minWidth="min-w-[760px]"
+        empty={
           <div className="px-5 py-12 text-center">
             <p className="text-sm text-[var(--text-tertiary)]">
               {isFiltered ? "No contacts match your filters" : "No contacts found"}
@@ -289,66 +227,14 @@ export default function ContactsPage() {
               </button>
             )}
           </div>
-        )}
-        {!isLoading && (typed?.meta?.total_count ?? 0) > 0 && (
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between px-4 py-3 border-t border-[var(--border-subtle)]">
-            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-              <label htmlFor="contacts-per-page">Rows</label>
-              <select
-                id="contacts-per-page"
-                value={perPage}
-                onChange={(e) => { setPerPage(Number(e.target.value)); setPage(1); }}
-                className="input w-auto py-1.5"
-              >
-                {PER_PAGE_OPTIONS.map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-              <span aria-live="polite">
-                {pageStart}–{pageEnd} of {totalCount}
-              </span>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage <= 1}
-                className="btn-ghost p-2 disabled:opacity-40"
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              {Array.from({ length: Math.min(totalPages, 7) }).map((_, i) => {
-                const pageNum = totalPages <= 7 ? i + 1
-                  : currentPage <= 4 ? i + 1
-                  : currentPage >= totalPages - 3 ? totalPages - 6 + i
-                  : currentPage - 3 + i;
-                return (
-                  <button
-                    key={pageNum}
-                    onClick={() => setPage(pageNum)}
-                    aria-current={pageNum === currentPage ? "page" : undefined}
-                    className={`min-w-8 h-8 px-2 rounded-[var(--radius-md)] text-sm transition-colors ${
-                      pageNum === currentPage
-                        ? "bg-[var(--accent)] text-[var(--text-inverse)]"
-                        : "text-[var(--text-secondary)] hover:bg-[var(--accent-soft)] hover:text-[var(--text-primary)]"
-                    }`}
-                  >
-                    {pageNum}
-                  </button>
-                );
-              })}
-              <button
-                onClick={() => setPage((p) => Math.min(Math.max(totalPages, 1), p + 1))}
-                disabled={currentPage >= Math.max(totalPages, 1)}
-                className="btn-ghost p-2 disabled:opacity-40"
-                aria-label="Next page"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+        }
+        page={currentPage}
+        totalPages={totalPages}
+        total={totalCount}
+        perPage={perPage}
+        onPerPage={(n) => { setPerPage(n); setPage(1); }}
+        onPage={setPage}
+      />
 
       <Modal
         open={addOpen}

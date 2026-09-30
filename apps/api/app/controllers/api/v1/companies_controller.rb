@@ -2,17 +2,31 @@ class Api::V1::CompaniesController < Api::V1::BaseController
   before_action :set_company, only: [:show, :update, :destroy]
 
   def index
-    companies = policy_scope(Company)
-    companies = companies.where("name ILIKE ?", "%#{params[:q]}%") if params[:q].present?
+    companies = policy_scope(Company).kept
+    if params[:q].present?
+      term = "%#{params[:q]}%"
+      companies = companies.where("name ILIKE :t OR domain ILIKE :t OR industry ILIKE :t", t: term)
+    end
     companies = CustomFields::Filter.apply(companies, Current.account, "Company", params[:custom])
-    companies = companies.order(params[:sort] || :created_at).reverse_order
 
-    paginate(companies)
+    sort_direction = params[:direction] == "desc" ? :desc : :asc
+    companies = case params[:sort].to_s
+                when "domain"
+                  companies.order(domain: sort_direction, id: sort_direction)
+                when "industry"
+                  companies.order(industry: sort_direction, id: sort_direction)
+                when "annual_revenue"
+                  companies.order(annual_revenue: sort_direction, id: sort_direction)
+                else
+                  companies.order(name: sort_direction, id: sort_direction)
+                end
+
+    paginate(companies, include_associations: [:tags])
   end
 
   def show
     authorize @company
-    render json: @company
+    render json: @company.as_json(include: { tags: { only: [:id, :name, :color] } })
   end
 
   def create
@@ -39,7 +53,7 @@ class Api::V1::CompaniesController < Api::V1::BaseController
   private
 
   def set_company
-    @company = Company.find(params[:id])
+    @company = policy_scope(Company).kept.find(params[:id])
   end
 
   def company_params

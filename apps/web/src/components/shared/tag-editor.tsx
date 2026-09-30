@@ -1,14 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { useTags, useContactTags, useAttachContactTag, useDetachContactTag } from "@/hooks/use-tags";
+import {
+  useTags,
+  useEntityTags,
+  useAttachEntityTag,
+  useDetachEntityTag,
+  type TaggableEntity,
+} from "@/hooks/use-tags";
 import { X, Plus } from "lucide-react";
 
-export function ContactTags({ contactId }: { contactId: string }) {
+export function TagEditor({
+  entity,
+  entityId,
+}: {
+  entity: TaggableEntity;
+  entityId: string;
+}) {
   const { data: allTags, isLoading: tagsLoading } = useTags();
-  const { data: currentTags, isLoading: currentLoading } = useContactTags(contactId);
-  const attach = useAttachContactTag(contactId);
-  const detach = useDetachContactTag(contactId);
+  const { data: currentTags, isLoading: currentLoading } = useEntityTags(entity, entityId);
+  const attach = useAttachEntityTag(entity, entityId);
+  const detach = useDetachEntityTag(entity, entityId);
   const [adding, setAdding] = useState(false);
 
   const currentIds = new Set((currentTags ?? []).map((t) => t.id));
@@ -82,7 +94,7 @@ export function ContactTags({ contactId }: { contactId: string }) {
           </span>
         ))}
 
-        {!currentLoading && currentTags?.length === 0 && !adding && (
+        {!currentLoading && (currentTags?.length ?? 0) === 0 && !adding && (
           <p className="text-sm text-[var(--text-tertiary)]">No tags</p>
         )}
       </div>

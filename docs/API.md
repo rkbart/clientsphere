@@ -59,23 +59,27 @@ POST   /contacts/:id/score    # Lead scoring
 ## Companies
 
 ```
-GET    /companies
+GET    /companies              # List (q, sort, direction, page, per_page)
 POST   /companies
-GET    /companies/:id
+GET    /companies/:id          # Show (includes tags)
 PATCH  /companies/:id
-DELETE /companies/:id
+DELETE /companies/:id          # Soft delete
 ```
+
+Sort: `name` (default), `domain`, `industry`, `annual_revenue` — `direction=asc|desc`
 
 ## Deals
 
 ```
-GET    /deals
+GET    /deals                 # List (q, stage_id, pipeline_id, tag_id, sort, direction, page, per_page)
 POST   /deals
-GET    /deals/:id
+GET    /deals/:id             # Show (includes stage, company, tags)
 PATCH  /deals/:id
-DELETE /deals/:id
+DELETE /deals/:id             # Soft delete
 PATCH  /deals/:id/move        # Stage change
 ```
+
+Sort: `title`, `amount`, `expected_close_date` — `direction=asc|desc` (default: pipeline position)
 
 ## Pipelines & Stages
 

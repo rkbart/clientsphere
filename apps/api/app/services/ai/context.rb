@@ -23,13 +23,13 @@ module Ai
     private
 
     def contacts
-      pool = @account.contacts.order(created_at: :desc).limit(POOL_LIMIT).to_a
+      pool = @account.contacts.kept.order(created_at: :desc).limit(POOL_LIMIT).to_a
       matches = pool.select { |contact| term_match?(contact.full_name.downcase, contact.email.to_s.downcase) }
       (matches.presence || pool).first(MATCH_LIMIT).map { |contact| Prompts.contact_payload(contact) }
     end
 
     def deals
-      pool = @account.deals.where(closed_at: nil).order(created_at: :desc).limit(POOL_LIMIT).to_a
+      pool = @account.deals.kept.where(closed_at: nil).order(created_at: :desc).limit(POOL_LIMIT).to_a
       matches = pool.select { |deal| term_match?(deal.title.to_s.downcase) }
       (matches.presence || pool).first(MATCH_LIMIT).map { |deal| Prompts.deal_payload(deal) }
     end
@@ -42,9 +42,9 @@ module Ai
 
     def totals
       {
-        contacts: @account.contacts.count,
-        open_deals: @account.deals.where(closed_at: nil).count,
-        open_deal_value: @account.deals.where(closed_at: nil).sum(:amount).to_f,
+        contacts: @account.contacts.kept.count,
+        open_deals: @account.deals.kept.where(closed_at: nil).count,
+        open_deal_value: @account.deals.kept.where(closed_at: nil).sum(:amount).to_f,
         open_tasks: @account.activities.where(kind: :task, completed_at: nil).count
       }
     end

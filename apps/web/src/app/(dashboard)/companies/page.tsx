@@ -1,24 +1,88 @@
 "use client";
 
-import { useCompanies } from "@/hooks/use-companies";
-import Link from "next/link";
-import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCompanies, useCreateCompany } from "@/hooks/use-companies";
+import type { Tag } from "@/hooks/use-tags";
+import { TagsCell } from "@/components/shared/tags-cell";
+import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import type { SortDir } from "@/components/shared/sort-header";
+import { Modal } from "@/components/ui/modal";
+import { CompanyForm, EMPTY_COMPANY } from "@/components/companies/company-form";
+import { FormError } from "@/components/forms/fields";
+import { errMessage } from "@/lib/ai/error";
+import { Plus, Search } from "lucide-react";
 
 interface Company {
   id: string;
   name: string;
-  domain: string;
-  industry: string;
+  domain: string | null;
+  industry: string | null;
+  tags?: Tag[];
 }
+
+type SortKey = "name" | "domain" | "industry";
 
 interface CompaniesResponse {
   data: Company[];
-  meta: { total_count: number };
+  meta: { total_count: number; total_pages: number; current_page: number };
 }
 
 export default function CompaniesPage() {
-  const { data, isLoading } = useCompanies();
+  const router = useRouter();
+  const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+  const [sort, setSort] = useState<SortKey>("name");
+  const [direction, setDirection] = useState<SortDir>("asc");
+  const [addOpen, setAddOpen] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedQ(q);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  const { data, isLoading } = useCompanies({
+    q: debouncedQ || undefined,
+    page,
+    per_page: perPage,
+    sort,
+    direction,
+  });
+  const create = useCreateCompany();
   const typed = data as unknown as CompaniesResponse;
+  const isFiltered = !!debouncedQ;
+  const total = typed?.meta?.total_count ?? 0;
+  const totalPages = typed?.meta?.total_pages ?? 0;
+  const currentPage = typed?.meta?.current_page ?? page;
+
+  const handleSort = (key: string) => {
+    if (key === sort) {
+      setDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSort(key as SortKey);
+      setDirection("asc");
+    }
+    setPage(1);
+  };
+
+  const columns: DataTableColumn<Company>[] = [
+    {
+      key: "name",
+      label: "Name",
+      sortable: true,
+      minWidth: "w-[260px]",
+      render: (c) => <span className="font-medium text-[var(--text-primary)]">{c.name}</span>,
+    },
+    { key: "domain", label: "Domain", sortable: true, render: (c) => <span className="text-[var(--text-secondary)]">{c.domain || "—"}</span> },
+    { key: "industry", label: "Industry", sortable: true, render: (c) => <span className="text-[var(--text-secondary)]">{c.industry || "—"}</span> },
+    { key: "tags", label: "Tags", render: (c) => <TagsCell tags={c.tags} /> },
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -26,70 +90,89 @@ export default function CompaniesPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Companies</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
-            {typed?.meta?.total_count ?? 0} companies
+            {total} {total === 1 ? "company" : "companies"}
           </p>
         </div>
-        <Link href="/companies/new" className="btn-primary self-start sm:self-auto">
+        <button
+          onClick={() => { setCreateError(null); setAddOpen(true); }}
+          className="btn-primary self-start sm:self-auto"
+        >
           <Plus className="h-4 w-4" />
           Add Company
-        </Link>
+        </button>
       </div>
 
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px]">
-          <thead>
-            <tr className="border-b border-[var(--border)]">
-              <th className="table-cell table-header text-left">Name</th>
-              <th className="table-cell table-header text-left">Domain</th>
-              <th className="table-cell table-header text-left">Industry</th>
-              <th className="table-cell table-header text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--border-subtle)]">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="table-row">
-                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-32 animate-pulse" /></td>
-                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-36 animate-pulse" /></td>
-                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-24 animate-pulse" /></td>
-                  <td className="table-cell text-right"><div className="h-4 bg-[var(--bg-elevated)] rounded w-12 animate-pulse ml-auto" /></td>
-                </tr>
-              ))
-            ) : (
-              typed?.data?.map((company) => (
-                <tr key={company.id} className="table-row">
-                  <td className="table-cell">
-                    <Link
-                      href={`/companies/${company.id}`}
-                      className="font-medium text-[var(--text-primary)] hover:text-[var(--accent-hover)] transition-colors"
-                    >
-                      {company.name}
-                    </Link>
-                  </td>
-                  <td className="table-cell text-[var(--text-secondary)]">{company.domain}</td>
-                  <td className="table-cell text-[var(--text-secondary)]">{company.industry}</td>
-                  <td className="table-cell text-right">
-                    <Link
-                      href={`/companies/${company.id}`}
-                      className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                    >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)] pointer-events-none" />
+          <input
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search name, domain or industry…"
+            className="input pl-9"
+            aria-label="Search companies"
+          />
         </div>
-
-        {!isLoading && (!typed?.data || typed.data.length === 0) && (
-          <div className="px-5 py-12 text-center">
-            <p className="text-sm text-[var(--text-tertiary)]">No companies found</p>
-          </div>
+        {isFiltered && (
+          <button onClick={() => setQ("")} className="btn-ghost" aria-label="Clear search">
+            Clear
+          </button>
         )}
       </div>
+
+      <DataTable
+        columns={columns}
+        rows={typed?.data}
+        isLoading={isLoading}
+        onRowClick={(c) => router.push(`/companies/${c.id}`)}
+        sortKey={sort}
+        direction={direction}
+        onSort={handleSort}
+        minWidth="min-w-[720px]"
+        empty={
+          <div className="px-5 py-12 text-center">
+            <p className="text-sm text-[var(--text-tertiary)]">
+              {isFiltered ? "No companies match your search" : "No companies yet"}
+            </p>
+            {!isFiltered && (
+              <button onClick={() => { setCreateError(null); setAddOpen(true); }} className="btn-primary mt-4">
+                <Plus className="h-4 w-4" />
+                Add your first company
+              </button>
+            )}
+          </div>
+        }
+        page={currentPage}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        onPerPage={(n) => { setPerPage(n); setPage(1); }}
+        onPage={setPage}
+      />
+
+      <Modal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        title="Add company"
+        description="Create a new company in your workspace."
+      >
+        <FormError message={createError} />
+        <CompanyForm
+          initial={EMPTY_COMPANY}
+          submitting={create.isPending}
+          submitLabel="Create company"
+          onSubmit={async (values) => {
+            setCreateError(null);
+            try {
+              await create.mutateAsync(values);
+              setAddOpen(false);
+            } catch (e) {
+              setCreateError(errMessage(e, "Could not create the company."));
+            }
+          }}
+        />
+      </Modal>
     </div>
   );
 }

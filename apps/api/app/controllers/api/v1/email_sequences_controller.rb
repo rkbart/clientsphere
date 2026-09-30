@@ -35,7 +35,7 @@ class Api::V1::EmailSequencesController < Api::V1::BaseController
 
   def enroll
     authorize @email_sequence
-    contact = Current.account.contacts.find(params[:contact_id])
+    contact = Current.account.contacts.kept.find(params[:contact_id])
     first_step = @email_sequence.steps.first
     return render json: { error: "Sequence has no steps yet." }, status: :unprocessable_entity unless first_step
 

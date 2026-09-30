@@ -28,7 +28,7 @@ class Deal < ApplicationRecord
   def move_to!(target_stage_id, position: nil)
     transaction do
       update!(stage_id: target_stage_id, position: 0)
-      siblings = Deal.where(stage_id: target_stage_id).where.not(id: id).order(:position, :created_at).to_a
+      siblings = Deal.kept.where(stage_id: target_stage_id).where.not(id: id).order(:position, :created_at).to_a
       index = position.to_i.clamp(0, siblings.length)
       siblings.insert(index, self)
       siblings.each_with_index { |deal, i| deal.update_column(:position, i) }
@@ -44,6 +44,8 @@ class Deal < ApplicationRecord
   end
 
   def trigger_deal_update_events
+    # Discarding is a delete, not a stage change.
+    return if discarded_at?
     return unless previous_changes.key?("stage_id")
 
     Automations::Trigger.call(account, :deal_stage_changed, self)

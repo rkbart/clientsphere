@@ -20,7 +20,8 @@ class Contact < ApplicationRecord
   validate :custom_data_matches_definitions
 
   after_create_commit { Automations::Trigger.call(account, :contact_created, self) }
-  after_update_commit { Automations::Trigger.call(account, :contact_updated, self) }
+  # Discarding is a delete, not an update — don't fire update automations for it.
+  after_update_commit { Automations::Trigger.call(account, :contact_updated, self) unless discarded_at? }
 
   scope :search, ->(query) { where("first_name ILIKE ? OR last_name ILIKE ? OR email ILIKE ?", "%#{query}%", "%#{query}%", "%#{query}%") }
 

@@ -8,6 +8,7 @@ export interface paths {
           status?: string;
           tag_id?: string;
           sort?: string;
+          direction?: string;
           page?: number;
           per_page?: number;
         };
@@ -82,6 +83,15 @@ export interface paths {
   };
   "/companies": {
     get: {
+      parameters: {
+        query: {
+          q?: string;
+          sort?: string;
+          direction?: string;
+          page?: number;
+          per_page?: number;
+        };
+      };
       responses: {
         200: {
           content: {
@@ -158,6 +168,7 @@ export interface paths {
           pipeline_id?: string;
           tag_id?: string;
           sort?: string;
+          direction?: string;
           page?: number;
           per_page?: number;
         };

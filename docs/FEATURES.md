@@ -3,21 +3,22 @@
 ## Core CRM
 
 ### Contacts
-- List with search (debounced), status/tag filters, pagination
+- List with search (debounced), status/tag filters, sortable columns, pagination
 - Detail pages with notes, tags, AI cards
 - Status field: lead / customer / churned (filter + column)
 - Tags for categorization (filter by tag, attach/detach chips on detail)
 - Soft delete (discard)
 - Unique email per account
 - Lead scoring with explainable reasons + Re-score button
-- Create/edit forms (full-page, server 422 displayed inline)
+- Add/edit via modal dialogs (server 422 displayed inline)
 
 ### Companies
-- List with search, detail pages
+- List with search (name/domain/industry), sortable columns, pagination
+- Detail pages with notes, tags, AI enrichment
 - Linked contacts and deals
 - Enrichment from domain (user-confirmed)
 - Soft delete
-- Create/edit forms (full-page, server 422 displayed inline)
+- Add/edit via modal dialogs (server 422 displayed inline)
 
 ### Deals
 - Pipelines with customizable stages (API)
@@ -25,7 +26,8 @@
 - Won/lost tracking
 - Expected close dates
 - Deal value tracking
-- Create/edit forms in the UI
+- List with search, sortable columns, pagination
+- Add/edit via modal dialogs (server 422 displayed inline)
 
 ### Activities
 - Activity records: calls, meetings, tasks, emails

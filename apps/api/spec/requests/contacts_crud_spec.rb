@@ -36,6 +36,15 @@ RSpec.describe "Contacts CRUD", type: :request do
     expect(response).to have_http_status(:not_found)
   end
 
+  it "404s on a discarded contact's tags endpoint" do
+    contact = create_contact
+    contact.discard!
+
+    get "/api/v1/contacts/#{contact.id}/tags", headers: headers
+
+    expect(response).to have_http_status(:not_found)
+  end
+
   it "sorts by company name with asc/desc" do
     zeta = Company.create!(account: account, name: "Zeta")
     alpha = Company.create!(account: account, name: "Alpha")

@@ -1,25 +1,136 @@
 "use client";
 
-import { useDeals } from "@/hooks/use-deals";
-import Link from "next/link";
-import { Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDeals, useCreateDeal } from "@/hooks/use-deals";
+import type { Tag } from "@/hooks/use-tags";
+import { TagsCell } from "@/components/shared/tags-cell";
+import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import type { SortDir } from "@/components/shared/sort-header";
+import { Modal } from "@/components/ui/modal";
+import { DealForm, EMPTY_DEAL } from "@/components/deals/deal-form";
+import { FormError } from "@/components/forms/fields";
+import { errMessage } from "@/lib/ai/error";
+import { Plus, Search } from "lucide-react";
 
 interface Deal {
   id: string;
   title: string;
-  amount: number;
-  stage_id: string;
-  expected_close_date: string;
+  amount: number | string | null;
+  currency: string | null;
+  expected_close_date: string | null;
+  stage?: { id: string; name: string; color: string | null } | null;
+  company?: { id: string; name: string } | null;
+  tags?: Tag[];
 }
+
+// "" = default pipeline order (backend falls back to position)
+type SortKey = "" | "title" | "amount" | "expected_close_date";
 
 interface DealsResponse {
   data: Deal[];
-  meta: { total_count: number };
+  meta: { total_count: number; total_pages: number; current_page: number };
+}
+
+function money(value: number | string | null | undefined, currency = "USD") {
+  if (value == null || value === "") return "—";
+  const n = Number(value);
+  if (Number.isNaN(n)) return "—";
+  return n.toLocaleString(undefined, { style: "currency", currency });
 }
 
 export default function DealsPage() {
-  const { data, isLoading } = useDeals();
+  const router = useRouter();
+  const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+  const [sort, setSort] = useState<SortKey>("");
+  const [direction, setDirection] = useState<SortDir>("asc");
+  const [addOpen, setAddOpen] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedQ(q);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [q]);
+
+  const { data, isLoading } = useDeals({
+    q: debouncedQ || undefined,
+    page,
+    per_page: perPage,
+    ...(sort ? { sort, direction } : {}),
+  });
+  const create = useCreateDeal();
   const typed = data as unknown as DealsResponse;
+  const isFiltered = !!debouncedQ;
+  const total = typed?.meta?.total_count ?? 0;
+  const totalPages = typed?.meta?.total_pages ?? 0;
+  const currentPage = typed?.meta?.current_page ?? page;
+
+  const handleSort = (key: string) => {
+    if (key === sort) {
+      setDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSort(key as SortKey);
+      setDirection("asc");
+    }
+    setPage(1);
+  };
+
+  const columns: DataTableColumn<Deal>[] = [
+    {
+      key: "title",
+      label: "Title",
+      sortable: true,
+      minWidth: "w-[260px]",
+      render: (d) => (
+        <span className="font-medium text-[var(--text-primary)]">
+          {d.title}
+          {d.company?.name && (
+            <span className="text-[var(--text-tertiary)] font-normal"> · {d.company.name}</span>
+          )}
+        </span>
+      ),
+    },
+    {
+      key: "amount",
+      label: "Amount",
+      sortable: true,
+      render: (d) => <span className="tabular-nums">{money(d.amount, d.currency ?? "USD")}</span>,
+    },
+    {
+      key: "stage",
+      label: "Stage",
+      render: (d) =>
+        d.stage ? (
+          <span
+            className="badge badge-neutral"
+            style={d.stage.color ? { backgroundColor: `${d.stage.color}1a`, color: d.stage.color } : undefined}
+          >
+            {d.stage.name}
+          </span>
+        ) : (
+          <span className="text-[var(--text-tertiary)]">—</span>
+        ),
+    },
+    {
+      key: "expected_close_date",
+      label: "Close date",
+      sortable: true,
+      render: (d) => (
+        <span className="text-[var(--text-secondary)]">
+          {d.expected_close_date
+            ? new Date(d.expected_close_date).toLocaleDateString()
+            : "—"}
+        </span>
+      ),
+    },
+    { key: "tags", label: "Tags", render: (d) => <TagsCell tags={d.tags} /> },
+  ];
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -27,76 +138,91 @@ export default function DealsPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Deals</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
-            {typed?.meta?.total_count ?? 0} deals
+            {total} {total === 1 ? "deal" : "deals"}
           </p>
         </div>
-        <Link href="/deals/new" className="btn-primary self-start sm:self-auto">
+        <button
+          onClick={() => { setCreateError(null); setAddOpen(true); }}
+          className="btn-primary self-start sm:self-auto"
+        >
           <Plus className="h-4 w-4" />
           Add Deal
-        </Link>
+        </button>
       </div>
 
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[600px]">
-          <thead>
-            <tr className="border-b border-[var(--border)]">
-              <th className="table-cell table-header text-left">Title</th>
-              <th className="table-cell table-header text-left">Amount</th>
-              <th className="table-cell table-header text-left">Close date</th>
-              <th className="table-cell table-header text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--border-subtle)]">
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="table-row">
-                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-40 animate-pulse" /></td>
-                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-20 animate-pulse" /></td>
-                  <td className="table-cell"><div className="h-4 bg-[var(--bg-elevated)] rounded w-24 animate-pulse" /></td>
-                  <td className="table-cell text-right"><div className="h-4 bg-[var(--bg-elevated)] rounded w-12 animate-pulse ml-auto" /></td>
-                </tr>
-              ))
-            ) : (
-              typed?.data?.map((deal) => (
-                <tr key={deal.id} className="table-row">
-                  <td className="table-cell">
-                    <Link
-                      href={`/deals/${deal.id}`}
-                      className="font-medium text-[var(--text-primary)] hover:text-[var(--accent-hover)] transition-colors"
-                    >
-                      {deal.title}
-                    </Link>
-                  </td>
-                  <td className="table-cell text-[var(--text-secondary)] tabular-nums">
-                    ${deal.amount?.toLocaleString()}
-                  </td>
-                  <td className="table-cell text-[var(--text-secondary)]">
-                    {deal.expected_close_date
-                      ? new Date(deal.expected_close_date).toLocaleDateString()
-                      : "—"}
-                  </td>
-                  <td className="table-cell text-right">
-                    <Link
-                      href={`/deals/${deal.id}`}
-                      className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
-                    >
-                      View
-                    </Link>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)] pointer-events-none" />
+          <input
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search deal title…"
+            className="input pl-9"
+            aria-label="Search deals"
+          />
         </div>
-
-        {!isLoading && (!typed?.data || typed.data.length === 0) && (
-          <div className="px-5 py-12 text-center">
-            <p className="text-sm text-[var(--text-tertiary)]">No deals found</p>
-          </div>
+        {isFiltered && (
+          <button onClick={() => setQ("")} className="btn-ghost" aria-label="Clear search">
+            Clear
+          </button>
         )}
       </div>
+
+      <DataTable
+        columns={columns}
+        rows={typed?.data}
+        isLoading={isLoading}
+        onRowClick={(d) => router.push(`/deals/${d.id}`)}
+        sortKey={sort}
+        direction={direction}
+        onSort={handleSort}
+        minWidth="min-w-[880px]"
+        empty={
+          <div className="px-5 py-12 text-center">
+            <p className="text-sm text-[var(--text-tertiary)]">
+              {isFiltered ? "No deals match your search" : "No deals yet"}
+            </p>
+            {!isFiltered && (
+              <button onClick={() => { setCreateError(null); setAddOpen(true); }} className="btn-primary mt-4">
+                <Plus className="h-4 w-4" />
+                Create your first deal
+              </button>
+            )}
+          </div>
+        }
+        page={currentPage}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        onPerPage={(n) => { setPerPage(n); setPage(1); }}
+        onPage={setPage}
+      />
+
+      <Modal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        title="Add deal"
+        description="Track a new opportunity in your pipeline."
+        maxWidth="max-w-2xl"
+      >
+        <FormError message={createError} />
+        <DealForm
+          initial={EMPTY_DEAL}
+          submitting={create.isPending}
+          submitLabel="Create deal"
+          onSubmit={async (values) => {
+            setCreateError(null);
+            try {
+              await create.mutateAsync(values);
+              setAddOpen(false);
+            } catch (e) {
+              setCreateError(errMessage(e, "Could not create the deal."));
+            }
+          }}
+        />
+      </Modal>
     </div>
   );
 }
+

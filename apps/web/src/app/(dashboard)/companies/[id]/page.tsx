@@ -1,65 +1,178 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useCompany } from "@/hooks/use-companies";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useCompany, useUpdateCompany, useDeleteCompany } from "@/hooks/use-companies";
 import { NotesSection } from "@/components/shared/notes-section";
+import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { AiEnrich } from "@/components/ai/ai-enrich";
-import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { Modal, ConfirmDialog } from "@/components/ui/modal";
+import { CompanyForm, type CompanyFormValues } from "@/components/companies/company-form";
+import { FormError } from "@/components/forms/fields";
+import { errMessage } from "@/lib/ai/error";
+import { ChevronLeft, Pencil, Trash2 } from "lucide-react";
 
 interface CompanyData {
   id: string;
   name: string;
-  domain: string;
-  industry: string;
-  size_range: string;
-  annual_revenue: number;
-  description: string;
+  domain: string | null;
+  industry: string | null;
+  size_range: string | null;
+  annual_revenue: number | null;
+  description: string | null;
   custom_data?: Record<string, unknown> | null;
 }
 
 export default function CompanyDetailPage() {
   const routeParams = useParams<{ id: string }>();
   const id = Array.isArray(routeParams?.id) ? routeParams.id[0] : (routeParams?.id ?? "");
+  const router = useRouter();
   const { data, isLoading } = useCompany(id);
+  const update = useUpdateCompany();
+  const remove = useDeleteCompany();
+  const [editOpen, setEditOpen] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const company = data as unknown as CompanyData | undefined;
 
-  if (isLoading) return <div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>;
-  if (!company) return <div className="text-center py-8 text-sm text-[var(--text-tertiary)]">Company not found</div>;
+  if (isLoading) {
+    return <div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>;
+  }
+  if (!company) {
+    return <div className="text-center py-8 text-sm text-[var(--text-tertiary)]">Company not found</div>;
+  }
+
+  const initial: CompanyFormValues = {
+    name: company.name ?? "",
+    domain: company.domain ?? "",
+    industry: company.industry ?? "",
+    size_range: company.size_range ?? "",
+    annual_revenue: company.annual_revenue == null ? "" : String(company.annual_revenue),
+    description: company.description ?? "",
+    custom_data: (company.custom_data ?? {}) as CompanyFormValues["custom_data"],
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <h1 className="text-2xl font-semibold tracking-tight">{company.name}</h1>
-        <Link href={`/companies/${company.id}/edit`} className="btn-secondary text-sm shrink-0">
-          <Pencil className="h-4 w-4" />
-          Edit
+    <div className="space-y-6 animate-fade-in max-w-3xl">
+      <div>
+        <Link
+          href="/companies"
+          className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to companies
         </Link>
+        <div className="flex items-start justify-between gap-4 mt-2">
+          <h1 className="text-2xl font-semibold tracking-tight">{company.name}</h1>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => { setEditError(null); setEditOpen(true); }}
+              className="btn-secondary text-sm"
+            >
+              <Pencil className="h-4 w-4" />
+              Edit
+            </button>
+            <button
+              onClick={() => { setDeleteError(null); setConfirmDelete(true); }}
+              className="btn-secondary text-sm !text-[var(--danger)]"
+              aria-label="Delete company"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold mb-4">Company Info</h2>
-          <dl className="space-y-3">
-            <div><dt className="text-sm text-[var(--text-secondary)]">Domain</dt><dd className="mt-1">{company.domain}</dd></div>
-            <div><dt className="text-sm text-[var(--text-secondary)]">Industry</dt><dd className="mt-1">{company.industry}</dd></div>
-            <div><dt className="text-sm text-[var(--text-secondary)]">Size Range</dt><dd className="mt-1">{company.size_range || "N/A"}</dd></div>
-            <div><dt className="text-sm text-[var(--text-secondary)]">Annual Revenue</dt><dd className="mt-1">{company.annual_revenue ? `$${company.annual_revenue.toLocaleString()}` : "N/A"}</dd></div>
-          </dl>
-        </div>
-
-        <div className="card p-6">
-          <h2 className="text-lg font-semibold mb-4">Description</h2>
-          <p className="text-[var(--text-primary)]">{company.description || "No description provided."}</p>
-        </div>
+      <div className="card p-5">
+        <h2 className="text-sm font-semibold mb-4">Company details</h2>
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Domain</dt>
+            <dd className="mt-0.5 text-sm break-all">{company.domain || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Industry</dt>
+            <dd className="mt-0.5 text-sm">{company.industry || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Size range</dt>
+            <dd className="mt-0.5 text-sm">{company.size_range || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Annual revenue</dt>
+            <dd className="mt-0.5 text-sm tabular-nums">
+              {company.annual_revenue ? `$${Number(company.annual_revenue).toLocaleString()}` : "—"}
+            </dd>
+          </div>
+        </dl>
+        {company.description && (
+          <>
+            <hr className="my-4 border-[var(--border-subtle)]" />
+            <p className="text-sm text-[var(--text-primary)] whitespace-pre-wrap">
+              {company.description}
+            </p>
+          </>
+        )}
       </div>
 
-      <AiEnrich company={company} />
+      <AiEnrich
+        company={{
+          ...company,
+          domain: company.domain ?? "",
+          industry: company.industry ?? "",
+          size_range: company.size_range ?? "",
+          description: company.description ?? "",
+        }}
+      />
+
+      <TagEditor entity="Company" entityId={company.id} />
 
       <CustomFieldValues entityType="Company" values={company.custom_data} />
 
       <NotesSection notableType="Company" notableId={company.id} />
+
+      <Modal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        title="Edit company"
+        description="Update this company's details."
+      >
+        <FormError message={editError} />
+        <CompanyForm
+          initial={initial}
+          submitting={update.isPending}
+          submitLabel="Save changes"
+          onSubmit={async (values) => {
+            setEditError(null);
+            try {
+              await update.mutateAsync({ id: company.id, ...values });
+              setEditOpen(false);
+            } catch (e) {
+              setEditError(errMessage(e, "Could not save the company."));
+            }
+          }}
+        />
+      </Modal>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={() => {
+          setDeleteError(null);
+          remove.mutate(company.id, {
+            onSuccess: () => router.push("/companies"),
+            onError: (e) => setDeleteError(errMessage(e, "Could not delete the company.")),
+          });
+        }}
+        title="Delete company?"
+        message={`${company.name} will be permanently removed. This action cannot be undone.`}
+        confirming={remove.isPending}
+        error={deleteError}
+      />
     </div>
   );
 }

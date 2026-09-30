@@ -46,35 +46,35 @@ module Types
     field :current_user, Types::UserType, null: false
 
     def contacts(page: 1, per_page: 25, query: nil, status: nil)
-      scope = Current.account.contacts
+      scope = Current.account.contacts.kept
       scope = scope.search(query) if query.present?
       scope = scope.where(status: status) if status.present?
       scope.order(:created_at).reverse_order.page(page).per([per_page, 100].min)
     end
 
     def contact(id:)
-      Current.account.contacts.find(id)
+      Current.account.contacts.kept.find(id)
     end
 
     def companies(page: 1, per_page: 25, query: nil)
-      scope = Current.account.companies
+      scope = Current.account.companies.kept
       scope = scope.where("name ILIKE ?", "%#{query}%") if query.present?
       scope.order(:created_at).reverse_order.page(page).per([per_page, 100].min)
     end
 
     def company(id:)
-      Current.account.companies.find(id)
+      Current.account.companies.kept.find(id)
     end
 
     def deals(page: 1, per_page: 25, pipeline_id: nil, stage_id: nil)
-      scope = Current.account.deals
+      scope = Current.account.deals.kept
       scope = scope.where(pipeline_id: pipeline_id) if pipeline_id.present?
       scope = scope.where(stage_id: stage_id) if stage_id.present?
       scope.order(:position).order(created_at: :asc).page(page).per([per_page, 100].min)
     end
 
     def deal(id:)
-      Current.account.deals.find(id)
+      Current.account.deals.kept.find(id)
     end
 
     def activities(page: 1, per_page: 25, kind: nil, completed: nil)
