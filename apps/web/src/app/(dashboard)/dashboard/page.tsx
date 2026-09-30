@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useDeals } from "@/hooks/use-deals";
+import { DealCharts } from "@/components/dashboard/deal-charts";
 import { AiNextAction } from "@/components/ai/ai-next-action";
 import { TrendingUp, Users, Activity, ChevronRight, CheckCircle2, Circle } from "lucide-react";
 
@@ -25,6 +26,7 @@ interface DealRow {
   stage_id: string;
   amount: string | null;
   title?: string;
+  source?: string | null;
   expected_close_date?: string | null;
   closed_at?: string | null;
 }
@@ -224,6 +226,9 @@ export default function DashboardPage() {
           href={`/deals/${nextDeal.id}`}
         />
       )}
+
+      {/* Analytics */}
+      {stages && <DealCharts stages={stages} deals={deals} />}
 
       {/* Recent Activity */}
       <div className="card">

@@ -51,6 +51,6 @@ class Api::V1::DealsController < Api::V1::BaseController
   end
 
   def deal_params
-    params.require(:deal).permit(:title, :amount, :currency, :pipeline_id, :stage_id, :contact_id, :company_id, :owner_id, :expected_close_date, :probability, :position, custom_data: {})
+    params.require(:deal).permit(:title, :amount, :currency, :pipeline_id, :stage_id, :contact_id, :company_id, :owner_id, :expected_close_date, :probability, :position, :source, custom_data: {})
   end
 end

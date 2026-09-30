@@ -16,6 +16,7 @@ export interface DealFormValues {
   company_id: string;
   expected_close_date: string;
   probability: string;
+  source: string;
   custom_data: CustomData;
 }
 
@@ -28,6 +29,7 @@ export const EMPTY_DEAL: DealFormValues = {
   company_id: "",
   expected_close_date: "",
   probability: "",
+  source: "",
   custom_data: {},
 };
 
@@ -80,6 +82,7 @@ export function DealForm({
           company_id: values.company_id || null,
           expected_close_date: values.expected_close_date || null,
           probability: values.probability.trim() === "" ? null : Number(values.probability),
+          source: values.source.trim() || null,
           custom_data: values.custom_data,
         });
       }}
@@ -163,15 +166,33 @@ export function DealForm({
           </select>
         </Field>
       </div>
-      <Field label="Expected close date" htmlFor="deal-close-date">
-        <input
-          id="deal-close-date"
-          type="date"
-          className="input"
-          value={values.expected_close_date}
-          onChange={set("expected_close_date")}
-        />
-      </Field>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="Expected close date" htmlFor="deal-close-date">
+          <input
+            id="deal-close-date"
+            type="date"
+            className="input"
+            value={values.expected_close_date}
+            onChange={set("expected_close_date")}
+          />
+        </Field>
+        <Field label="Source" htmlFor="deal-source">
+          <input
+            id="deal-source"
+            className="input"
+            list="deal-source-options"
+            value={values.source}
+            onChange={set("source")}
+            placeholder="e.g. referral"
+            autoComplete="off"
+          />
+          <datalist id="deal-source-options">
+            {["referral", "website", "cold outreach", "social", "event", "partner"].map((s) => (
+              <option key={s} value={s} />
+            ))}
+          </datalist>
+        </Field>
+      </div>
       <CustomFieldInputs
         entityType="Deal"
         values={values.custom_data}
