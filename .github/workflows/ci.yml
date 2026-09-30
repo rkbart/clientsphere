@@ -41,7 +41,8 @@ jobs:
       - name: Set up database
         env:
           DATABASE_URL: postgres://clientsphere:clientsphere@localhost:5432/clientsphere_test
-        run: bin/rails db:setup
+          RAILS_ENV: test
+        run: bin/rails db:prepare
 
       - name: Run RSpec
         env:
