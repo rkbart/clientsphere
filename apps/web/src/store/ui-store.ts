@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface UIState {
   sidebarOpen: boolean;
@@ -7,9 +8,24 @@ interface UIState {
   setTheme: (theme: "light" | "dark") => void;
 }
 
-export const useUIStore = create<UIState>((set) => ({
-  sidebarOpen: true,
-  theme: "light",
-  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-  setTheme: (theme) => set({ theme }),
-}));
+function systemTheme(): "light" | "dark" {
+  if (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return "light";
+}
+
+export const useUIStore = create<UIState>()(
+  persist(
+    (set) => ({
+      sidebarOpen: true,
+      theme: systemTheme(),
+      toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+      setTheme: (theme) => set({ theme }),
+    }),
+    {
+      name: "clientsphere-ui",
+      partialize: (state) => ({ theme: state.theme }) as UIState,
+    }
+  )
+);

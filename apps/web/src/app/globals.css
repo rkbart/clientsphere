@@ -12,7 +12,7 @@
 
   --text-primary: #1c1917;
   --text-secondary: #78716c;
-  --text-tertiary: #a8a29e;
+  --text-tertiary: #6e6a66;
   --text-inverse: #fafaf9;
   --text-sidebar: #d6d3d1;
   --text-sidebar-active: #ffffff;
@@ -54,6 +54,77 @@
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
 
   --sidebar-width: 240px;
+
+  color-scheme: light;
+}
+
+/* Dark mode — enabled with <html data-theme="dark"> (see ThemeEffect) */
+[data-theme="dark"] {
+  --bg: #0c0a09;
+  --bg-card: #1c1917;
+  --bg-elevated: #292524;
+  --bg-sidebar: #0c0a09;
+  --bg-sidebar-hover: #1c1917;
+  --bg-sidebar-active: #44403c;
+
+  --text-primary: #fafaf9;
+  --text-secondary: #b8b2ad;
+  --text-tertiary: #a8a29e;
+  --text-inverse: #1c1917;
+  --text-sidebar: #d6d3d1;
+  --text-sidebar-active: #ffffff;
+
+  --border: #332e2a;
+  --border-subtle: #242120;
+
+  --accent: #fafaf9;
+  --accent-hover: #e7e5e4;
+  --accent-soft: #292524;
+
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --info: #60a5fa;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
+/* Pastel badges and error boxes assume a light surface — retune for dark */
+[data-theme="dark"] .badge-success {
+  background: rgba(74, 222, 128, 0.14);
+  color: #4ade80;
+}
+
+[data-theme="dark"] .badge-warning {
+  background: rgba(251, 191, 36, 0.14);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .badge-danger {
+  background: rgba(248, 113, 113, 0.14);
+  color: #f87171;
+}
+
+[data-theme="dark"] .badge-info {
+  background: rgba(96, 165, 250, 0.14);
+  color: #60a5fa;
+}
+
+/* Hardcoded light error surfaces (login, forms) */
+[data-theme="dark"] .bg-red-50 {
+  background-color: rgba(248, 113, 113, 0.12);
+}
+
+[data-theme="dark"] .border-red-100 {
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+[data-theme="dark"] .text-red-600 {
+  color: #f87171;
 }
 
 * {
