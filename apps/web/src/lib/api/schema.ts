@@ -1445,6 +1445,45 @@ export interface paths {
       };
     };
   };
+  "/api_tokens": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            api_token?: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/api_tokens/{id}": {
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
+      };
+    };
+  };
   "/import/csv": {
     post: {
       responses: {

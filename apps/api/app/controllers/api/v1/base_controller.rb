@@ -18,12 +18,31 @@ class Api::V1::BaseController < ActionController::API
 
   def set_current_account_and_user
     token = request.headers["Authorization"]&.split(" ")&.last
+    if token&.start_with?("csk_")
+      authenticate_api_token(token)
+    else
+      authenticate_session(token)
+    end
+    render json: { error: "Unauthorized" }, status: :unauthorized unless Current.user
+  end
+
+  def authenticate_session(token)
     session = Session.authenticate(token) if token
     if session
       Current.user = session.user
       Current.account = session.user.current_account
     end
-    render json: { error: "Unauthorized" }, status: :unauthorized unless Current.user
+  end
+
+  # Personal access tokens scope to the token's account (not the user's
+  # current account) so integrations stay pinned to one workspace.
+  def authenticate_api_token(raw_token)
+    api_token = ApiToken.authenticate(raw_token)
+    return unless api_token
+
+    api_token.record_usage!
+    Current.user = api_token.user
+    Current.account = api_token.account
   end
 
   def not_found

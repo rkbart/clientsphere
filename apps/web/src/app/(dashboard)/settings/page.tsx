@@ -34,6 +34,11 @@ export default function SettingsPage() {
           <p className="text-[var(--text-secondary)] mt-2">Configure webhook integrations</p>
         </a>
 
+        <a href="/settings/api-tokens" className="card p-6 hover:shadow-md transition-shadow">
+          <h2 className="text-lg font-semibold">API Tokens</h2>
+          <p className="text-[var(--text-secondary)] mt-2">Personal access tokens for integrations</p>
+        </a>
+
         <a href="/settings/import-export" className="card p-6 hover:shadow-md transition-shadow">
           <h2 className="text-lg font-semibold">Import/Export</h2>
           <p className="text-[var(--text-secondary)] mt-2">Import and export data</p>
