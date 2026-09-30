@@ -3,7 +3,7 @@ class Api::V1::MembershipsController < Api::V1::BaseController
     memberships = policy_scope(Membership)
     memberships = memberships.includes(:user)
 
-    render json: memberships
+    render json: memberships.as_json(include: { user: { only: [:id, :name, :email] } })
   end
 
   def update

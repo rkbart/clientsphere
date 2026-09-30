@@ -1369,6 +1369,13 @@ export interface paths {
   };
   "/invitations": {
     post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            invitation?: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -1410,6 +1417,13 @@ export interface paths {
       parameters: {
         path: {
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            role?: string;
+          };
         };
       };
       responses: {

@@ -9,8 +9,10 @@ class Api::V1::InvitationsController < Api::V1::BaseController
     invitation.account = Current.account
     authorize invitation
     invitation.save!
-    render json: invitation.as_json.except("token_digest").merge("token" => invitation.token),
-           status: :created
+    sent = Invitations::Notifier.send_invite(invitation, invitation.token)
+    render json: invitation.as_json.except("token_digest").merge(
+      "token" => invitation.token, "invite_sent" => sent
+    ), status: :created
   end
 
   def accept
