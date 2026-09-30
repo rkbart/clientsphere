@@ -1,0 +1,3443 @@
+---
+openapi: 3.0.3
+info:
+  title: ClientSphere API
+  version: v1
+  description: 'Auth: `Authorization: Bearer <token>` with a session token (from login/signup)
+    or a personal access token (`csk_…`, Settings → API Tokens). Tokens are workspace-scoped.
+    Regenerate with `bin/rails openapi:generate`.'
+servers:
+- url: "/api"
+paths:
+  "/api/v1/activities":
+    get:
+      summary: Index activity
+      operationId: index_api_v1_activities
+      tags:
+      - activities
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create activity
+      operationId: create_api_v1_activities
+      tags:
+      - activities
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: activity attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/activities/{id}":
+    get:
+      summary: Show activity
+      operationId: show_api_v1_activities
+      tags:
+      - activities
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update activity
+      operationId: update_api_v1_activities
+      tags:
+      - activities
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: activity attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update activity
+      operationId: update_api_v1_activities
+      tags:
+      - activities
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: activity attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy activity
+      operationId: destroy_api_v1_activities
+      tags:
+      - activities
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/ai/chat":
+    post:
+      summary: Chat ai
+      operationId: chat_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/ai/draft_email":
+    post:
+      summary: Draft email ai
+      operationId: draft_email_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/ai/enrich":
+    post:
+      summary: Enrich ai
+      operationId: enrich_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/ai/prompts":
+    post:
+      summary: Prompts ai
+      operationId: prompts_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/ai/settings":
+    get:
+      summary: Settings ai
+      operationId: settings_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update settings ai
+      operationId: update_settings_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/ai/suggest_next_action":
+    post:
+      summary: Suggest next action ai
+      operationId: suggest_next_action_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/ai/summarize_deal":
+    post:
+      summary: Summarize deal ai
+      operationId: summarize_deal_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/ai/test_connection":
+    post:
+      summary: Test connection ai
+      operationId: test_connection_api_v1_ai
+      tags:
+      - ai
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/api_tokens":
+    get:
+      summary: Index api token
+      operationId: index_api_v1_api_tokens
+      tags:
+      - api_tokens
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create api token
+      operationId: create_api_v1_api_tokens
+      tags:
+      - api_tokens
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: api_token attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/api_tokens/{id}":
+    delete:
+      summary: Destroy api token
+      operationId: destroy_api_v1_api_tokens
+      tags:
+      - api_tokens
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/auth/login":
+    post:
+      summary: Log in and receive a session token
+      operationId: login_api_v1_auth
+      tags:
+      - auth
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+  "/api/v1/auth/logout":
+    delete:
+      summary: Revoke the current session
+      operationId: logout_api_v1_auth
+      tags:
+      - auth
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/auth/me":
+    get:
+      summary: Current user, account and memberships
+      operationId: me_api_v1_auth
+      tags:
+      - auth
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/auth/signup":
+    post:
+      summary: Sign up with email, password and workspace name
+      operationId: signup_api_v1_auth
+      tags:
+      - auth
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+  "/api/v1/auth/switch_account":
+    post:
+      summary: Switch the session's current workspace
+      operationId: switch_account_api_v1_auth
+      tags:
+      - auth
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/automations":
+    get:
+      summary: Index automation
+      operationId: index_api_v1_automations
+      tags:
+      - automations
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create automation
+      operationId: create_api_v1_automations
+      tags:
+      - automations
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: automation attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/automations/{id}":
+    get:
+      summary: Show automation
+      operationId: show_api_v1_automations
+      tags:
+      - automations
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update automation
+      operationId: update_api_v1_automations
+      tags:
+      - automations
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: automation attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update automation
+      operationId: update_api_v1_automations
+      tags:
+      - automations
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: automation attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy automation
+      operationId: destroy_api_v1_automations
+      tags:
+      - automations
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/automations/{id}/runs":
+    get:
+      summary: Runs automation
+      operationId: runs_api_v1_automations
+      tags:
+      - automations
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/automations/{id}/toggle":
+    post:
+      summary: Toggle automation
+      operationId: toggle_api_v1_automations
+      tags:
+      - automations
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/companies":
+    get:
+      summary: Index company
+      operationId: index_api_v1_companies
+      tags:
+      - companies
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create company
+      operationId: create_api_v1_companies
+      tags:
+      - companies
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: company attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/companies/{company_id}/tags":
+    get:
+      summary: Index company tag
+      operationId: index_api_v1_company_tags
+      tags:
+      - company_tags
+      parameters:
+      - name: company_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create company tag
+      operationId: create_api_v1_company_tags
+      tags:
+      - company_tags
+      parameters:
+      - name: company_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: company_tag attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/companies/{company_id}/tags/{id}":
+    delete:
+      summary: Destroy company tag
+      operationId: destroy_api_v1_company_tags
+      tags:
+      - company_tags
+      parameters:
+      - name: company_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/companies/{id}":
+    get:
+      summary: Show company
+      operationId: show_api_v1_companies
+      tags:
+      - companies
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update company
+      operationId: update_api_v1_companies
+      tags:
+      - companies
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: company attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update company
+      operationId: update_api_v1_companies
+      tags:
+      - companies
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: company attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy company
+      operationId: destroy_api_v1_companies
+      tags:
+      - companies
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/contacts":
+    get:
+      summary: Index contact
+      operationId: index_api_v1_contacts
+      tags:
+      - contacts
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create contact
+      operationId: create_api_v1_contacts
+      tags:
+      - contacts
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: contact attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/contacts/import":
+    post:
+      summary: Import contact
+      operationId: import_api_v1_contacts
+      tags:
+      - contacts
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/contacts/{contact_id}/tags":
+    get:
+      summary: Index contact tag
+      operationId: index_api_v1_contact_tags
+      tags:
+      - contact_tags
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create contact tag
+      operationId: create_api_v1_contact_tags
+      tags:
+      - contact_tags
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: contact_tag attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/contacts/{contact_id}/tags/{id}":
+    delete:
+      summary: Destroy contact tag
+      operationId: destroy_api_v1_contact_tags
+      tags:
+      - contact_tags
+      parameters:
+      - name: contact_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/contacts/{id}":
+    get:
+      summary: Show contact
+      operationId: show_api_v1_contacts
+      tags:
+      - contacts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update contact
+      operationId: update_api_v1_contacts
+      tags:
+      - contacts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: contact attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update contact
+      operationId: update_api_v1_contacts
+      tags:
+      - contacts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: contact attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy contact
+      operationId: destroy_api_v1_contacts
+      tags:
+      - contacts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/contacts/{id}/erase":
+    delete:
+      summary: Erase contact
+      operationId: erase_api_v1_contacts
+      tags:
+      - contacts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/contacts/{id}/export":
+    get:
+      summary: Export contact
+      operationId: export_api_v1_contacts
+      tags:
+      - contacts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/contacts/{id}/score":
+    post:
+      summary: Score contact
+      operationId: score_api_v1_contacts
+      tags:
+      - contacts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/custom_field_definitions":
+    get:
+      summary: Index custom field definition
+      operationId: index_api_v1_custom_field_definitions
+      tags:
+      - custom_field_definitions
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create custom field definition
+      operationId: create_api_v1_custom_field_definitions
+      tags:
+      - custom_field_definitions
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: custom_field_definition attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/custom_field_definitions/{id}":
+    get:
+      summary: Show custom field definition
+      operationId: show_api_v1_custom_field_definitions
+      tags:
+      - custom_field_definitions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update custom field definition
+      operationId: update_api_v1_custom_field_definitions
+      tags:
+      - custom_field_definitions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: custom_field_definition attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update custom field definition
+      operationId: update_api_v1_custom_field_definitions
+      tags:
+      - custom_field_definitions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: custom_field_definition attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy custom field definition
+      operationId: destroy_api_v1_custom_field_definitions
+      tags:
+      - custom_field_definitions
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/deals":
+    get:
+      summary: Index deal
+      operationId: index_api_v1_deals
+      tags:
+      - deals
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create deal
+      operationId: create_api_v1_deals
+      tags:
+      - deals
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: deal attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/deals/{deal_id}/tags":
+    get:
+      summary: Index deal tag
+      operationId: index_api_v1_deal_tags
+      tags:
+      - deal_tags
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create deal tag
+      operationId: create_api_v1_deal_tags
+      tags:
+      - deal_tags
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: deal_tag attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/deals/{deal_id}/tags/{id}":
+    delete:
+      summary: Destroy deal tag
+      operationId: destroy_api_v1_deal_tags
+      tags:
+      - deal_tags
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/deals/{id}":
+    get:
+      summary: Show deal
+      operationId: show_api_v1_deals
+      tags:
+      - deals
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update deal
+      operationId: update_api_v1_deals
+      tags:
+      - deals
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: deal attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update deal
+      operationId: update_api_v1_deals
+      tags:
+      - deals
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: deal attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy deal
+      operationId: destroy_api_v1_deals
+      tags:
+      - deals
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/deals/{id}/move":
+    patch:
+      summary: Move deal
+      operationId: move_api_v1_deals
+      tags:
+      - deals
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/email_sequences":
+    get:
+      summary: Index email sequence
+      operationId: index_api_v1_email_sequences
+      tags:
+      - email_sequences
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create email sequence
+      operationId: create_api_v1_email_sequences
+      tags:
+      - email_sequences
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email_sequence attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/email_sequences/{email_sequence_id}/enrollments":
+    get:
+      summary: Index sequence enrollment
+      operationId: index_api_v1_sequence_enrollments
+      tags:
+      - sequence_enrollments
+      parameters:
+      - name: email_sequence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/email_sequences/{email_sequence_id}/steps":
+    get:
+      summary: Index email sequence step
+      operationId: index_api_v1_email_sequence_steps
+      tags:
+      - email_sequence_steps
+      parameters:
+      - name: email_sequence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create email sequence step
+      operationId: create_api_v1_email_sequence_steps
+      tags:
+      - email_sequence_steps
+      parameters:
+      - name: email_sequence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email_sequence_step attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/email_sequences/{email_sequence_id}/steps/{id}":
+    get:
+      summary: Show email sequence step
+      operationId: show_api_v1_email_sequence_steps
+      tags:
+      - email_sequence_steps
+      parameters:
+      - name: email_sequence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update email sequence step
+      operationId: update_api_v1_email_sequence_steps
+      tags:
+      - email_sequence_steps
+      parameters:
+      - name: email_sequence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email_sequence_step attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update email sequence step
+      operationId: update_api_v1_email_sequence_steps
+      tags:
+      - email_sequence_steps
+      parameters:
+      - name: email_sequence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email_sequence_step attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy email sequence step
+      operationId: destroy_api_v1_email_sequence_steps
+      tags:
+      - email_sequence_steps
+      parameters:
+      - name: email_sequence_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/email_sequences/{id}":
+    get:
+      summary: Show email sequence
+      operationId: show_api_v1_email_sequences
+      tags:
+      - email_sequences
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update email sequence
+      operationId: update_api_v1_email_sequences
+      tags:
+      - email_sequences
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email_sequence attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update email sequence
+      operationId: update_api_v1_email_sequences
+      tags:
+      - email_sequences
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email_sequence attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy email sequence
+      operationId: destroy_api_v1_email_sequences
+      tags:
+      - email_sequences
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/email_sequences/{id}/enroll":
+    post:
+      summary: Enroll email sequence
+      operationId: enroll_api_v1_email_sequences
+      tags:
+      - email_sequences
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/emails":
+    get:
+      summary: Index email
+      operationId: index_api_v1_emails
+      tags:
+      - emails
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create email
+      operationId: create_api_v1_emails
+      tags:
+      - emails
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/emails/{id}":
+    get:
+      summary: Show email
+      operationId: show_api_v1_emails
+      tags:
+      - emails
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update email
+      operationId: update_api_v1_emails
+      tags:
+      - emails
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update email
+      operationId: update_api_v1_emails
+      tags:
+      - emails
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: email attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy email
+      operationId: destroy_api_v1_emails
+      tags:
+      - emails
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/export/csv/{type}":
+    get:
+      summary: Show export
+      operationId: show_api_v1_export
+      tags:
+      - export
+      parameters:
+      - name: type
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/import/csv":
+    post:
+      summary: Create import
+      operationId: create_api_v1_import
+      tags:
+      - import
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: import attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/import/{id}":
+    get:
+      summary: Show import
+      operationId: show_api_v1_import
+      tags:
+      - import
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/invitations":
+    post:
+      summary: Create invitation
+      operationId: create_api_v1_invitations
+      tags:
+      - invitations
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: invitation attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/invitations/{id}/accept":
+    post:
+      summary: Accept invitation
+      operationId: accept_api_v1_invitations
+      tags:
+      - invitations
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+  "/api/v1/memberships":
+    get:
+      summary: Index membership
+      operationId: index_api_v1_memberships
+      tags:
+      - memberships
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/memberships/{id}":
+    patch:
+      summary: Update membership
+      operationId: update_api_v1_memberships
+      tags:
+      - memberships
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: membership attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update membership
+      operationId: update_api_v1_memberships
+      tags:
+      - memberships
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: membership attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy membership
+      operationId: destroy_api_v1_memberships
+      tags:
+      - memberships
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/notes":
+    get:
+      summary: Index note
+      operationId: index_api_v1_notes
+      tags:
+      - notes
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create note
+      operationId: create_api_v1_notes
+      tags:
+      - notes
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: note attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/notes/{id}":
+    get:
+      summary: Show note
+      operationId: show_api_v1_notes
+      tags:
+      - notes
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update note
+      operationId: update_api_v1_notes
+      tags:
+      - notes
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: note attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update note
+      operationId: update_api_v1_notes
+      tags:
+      - notes
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: note attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy note
+      operationId: destroy_api_v1_notes
+      tags:
+      - notes
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/pipelines":
+    get:
+      summary: Index pipeline
+      operationId: index_api_v1_pipelines
+      tags:
+      - pipelines
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create pipeline
+      operationId: create_api_v1_pipelines
+      tags:
+      - pipelines
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: pipeline attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/pipelines/{id}":
+    get:
+      summary: Show pipeline
+      operationId: show_api_v1_pipelines
+      tags:
+      - pipelines
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update pipeline
+      operationId: update_api_v1_pipelines
+      tags:
+      - pipelines
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: pipeline attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update pipeline
+      operationId: update_api_v1_pipelines
+      tags:
+      - pipelines
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: pipeline attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy pipeline
+      operationId: destroy_api_v1_pipelines
+      tags:
+      - pipelines
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/pipelines/{pipeline_id}/stages":
+    get:
+      summary: Index stage
+      operationId: index_api_v1_stages
+      tags:
+      - stages
+      parameters:
+      - name: pipeline_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create stage
+      operationId: create_api_v1_stages
+      tags:
+      - stages
+      parameters:
+      - name: pipeline_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: stage attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/saved_views":
+    get:
+      summary: Index saved view
+      operationId: index_api_v1_saved_views
+      tags:
+      - saved_views
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create saved view
+      operationId: create_api_v1_saved_views
+      tags:
+      - saved_views
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: saved_view attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/saved_views/{id}":
+    get:
+      summary: Show saved view
+      operationId: show_api_v1_saved_views
+      tags:
+      - saved_views
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update saved view
+      operationId: update_api_v1_saved_views
+      tags:
+      - saved_views
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: saved_view attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update saved view
+      operationId: update_api_v1_saved_views
+      tags:
+      - saved_views
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: saved_view attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy saved view
+      operationId: destroy_api_v1_saved_views
+      tags:
+      - saved_views
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/sequence_enrollments/{id}":
+    delete:
+      summary: Destroy sequence enrollment
+      operationId: destroy_api_v1_sequence_enrollments
+      tags:
+      - sequence_enrollments
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/sequence_enrollments/{id}/unsubscribe":
+    post:
+      summary: Unsubscribe sequence enrollment
+      operationId: unsubscribe_api_v1_sequence_enrollments
+      tags:
+      - sequence_enrollments
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/stages/{id}":
+    patch:
+      summary: Update stage
+      operationId: update_api_v1_stages
+      tags:
+      - stages
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: stage attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update stage
+      operationId: update_api_v1_stages
+      tags:
+      - stages
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: stage attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy stage
+      operationId: destroy_api_v1_stages
+      tags:
+      - stages
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/tags":
+    get:
+      summary: Index tag
+      operationId: index_api_v1_tags
+      tags:
+      - tags
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create tag
+      operationId: create_api_v1_tags
+      tags:
+      - tags
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: tag attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/tags/{id}":
+    delete:
+      summary: Destroy tag
+      operationId: destroy_api_v1_tags
+      tags:
+      - tags
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/unsubscribe":
+    post:
+      summary: Create unsubscribe
+      operationId: create_api_v1_unsubscribes
+      tags:
+      - unsubscribes
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: unsubscribe attributes
+  "/api/v1/webhooks":
+    get:
+      summary: Index webhook
+      operationId: index_api_v1_webhooks
+      tags:
+      - webhooks
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: string
+      - name: per_page
+        in: query
+        schema:
+          type: string
+      - name: q
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create webhook
+      operationId: create_api_v1_webhooks
+      tags:
+      - webhooks
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: webhook attributes
+      security:
+      - bearerAuth: []
+  "/api/v1/webhooks/{id}":
+    get:
+      summary: Show webhook
+      operationId: show_api_v1_webhooks
+      tags:
+      - webhooks
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    patch:
+      summary: Update webhook
+      operationId: update_api_v1_webhooks
+      tags:
+      - webhooks
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: webhook attributes
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update webhook
+      operationId: update_api_v1_webhooks
+      tags:
+      - webhooks
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: webhook attributes
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy webhook
+      operationId: destroy_api_v1_webhooks
+      tags:
+      - webhooks
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/webhooks/{id}/deliveries":
+    get:
+      summary: Deliveries webhook
+      operationId: deliveries_api_v1_webhooks
+      tags:
+      - webhooks
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

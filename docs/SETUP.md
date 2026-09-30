@@ -45,6 +45,7 @@ API types are hand-written in `apps/web/src/lib/api/schema.ts` (no codegen step)
 # API
 bin/rails s · bin/rails c · bin/rails db:migrate · bin/rails db:seed
 bin/jobs start                                # Solid Queue worker (sequences, webhooks, automations)
+bin/rails openapi:generate                    # regenerate apps/api/openapi/v1/swagger.yaml
 bundle exec rubocop · bundle exec brakeman · bundle exec bundler-audit check
 bundle exec rspec                       # request specs (scaffold, currently minimal)
 

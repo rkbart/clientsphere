@@ -1,5 +1,10 @@
 # API
 
+Interactive reference: `http://localhost:3000/api-docs` (Swagger UI, served
+from `apps/api/openapi/v1/swagger.yaml`). Regenerate after route changes with
+`bin/rails openapi:generate` in `apps/api`. The reference below is the
+human-maintained overview.
+
 ## Base URL
 
 ```
@@ -9,7 +14,8 @@ Development: http://localhost:3000/api/v1
 
 ## Authentication
 
-Bearer token sessions. Login returns a token; send it on every request:
+Bearer token sessions or personal access tokens (`csk_…`, Settings → API
+Tokens). Login returns a token; send it on every request:
 
 ```
 Authorization: Bearer <token>

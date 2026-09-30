@@ -52,6 +52,11 @@ gem "solid_cable"
 gem "mission_control-jobs"
 gem "propshaft"
 
+# API docs
+gem "rswag-api"
+gem "rswag-ui"
+gem "ostruct" # rswag on Ruby 3.4+
+
 # HTTP client for webhooks
 gem "http"
 
