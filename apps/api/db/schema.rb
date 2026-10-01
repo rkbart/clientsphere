@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_084057) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_085303) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -155,6 +155,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_084057) do
     t.uuid "added_by_id"
     t.uuid "main_contact_id"
     t.index ["account_id"], name: "index_companies_on_account_id"
+    t.index ["added_by_id"], name: "index_companies_on_added_by_id"
+    t.index ["main_contact_id"], name: "index_companies_on_main_contact_id"
     t.index ["owner_id"], name: "index_companies_on_owner_id"
   end
 
@@ -656,6 +658,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_084057) do
   add_foreign_key "automation_runs", "automations"
   add_foreign_key "automations", "accounts"
   add_foreign_key "companies", "accounts"
+  add_foreign_key "companies", "contacts", column: "main_contact_id"
+  add_foreign_key "companies", "users", column: "added_by_id"
   add_foreign_key "companies", "users", column: "owner_id"
   add_foreign_key "contacts", "accounts"
   add_foreign_key "contacts", "companies"
