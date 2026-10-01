@@ -15,9 +15,12 @@ class Contact < ApplicationRecord
   has_many :taggings, as: :taggable, dependent: :destroy
   has_many :tags, through: :taggings
 
+  SOCIAL_PLATFORMS = %w[linkedin x facebook instagram youtube github website other].freeze
+
   validates :first_name, presence: true
   validates :email, uniqueness: { scope: :account_id, conditions: -> { kept } }, allow_blank: true
   validate :custom_data_matches_definitions
+  validate :social_links_valid
 
   after_create_commit { Automations::Trigger.call(account, :contact_created, self) }
   # Discarding is a delete, not an update — don't fire update automations for it.
@@ -34,6 +37,25 @@ class Contact < ApplicationRecord
   end
 
   private
+
+  def social_links_valid
+    return if social_links.blank?
+
+    unless social_links.is_a?(Array)
+      errors.add(:social_links, "must be a list")
+      return
+    end
+
+    social_links.each do |link|
+      platform = link["platform"].to_s
+      url = link["url"].to_s.strip
+      unless SOCIAL_PLATFORMS.include?(platform)
+        errors.add(:social_links, "has unknown platform #{platform.inspect}")
+      end
+      errors.add(:social_links, "needs a URL") if url.blank?
+      errors.add(:social_links, "needs a valid URL") if url.present? && url !~ %r{\Ahttps?://}i
+    end
+  end
 
   def custom_data_matches_definitions
     return if account.nil?

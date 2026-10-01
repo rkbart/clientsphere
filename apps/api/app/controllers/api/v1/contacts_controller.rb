@@ -95,7 +95,7 @@ class Api::V1::ContactsController < Api::V1::BaseController
   end
 
   def contact_params
-    params.require(:contact).permit(:first_name, :last_name, :email, :phone, :company_id, :owner_id, :status, :source, custom_data: {})
+    params.require(:contact).permit(:first_name, :last_name, :email, :phone, :company_id, :owner_id, :status, :source, :job_title, :city, custom_data: {}, social_links: [:platform, :url])
   end
 
   def generate_csv(contact)

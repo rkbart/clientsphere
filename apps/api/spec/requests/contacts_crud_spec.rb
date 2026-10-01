@@ -103,6 +103,47 @@ RSpec.describe "Contacts CRUD", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
+  it "saves job title, city and social links" do
+    post "/api/v1/contacts",
+         params: {
+           contact: {
+             first_name: "Ada",
+             last_name: "Lovelace",
+             email: "ada-fields@example.com",
+             job_title: "Engineer",
+             city: "Berlin",
+             social_links: [
+               { platform: "linkedin", url: "https://linkedin.com/in/ada" },
+               { platform: "github", url: "https://github.com/ada" }
+             ]
+           }
+         },
+         headers: headers
+
+    expect(response).to have_http_status(:created)
+    body = JSON.parse(response.body)
+    expect(body["job_title"]).to eq("Engineer")
+    expect(body["city"]).to eq("Berlin")
+    expect(body["social_links"]).to eq([
+      { "platform" => "linkedin", "url" => "https://linkedin.com/in/ada" },
+      { "platform" => "github", "url" => "https://github.com/ada" }
+    ])
+  end
+
+  it "rejects social links with unknown platform or bad URL" do
+    post "/api/v1/contacts",
+         params: {
+           contact: {
+             first_name: "Ada",
+             email: "ada-bad-social@example.com",
+             social_links: [{ platform: "myspace", url: "not-a-url" }]
+           }
+         },
+         headers: headers
+
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   it "includes company and tags in the index payload" do
     tag = Tag.create!(account: account, name: "wholesale", color: "#22c55e")
     company = Company.create!(account: account, name: "Acme Corp")

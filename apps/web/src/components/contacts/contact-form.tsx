@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Field } from "@/components/forms/fields";
 import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/custom-field-inputs";
 import { useCompanies } from "@/hooks/use-companies";
+import { SocialLinksEditor, type SocialLink } from "@/components/contacts/social-links-editor";
 
 export interface ContactFormValues {
   first_name: string;
@@ -12,6 +13,9 @@ export interface ContactFormValues {
   phone: string;
   status: string;
   company_id: string;
+  job_title: string;
+  city: string;
+  social_links: SocialLink[];
   custom_data: CustomData;
 }
 
@@ -22,6 +26,9 @@ export const EMPTY_CONTACT: ContactFormValues = {
   phone: "",
   status: "lead",
   company_id: "",
+  job_title: "",
+  city: "",
+  social_links: [],
   custom_data: {},
 };
 
@@ -56,6 +63,11 @@ export function ContactForm({
           phone: values.phone.trim() || null,
           status: values.status,
           company_id: values.company_id || null,
+          job_title: values.job_title.trim() || null,
+          city: values.city.trim() || null,
+          social_links: values.social_links
+            .map((l) => ({ platform: l.platform, url: l.url.trim() }))
+            .filter((l) => l.url !== ""),
           custom_data: values.custom_data,
         });
       }}
@@ -122,6 +134,30 @@ export function ContactForm({
           </select>
         </Field>
       </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="Job title" htmlFor="contact-job-title">
+          <input
+            id="contact-job-title"
+            className="input"
+            value={values.job_title}
+            onChange={set("job_title")}
+            autoComplete="organization-title"
+          />
+        </Field>
+        <Field label="City" htmlFor="contact-city">
+          <input
+            id="contact-city"
+            className="input"
+            value={values.city}
+            onChange={set("city")}
+            autoComplete="address-level2"
+          />
+        </Field>
+      </div>
+      <SocialLinksEditor
+        value={values.social_links}
+        onChange={(social_links) => setValues((v) => ({ ...v, social_links }))}
+      />
       <CustomFieldInputs
         entityType="Contact"
         values={values.custom_data}
