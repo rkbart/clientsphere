@@ -45,6 +45,11 @@ class Api::V1::AutomationsController < Api::V1::BaseController
     paginate(runs)
   end
 
+  def templates
+    skip_authorization
+    render json: Automations::Templates.all
+  end
+
   private
 
   def set_automation

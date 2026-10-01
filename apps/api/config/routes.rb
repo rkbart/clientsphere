@@ -87,6 +87,9 @@ Rails.application.routes.draw do
 
       # Automations
       resources :automations do
+        collection do
+          get :templates
+        end
         member do
           post :toggle
           get :runs

@@ -106,6 +106,9 @@
 - Delay: optional `delay_days` per automation — the job is scheduled with
   `wait_until` at trigger time and runs after the delay (0 = immediate)
 - Enable/disable toggle
+- Templates: 6 ready-made blueprints (`GET /automations/templates`) in a
+  collapsible gallery — selecting one highlights it and loads the builder,
+  re-select to swap, rename and customize before saving
 - UI: list, create/edit form, detail with runs
 - Zapier/Make/n8n: see [INTEGRATIONS.md](INTEGRATIONS.md)
 

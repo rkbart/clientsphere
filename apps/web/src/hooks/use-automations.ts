@@ -22,6 +22,29 @@ export const AUTOMATION_ACTIONS = [
   "call_webhook",
 ] as const;
 
+export interface AutomationTemplate {
+  key: string;
+  name: string;
+  description: string;
+  trigger_type: string;
+  delay_days: number;
+  conditions: Record<string, string>;
+  actions: Record<string, string>[];
+}
+
+export function useAutomationTemplates() {
+  return useQuery({
+    queryKey: ["automation-templates"],
+    queryFn: async () => {
+      const { data, error } = await apiClient.GET("/automations/templates", {
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as unknown as AutomationTemplate[];
+    },
+  });
+}
+
 export function useAutomations() {
   return useQuery({
     queryKey: ["automations"],

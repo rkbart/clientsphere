@@ -225,9 +225,18 @@ Manage views in **Settings → Saved Views** — rename, toggle sharing, or dele
 
 ## Automations
 
+### Templates
+
+On **Automations → New Automation**, a collapsible **Start from a template**
+card offers ready-made blueprints (welcome email, new-lead follow-up,
+big-deal alert, deal-won thank-you, lost-deal win-back, overdue nudge).
+Click one to select it (highlighted with a checkmark) — the create form below
+loads its trigger, delay, conditions and actions. Pick another template to
+swap the form, or **Start blank** to clear it. Rename, tweak, then save.
+
 ### Visual workflow builder
 
-Go to **Automations** and click **New Automation**:
+Go to **Automations** and click **New Automation** (or start from a template):
 
 1. **Name** your workflow
 2. **Trigger** — choose when it fires:

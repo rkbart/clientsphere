@@ -1139,6 +1139,17 @@ export interface paths {
       };
     };
   };
+  "/automations/templates": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+  };
   "/automations/{id}": {
     get: {
       parameters: {
