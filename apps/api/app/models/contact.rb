@@ -16,7 +16,7 @@ class Contact < ApplicationRecord
   has_many :tags, through: :taggings
 
   validates :first_name, presence: true
-  validates :email, uniqueness: { scope: :account_id }, allow_blank: true
+  validates :email, uniqueness: { scope: :account_id, conditions: -> { kept } }, allow_blank: true
   validate :custom_data_matches_definitions
 
   after_create_commit { Automations::Trigger.call(account, :contact_created, self) }

@@ -59,10 +59,12 @@ class EmailService
   def self.deliver(email)
     Resend.api_key = ENV.fetch("RESEND_API_KEY")
     Resend::Emails.send(
-      from: email.from_address,
-      to: email.to_addresses,
-      subject: email.subject,
-      html: email.body.to_s
+      {
+        from: email.from_address,
+        to: email.to_addresses,
+        subject: email.subject,
+        html: email.body.to_s
+      }
     )
     email.update!(status: :sent, sent_at: Time.current)
     email

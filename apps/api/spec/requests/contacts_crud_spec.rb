@@ -81,6 +81,28 @@ RSpec.describe "Contacts CRUD", type: :request do
     expect(body["meta"]["current_page"]).to eq(1)
   end
 
+  it "allows reusing the email of a discarded contact" do
+    contact = create_contact
+    contact.discard!
+
+    post "/api/v1/contacts",
+         params: { contact: { first_name: "Ada", last_name: "Lovelace", email: "ada@example.com" } },
+         headers: headers
+
+    expect(response).to have_http_status(:created)
+    expect(JSON.parse(response.body)["email"]).to eq("ada@example.com")
+  end
+
+  it "still rejects a duplicate email for a kept contact" do
+    create_contact
+
+    post "/api/v1/contacts",
+         params: { contact: { first_name: "Ada", last_name: "Lovelace", email: "ada@example.com" } },
+         headers: headers
+
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   it "includes company and tags in the index payload" do
     tag = Tag.create!(account: account, name: "wholesale", color: "#22c55e")
     company = Company.create!(account: account, name: "Acme Corp")
