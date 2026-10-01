@@ -35,6 +35,35 @@ class Api::V1::EmailsController < Api::V1::BaseController
     head :no_content
   end
 
+  def templates
+    skip_authorization
+    contact = Current.account.contacts.kept.find_by(id: params[:contact_id]) if params[:contact_id].present?
+
+    render json: Emails::Templates.all.map { |t|
+      next t unless contact
+
+      t.merge(
+        subject: EmailService.interpolate(t[:subject], contact),
+        body: EmailService.interpolate(t[:body], contact)
+      )
+    }
+  end
+
+  def deliver
+    contact = Current.account.contacts.kept.find(params[:contact_id])
+    deal = Current.account.deals.find(params[:deal_id]) if params[:deal_id].present?
+    authorize Email.new(account: Current.account), :create?
+
+    email = EmailService.send_email(
+      account: Current.account,
+      contact: contact,
+      deal: deal,
+      subject: params[:subject].to_s,
+      body: params[:body].to_s
+    )
+    render json: email, status: :created
+  end
+
   private
 
   def set_email

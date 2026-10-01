@@ -36,7 +36,7 @@ Your home screen shows:
 - **Outcomes & win rate** — donut chart of open/won/lost deals
 - **Deals by source** — pie chart showing where deals come from
 - **Tasks due** — open activities sorted by due date
-- **Next best action** — AI-suggested next step for your most urgent deal
+- **Needs attention** — your most urgent open deal with a rule-based status line
 - **Recent activity** — latest actions across all records
 
 ---
@@ -58,7 +58,7 @@ Click any contact to see:
 - Custom fields (if defined)
 - Tags — add/remove with the tag chips
 - Notes — add notes with ⌘/Ctrl + Enter to save
-- AI features — draft email, insights, next action
+- Compose email from templates, rule-based deal summary
 
 ### Create / edit
 
@@ -73,8 +73,7 @@ Click **Add Contact** or the **Edit** button on any detail page. The form includ
 
 Same pattern as contacts:
 - List with search and filters
-- Detail page with notes, tags, and custom fields
-- **Enrich Company** (AI) — previews suggested fields from the company domain; apply only what you want
+- Detail page with notes, tags, social links, main contact, and custom fields
 
 ---
 
@@ -94,7 +93,7 @@ Go to **Pipeline** to see a Kanban board:
 - Linked contact and company
 - Expected close date and probability
 - Custom fields, notes, tags
-- AI features — draft email, summarize, next action
+- Compose email from templates, rule-based deal summary
 
 ### Create a deal
 
@@ -170,11 +169,9 @@ Go to **Settings → AI**:
 ### What you can do
 
 - **AI Assistant** (`/ai`) — chat with your CRM data; ask questions like "What deals are closing this week?"
-- **Draft Email** — on contact/deal pages, generate contextual emails
-- **AI Insights** — next-best-action suggestions on records
+- **Compose Email** — on the deal page, pick a template, edit, and send
 - **Re-score** — recalculate lead scores with AI
-- **Enrich Company** — AI-suggested company fields from domain
-- **Summarize Deal** — AI summary of deal context
+- **Deal Summary** — rule-based status (stage, value, close date, activity, staleness)
 
 ---
 

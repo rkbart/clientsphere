@@ -32,6 +32,21 @@ export function useDeal(id: string, options?: { enabled?: boolean }) {
   });
 }
 
+export function useDealSummary(id: string) {
+  return useQuery({
+    queryKey: ["deals", id, "summary"],
+    enabled: !!id,
+    queryFn: async () => {
+      const { data, error } = await apiClient.GET("/deals/{id}/summary", {
+        params: { path: { id } },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as unknown as { summary?: string; stale?: boolean };
+    },
+  });
+}
+
 export function useCreateDeal() {
   const queryClient = useQueryClient();
   return useMutation({

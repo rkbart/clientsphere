@@ -8,7 +8,7 @@ export interface DirectSettings {
   base_url?: string | null;
 }
 
-export type PromptKind = "chat" | "draft_email";
+export type PromptKind = "chat";
 
 export function isBrowserDirect(settings?: DirectSettings): boolean {
   if (!settings?.provider) return false;
@@ -23,7 +23,7 @@ export function isBrowserDirect(settings?: DirectSettings): boolean {
  */
 export async function browserDirect(
   settings: DirectSettings,
-  body: { kind: PromptKind; message?: string; contact_id?: string; purpose?: string; deal_id?: string },
+  body: { kind: PromptKind; message?: string },
 ): Promise<string> {
   const def = PROVIDER_MAP[settings.provider as AIProvider];
   const baseURL = (settings.base_url?.trim() || def?.baseURL || "").replace(/\/+$/, "");

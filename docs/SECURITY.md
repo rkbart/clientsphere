@@ -10,7 +10,6 @@
 | Secrets | Rails `encrypts` for AI provider keys and webhook secrets; AI key never returned by the API (write-only, `api_key_set` flag) |
 | Rate limiting | rack-attack: 30 AI requests per IP per 5 minutes, JSON 429 responder |
 | Webhooks | HMAC signature header (`X-Webhook-Signature`), retries with exponential backoff (3 attempts), delivery log with response status |
-| Enrichment | No outbound HTTP fetch — enrichment uses LLM knowledge only, so there is no SSRF surface |
 | CSV export | Escape cells starting with `=`, `+`, `-`, `@` (formula injection) |
 | Passwords | bcrypt |
 | AI logging | `ai_logs` stores metadata only (action, provider, model, success, duration, error class) — never prompts or completions |

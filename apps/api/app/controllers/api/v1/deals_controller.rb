@@ -1,5 +1,5 @@
 class Api::V1::DealsController < Api::V1::BaseController
-  before_action :set_deal, only: [:show, :update, :destroy, :move]
+  before_action :set_deal, only: [:show, :update, :destroy, :move, :summary]
 
   def index
     deals = policy_scope(Deal).kept
@@ -60,6 +60,11 @@ class Api::V1::DealsController < Api::V1::BaseController
     authorize @deal
     @deal.move_to!(params[:stage_id], position: params[:position])
     render json: @deal
+  end
+
+  def summary
+    authorize @deal
+    render json: Deals::Summary.call(@deal)
   end
 
   private

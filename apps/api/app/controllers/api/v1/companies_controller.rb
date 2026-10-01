@@ -62,6 +62,6 @@ class Api::V1::CompaniesController < Api::V1::BaseController
   end
 
   def company_params
-    params.require(:company).permit(:name, :domain, :industry, :size_range, :annual_revenue, :description, :owner_id, :address, :employee_count, :main_contact_id, custom_data: {}, social_links: [:platform, :url])
+    params.require(:company).permit(:name, :domain, :industry, :size_range, :annual_revenue, :description, :owner_id, :address, :main_contact_id, custom_data: {}, social_links: [:platform, :url])
   end
 end

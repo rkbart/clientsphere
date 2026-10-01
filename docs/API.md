@@ -77,6 +77,7 @@ GET    /deals/:id             # Show (includes stage, company, tags)
 PATCH  /deals/:id
 DELETE /deals/:id             # Soft delete
 PATCH  /deals/:id/move        # Stage change
+GET    /deals/:id/summary      # Rule-based summary (no AI)
 ```
 
 Sort: `title`, `amount`, `expected_close_date` — `direction=asc|desc` (default: pipeline position)
@@ -124,6 +125,8 @@ POST   /emails
 GET    /emails/:id
 PATCH  /emails/:id
 DELETE /emails/:id
+GET    /emails/templates      # ?contact_id= for per-contact personalization
+POST   /emails/deliver        # body: contact_id, deal_id?, subject, body
 ```
 
 ## Tags
@@ -207,10 +210,6 @@ PATCH  /ai/settings             # Write config (blank api_key keeps the stored k
 POST   /ai/test_connection      # { success, message }
 POST   /ai/prompts              # Server-assembled prompts for browser-direct mode
 POST   /ai/chat                 # Scoped-context assistant
-POST   /ai/draft_email          # body: contact_id, purpose, deal_id?
-POST   /ai/suggest_next_action  # body: record_type, record_id
-POST   /ai/enrich               # body: domain
-POST   /ai/summarize_deal       # body: deal_id
 ```
 
 Usage endpoints return `422 { error }` when AI is unconfigured or disabled.

@@ -53,6 +53,7 @@ Rails.application.routes.draw do
       resources :deals do
         member do
           patch :move
+          get :summary
         end
         resources :tags, only: [:index, :create, :destroy], controller: "deal_tags"
       end
@@ -65,7 +66,12 @@ Rails.application.routes.draw do
 
       resources :activities
       resources :notes
-      resources :emails
+      resources :emails do
+        collection do
+          get :templates
+          post :deliver
+        end
+      end
 
       # Tags
       resources :tags, only: [:index, :create, :destroy]
@@ -126,10 +132,6 @@ Rails.application.routes.draw do
       post "ai/test_connection", to: "ai#test_connection"
       post "ai/prompts", to: "ai#prompts"
       post "ai/chat", to: "ai#chat"
-      post "ai/draft_email", to: "ai#draft_email"
-      post "ai/suggest_next_action", to: "ai#suggest_next_action"
-      post "ai/enrich", to: "ai#enrich"
-      post "ai/summarize_deal", to: "ai#summarize_deal"
 
       # Import/Export
       post "import/csv", to: "import#create"

@@ -14,7 +14,6 @@ class Company < ApplicationRecord
   has_many :tags, through: :taggings
 
   validates :name, presence: true
-  validates :employee_count, numericality: { only_integer: true, greater_than_or_equal_to: 0 }, allow_nil: true
   validate :custom_data_matches_definitions
   validate :social_links_valid
   validate :main_contact_in_account

@@ -14,7 +14,6 @@ export interface CompanyFormValues {
   annual_revenue: string;
   description: string;
   address: string;
-  employee_count: string;
   main_contact_id: string;
   social_links: SocialLink[];
   custom_data: CustomData;
@@ -28,7 +27,6 @@ export const EMPTY_COMPANY: CompanyFormValues = {
   annual_revenue: "",
   description: "",
   address: "",
-  employee_count: "",
   main_contact_id: "",
   social_links: [],
   custom_data: {},
@@ -71,7 +69,6 @@ export function CompanyForm({
           annual_revenue: values.annual_revenue.trim() === "" ? null : Number(values.annual_revenue),
           description: values.description.trim() || null,
           address: values.address.trim() || null,
-          employee_count: values.employee_count.trim() === "" ? null : Number(values.employee_count),
           main_contact_id: values.main_contact_id || null,
           social_links: values.social_links
             .map((l) => ({ platform: l.platform, url: l.url.trim() }))
@@ -120,22 +117,9 @@ export function CompanyForm({
           onChange={set("annual_revenue")}
         />
       </Field>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Field label="Address" htmlFor="company-address">
-          <input id="company-address" className="input" value={values.address} onChange={set("address")} />
-        </Field>
-        <Field label="Employees" htmlFor="company-employees">
-          <input
-            id="company-employees"
-            type="number"
-            min="0"
-            step="1"
-            className="input"
-            value={values.employee_count}
-            onChange={set("employee_count")}
-          />
-        </Field>
-      </div>
+      <Field label="Address" htmlFor="company-address">
+        <input id="company-address" className="input" value={values.address} onChange={set("address")} />
+      </Field>
       {companyId && (
         <Field label="Main contact" htmlFor="company-main-contact">
           <select

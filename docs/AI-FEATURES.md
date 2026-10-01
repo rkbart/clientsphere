@@ -4,8 +4,8 @@
 
 | Mode | Used for | Where keys live | Where data goes |
 |------|----------|-----------------|-----------------|
-| **Server** (default) | Chat, drafting, suggestions, enrichment, summaries | `ai_settings.api_key`, encrypted (`encrypts`) | Rails → chosen provider |
-| **Browser-direct** (local models only) | Chat, drafting with Ollama / LM Studio / custom local endpoints | Not needed | Browser → localhost; never leaves the device |
+| **Server** (default) | Chat | `ai_settings.api_key`, encrypted (`encrypts`) | Rails → chosen provider |
+| **Browser-direct** (local models only) | Chat with Ollama / LM Studio / custom local endpoints | Not needed | Browser → localhost; never leaves the device |
 
 Both modes assemble CRM context **server-side** (`Ai::Context`, `Ai::Prompts`),
 so what gets sent is one audited place. Browser-direct fetches the assembled
@@ -34,20 +34,15 @@ One OpenAI-compatible client (configurable `base_url`) plus one Anthropic client
 | Test connection | `POST /ai/test_connection` | `{ success, message }` |
 | Browser-direct prompts | `POST /ai/prompts` | Assembled + redaction-masked prompt pair; no provider call |
 | Chat with CRM context | `POST /ai/chat` | Keyword-matches contacts/deals/tasks (pool 100, top 5) + totals, account-scoped |
-| Draft email | `POST /ai/draft_email` | Contact + its open deals/recent activities; optional `deal_id` adds that deal's context |
-| Suggest next action | `POST /ai/suggest_next_action` | Record payload + recent activities; single sentence |
-| Enrich company | `POST /ai/enrich` | LLM knowledge only (no outbound fetch); preview diff, user confirms before PATCH |
-| Summarize deal | `POST /ai/summarize_deal` | Deal payload + last 10 activities → 3 bullet points |
 | Lead score | `POST /contacts/:id/score` | Rules-based; not an LLM call |
 
 ## Where AI shows up in the UI
 
 - **Settings → AI** — provider, model, key, endpoint, Enable toggle, redaction, Test connection
 - **`/ai` chat page** — scoped-context assistant
-- **Contact detail** — Draft Email card + Next action insight + Re-score button
-- **Deal detail** — Draft Email (when the deal has a contact) + suggest/summarize
-- **Company detail** — Enrich from domain with Apply/Discard confirmation
-- **Dashboard** — Next best action widget (most urgent open deal)
+- **Contact detail** — Re-score button
+- **Deal detail** — Compose Email from templates (when the deal has a contact) + rule-based summary
+- **Dashboard** — Needs-attention card (most urgent open deal, rule-based)
 
 ## Lead scoring (rules-based)
 

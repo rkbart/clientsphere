@@ -19,22 +19,6 @@ class AiSettingPolicy < ApplicationPolicy
     member_or_above?
   end
 
-  def draft_email?
-    member_or_above?
-  end
-
-  def suggest_next_action?
-    member_or_above?
-  end
-
-  def enrich?
-    member_or_above?
-  end
-
-  def summarize_deal?
-    member_or_above?
-  end
-
   class Scope < Scope
     def resolve
       super

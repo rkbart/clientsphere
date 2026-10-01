@@ -8,8 +8,8 @@ import { useStages, usePipelines } from "@/hooks/use-pipelines";
 import { NotesSection } from "@/components/shared/notes-section";
 import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
-import { AiInsights } from "@/components/ai/ai-insights";
-import { AiDraftEmail } from "@/components/ai/ai-draft-email";
+import { DealSummary } from "@/components/deals/deal-summary";
+import { EmailComposer } from "@/components/emails/email-composer";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { DealForm, type DealFormValues } from "@/components/deals/deal-form";
 import { FormError } from "@/components/forms/fields";
@@ -152,9 +152,9 @@ export default function DealDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {deal.contact_id && <AiDraftEmail contactId={deal.contact_id} dealId={deal.id} />}
-        <AiInsights recordType="Deal" recordId={deal.id} />
+      <div className="space-y-6">
+        <DealSummary dealId={deal.id} />
+        {deal.contact_id && <EmailComposer contactId={deal.contact_id} dealId={deal.id} />}
       </div>
 
       <TagEditor entity="Deal" entityId={deal.id} />

@@ -20,26 +20,6 @@ module Ai
       call("chat", Prompts.chat(context || {}), message.to_s)
     end
 
-    def draft_email(contact, purpose, context = nil)
-      call("draft_email", Prompts.draft_email(contact, purpose, context), "Write the email now.")
-    end
-
-    def suggest_next_action(record)
-      call("suggest_next_action", Prompts.suggest_next_action(record), "Suggest the next action.")
-    end
-
-    def enrich_company(domain)
-      raw = call("enrich_company", Prompts.enrich_company(domain), "Return the JSON now.")
-      JSON.parse(raw)
-    rescue JSON::ParserError
-      raise Ai::Error, "The model did not return valid JSON. Try again."
-    end
-
-    def summarize_deal(deal)
-      activities = deal.activities.order(created_at: :desc).limit(10)
-      call("summarize_deal", Prompts.summarize_deal(deal, activities), "Summarize the deal now.")
-    end
-
     # Applies the redaction toggle to a prompt pair without invoking the
     # provider — used by browser-direct mode.
     def prepare(system_prompt, user_prompt)

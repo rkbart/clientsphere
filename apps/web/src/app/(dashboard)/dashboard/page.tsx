@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
-import { useDeals } from "@/hooks/use-deals";
+import { useDeals, useDealSummary } from "@/hooks/use-deals";
 import { DealCharts } from "@/components/dashboard/deal-charts";
-import { AiNextAction } from "@/components/ai/ai-next-action";
 import { TrendingUp, Users, Activity, ChevronRight, CheckCircle2, Circle } from "lucide-react";
 
 const headers = () => getAuthHeadersForApi();
@@ -100,6 +99,10 @@ export default function DashboardPage() {
       return da < db ? -1 : da > db ? 1 : 0;
     })[0];
   }, [deals]);
+
+  const { data: attention } = useDealSummary(nextDeal?.id ?? "");
+  const attentionSummary = (attention as unknown as { summary?: string; stale?: boolean } | undefined);
+  const attentionLine = attentionSummary?.summary?.split("\n")[0] ?? "";
 
   const statCards = [
     { label: "Contacts", value: stats?.contacts ?? 0, icon: Users, color: "text-[var(--text-primary)]" },
@@ -217,14 +220,34 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Next best action */}
+      {/* Needs attention */}
       {nextDeal && (
-        <AiNextAction
-          recordType="Deal"
-          recordId={nextDeal.id}
-          recordLabel={nextDeal.title}
-          href={`/deals/${nextDeal.id}`}
-        />
+        <div className="card">
+          <div className="px-5 py-4 flex items-center gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-xs uppercase tracking-wider text-[var(--text-tertiary)]">
+                Needs attention
+                {attentionSummary?.stale && <span className="badge badge-warning text-xs ml-2">Stale</span>}
+              </p>
+              <Link
+                href={`/deals/${nextDeal.id}`}
+                className="font-medium hover:text-[var(--accent-hover)] transition-colors truncate block"
+              >
+                {nextDeal.title}
+              </Link>
+              {attentionLine && (
+                <p className="text-sm text-[var(--text-secondary)] truncate">{attentionLine}</p>
+              )}
+            </div>
+            <Link
+              href={`/deals/${nextDeal.id}`}
+              className="btn-secondary text-sm shrink-0"
+              aria-label={`Open ${nextDeal.title}`}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
       )}
 
       {/* Analytics */}

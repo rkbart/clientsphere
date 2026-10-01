@@ -1,6 +1,6 @@
 class Api::V1::AiController < Api::V1::BaseController
   before_action :authorize_ai
-  before_action :require_ai_enabled, only: [:prompts, :chat, :draft_email, :suggest_next_action, :enrich, :summarize_deal]
+  before_action :require_ai_enabled, only: [:prompts, :chat]
 
   rescue_from Ai::Error, with: :ai_error
 
@@ -32,9 +32,6 @@ class Api::V1::AiController < Api::V1::BaseController
       when "chat"
         context = Ai::Context.new(Current.account, params[:message]).chat
         [Ai::Prompts.chat(context), params[:message].to_s]
-      when "draft_email"
-        contact = find_in_account(Contact, params[:contact_id])
-        [Ai::Prompts.draft_email(contact, params[:purpose], draft_deal_context), "Write the email now."]
       else
         raise Ai::Error, "Unknown prompt kind."
       end
@@ -47,36 +44,7 @@ class Api::V1::AiController < Api::V1::BaseController
     render json: { response: ai_client.chat(params[:message], context) }
   end
 
-  def draft_email
-    contact = find_in_account(Contact, params[:contact_id])
-    render json: { draft: ai_client.draft_email(contact, params[:purpose], draft_deal_context) }
-  end
-
-  def suggest_next_action
-    record = find_record(params[:record_type], params[:record_id])
-    render json: { suggestion: ai_client.suggest_next_action(record) }
-  end
-
-  def enrich
-    render json: ai_client.enrich_company(params[:domain])
-  end
-
-  def summarize_deal
-    deal = find_in_account(Deal, params[:deal_id])
-    render json: { summary: ai_client.summarize_deal(deal) }
-  end
-
   private
-
-  def draft_deal_context
-    return nil if params[:deal_id].blank?
-
-    deal = find_in_account(Deal, params[:deal_id])
-    {
-      deal: Ai::Prompts.deal_payload(deal),
-      recent_activities: Ai::Prompts.activity_list(deal.activities.order(created_at: :desc).limit(5))
-    }
-  end
 
   def authorize_ai
     authorize AiSetting
@@ -106,13 +74,6 @@ class Api::V1::AiController < Api::V1::BaseController
 
   def find_in_account(model, id)
     model.where(account: Current.account).find(id)
-  end
-
-  def find_record(type, id)
-    klass = { "Contact" => Contact, "Deal" => Deal, "Company" => Company }[type]
-    raise ActiveRecord::RecordNotFound unless klass
-
-    find_in_account(klass, id)
   end
 
   def ai_error(exception)

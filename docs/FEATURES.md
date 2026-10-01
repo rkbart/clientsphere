@@ -14,9 +14,8 @@
 
 ### Companies
 - List with search (name/domain/industry), sortable columns, pagination
-- Detail pages with notes, tags, AI enrichment
+- Detail pages with notes, tags, social links, main contact
 - Linked contacts and deals
-- Enrichment from domain (user-confirmed)
 - Soft delete
 - Add/edit via modal dialogs (server 422 displayed inline)
 
@@ -47,7 +46,7 @@
 - Pipeline-by-stage bars (value + count per stage)
 - Tasks due widget (overdue/today highlighting)
 - Recent activity feed
-- Next best action widget (AI) for the most urgent open deal
+- Needs-attention card for the most urgent open deal (rule-based summary)
 
 ## Views
 
@@ -74,26 +73,22 @@
 - Context assembled server-side, keyword-matched to the question
 - Scoped to account data
 
-### Email Drafting
-- Generate professional emails (purpose: follow-up, introduction, proposal,
-  check-in)
-- Context from contact + its open deals/activities, or from a deal's contact
-- Editable, copyable draft
+### Email Composer
+- Template gallery (follow-up, introduction, proposal, check-in,
+  thank-you, win-back) with per-contact personalization
+- Editable subject/body, copyable, and sends via the email provider
+- `GET /emails/templates`, `POST /emails/deliver`
 
 ### Lead Scoring
 - Rules-based scoring with reasons
 - Explainable results; Re-score button on contact detail
 
-### Suggestions
-- Next best action on dashboard, deal page and contact page
-- Deal summaries on demand
-
-### Enrichment
-- Company info from domain (LLM knowledge)
-- Preview diff, user confirms before saving
+### Deal summary (rule-based, no AI)
+- Stage, value (+ probability-weighted), close date, last activity, overdue tasks
+- Stale flag (no touch in 14+ days); `GET /deals/:id/summary`
 
 ### Local Mode
-- Browser-direct for Ollama/LM Studio (chat + drafting)
+- Browser-direct for Ollama/LM Studio (chat)
 - Data never leaves the device
 
 ## Automation (Phase 3 — complete)

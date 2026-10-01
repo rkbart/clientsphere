@@ -7,7 +7,6 @@ import { useCompany, useUpdateCompany, useDeleteCompany } from "@/hooks/use-comp
 import { NotesSection } from "@/components/shared/notes-section";
 import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
-import { AiEnrich } from "@/components/ai/ai-enrich";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { CompanyForm, type CompanyFormValues } from "@/components/companies/company-form";
 import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
@@ -24,7 +23,6 @@ interface CompanyData {
   annual_revenue: number | null;
   description: string | null;
   address?: string | null;
-  employee_count?: number | null;
   social_links?: SocialLink[] | null;
   added_by?: { id: string; name: string } | null;
   main_contact?: { id: string; first_name: string; last_name?: string | null } | null;
@@ -61,7 +59,6 @@ export default function CompanyDetailPage() {
     annual_revenue: company.annual_revenue == null ? "" : String(company.annual_revenue),
     description: company.description ?? "",
     address: company.address ?? "",
-    employee_count: company.employee_count == null ? "" : String(company.employee_count),
     main_contact_id: company.main_contact?.id ?? company.main_contact_id ?? "",
     social_links: (company.social_links ?? []).map((l) => ({
       platform: l.platform ?? "other",
@@ -128,12 +125,6 @@ export default function CompanyDetailPage() {
             <dd className="mt-0.5 text-sm">{company.address || "—"}</dd>
           </div>
           <div>
-            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Employees</dt>
-            <dd className="mt-0.5 text-sm tabular-nums">
-              {company.employee_count != null ? Number(company.employee_count).toLocaleString() : "—"}
-            </dd>
-          </div>
-          <div>
             <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Main contact</dt>
             <dd className="mt-0.5 text-sm">
               {company.main_contact ? (
@@ -180,16 +171,6 @@ export default function CompanyDetailPage() {
           </>
         )}
       </div>
-
-      <AiEnrich
-        company={{
-          ...company,
-          domain: company.domain ?? "",
-          industry: company.industry ?? "",
-          size_range: company.size_range ?? "",
-          description: company.description ?? "",
-        }}
-      />
 
       <TagEditor entity="Company" entityId={company.id} />
 

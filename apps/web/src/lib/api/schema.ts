@@ -265,6 +265,25 @@ export interface paths {
       };
     };
   };
+  "/deals/{id}/summary": {
+    get: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              summary?: string;
+              stale?: boolean;
+            };
+          };
+        };
+      };
+    };
+  };
   "/pipelines": {
     get: {
       responses: {
@@ -1884,83 +1903,38 @@ export interface paths {
       };
     };
   };
-  "/ai/draft_email": {
+  "/emails/templates": {
+    get: {
+      parameters: {
+        query: {
+          contact_id?: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
+  };
+  "/emails/deliver": {
     post: {
       requestBody: {
         content: {
           "application/json": {
             contact_id?: string;
-            purpose?: string;
             deal_id?: string;
-            context?: unknown;
+            subject?: string;
+            body?: string;
           };
         };
       };
       responses: {
-        200: {
-          content: {
-            "application/json": {
-              draft?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/ai/suggest_next_action": {
-    post: {
-      requestBody: {
-        content: {
-          "application/json": {
-            record_type?: string;
-            record_id?: string;
-          };
-        };
-      };
-      responses: {
-        200: {
-          content: {
-            "application/json": {
-              suggestion?: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/ai/enrich": {
-    post: {
-      requestBody: {
-        content: {
-          "application/json": {
-            domain?: string;
-          };
-        };
-      };
-      responses: {
-        200: {
+        201: {
           content: {
             "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
-  "/ai/summarize_deal": {
-    post: {
-      requestBody: {
-        content: {
-          "application/json": {
-            deal_id?: string;
-          };
-        };
-      };
-      responses: {
-        200: {
-          content: {
-            "application/json": {
-              summary?: string;
-            };
           };
         };
       };

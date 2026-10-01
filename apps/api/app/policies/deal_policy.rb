@@ -23,6 +23,10 @@ class DealPolicy < ApplicationPolicy
     member_or_above?
   end
 
+  def summary?
+    viewer_or_above?
+  end
+
   class Scope < Scope
     def resolve
       super

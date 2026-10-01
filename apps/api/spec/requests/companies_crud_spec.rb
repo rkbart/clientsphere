@@ -86,7 +86,6 @@ RSpec.describe "Companies CRUD", type: :request do
            company: {
              name: "Acme Corp",
              address: "123 Main St, Berlin",
-             employee_count: 42,
              main_contact_id: contact.id,
              social_links: [{ platform: "linkedin", url: "https://linkedin.com/company/acme" }]
            }
@@ -96,7 +95,6 @@ RSpec.describe "Companies CRUD", type: :request do
     expect(response).to have_http_status(:created)
     body = JSON.parse(response.body)
     expect(body["address"]).to eq("123 Main St, Berlin")
-    expect(body["employee_count"]).to eq(42)
     expect(body["main_contact_id"]).to eq(contact.id)
     expect(body["added_by_id"]).to eq(owner.id)
     expect(body["social_links"]).to eq([
