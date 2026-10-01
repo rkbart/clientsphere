@@ -71,6 +71,9 @@ Rails.application.routes.draw do
           get :templates
           post :deliver
         end
+        member do
+          post :redeliver
+        end
       end
 
       # Tags
@@ -118,6 +121,13 @@ Rails.application.routes.draw do
 
       # Public unsubscribe (signed token, no login)
       post "unsubscribe", to: "unsubscribes#create"
+
+      # Email settings (owner/admin only)
+      get "email_settings", to: "email_settings#show"
+      patch "email_settings", to: "email_settings#update"
+
+      # Inbound Resend tracking webhooks (Svix-signed, per-account URL)
+      post "webhooks/resend/:account_id", to: "resend_webhooks#create"
 
       # Webhooks
       resources :webhooks do

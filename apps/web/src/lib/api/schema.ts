@@ -1169,6 +1169,111 @@ export interface paths {
       };
     };
   };
+  "/emails": {
+    get: {
+      parameters: {
+        query: {
+          contact_id?: string;
+          deal_id?: string;
+          status?: string;
+          page?: number;
+          per_page?: number;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": {
+              data: Record<string, unknown>[];
+              meta: Record<string, unknown>;
+            };
+          };
+        };
+      };
+    };
+    post: {
+      requestBody: {
+        content: {
+          "application/json": {
+            email: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        201: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/emails/{id}": {
+    patch: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            email: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/email_settings": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+    patch: {
+      requestBody: {
+        content: {
+          "application/json": {
+            email_setting: Record<string, unknown>;
+          };
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
+  "/emails/{id}/redeliver": {
+    post: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
   "/automations/{id}": {
     get: {
       parameters: {

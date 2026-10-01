@@ -127,6 +127,10 @@ PATCH  /emails/:id
 DELETE /emails/:id
 GET    /emails/templates      # ?contact_id= for per-contact personalization
 POST   /emails/deliver        # body: contact_id, deal_id?, subject, body
+POST   /emails/:id/redeliver  # retry delivery of a draft/failed email
+GET    /email_settings        # owner/admin; secrets never returned
+PATCH  /email_settings        # body: from_address, resend_api_key, webhook_secret
+POST   /webhooks/resend/:account_id  # Resend tracking events (Svix-signed)
 ```
 
 ## Tags

@@ -1,6 +1,7 @@
 # Sends outbound email and records it. Delivery goes through Resend when
-# RESEND_API_KEY is set; otherwise the email is kept as a draft record so
-# sequences and automations still leave an auditable trail.
+# configured (per-account email setting first, RESEND_API_KEY fallback);
+# otherwise the email is kept as a draft record so sequences and
+# automations still leave an auditable trail.
 class EmailService
   def self.send_sequence_step(contact, step)
     enrollment = contact.sequence_enrollments.find_by(sequence_id: step.sequence_id, status: :active)
@@ -12,18 +13,20 @@ class EmailService
     )
   end
 
-  def self.send_email(account:, subject:, body:, contact: nil, deal: nil)
+  def self.send_email(account:, subject:, body:, contact: nil, deal: nil, to_addresses: nil, cc_addresses: [], bcc_addresses: [])
     email = account.emails.create!(
       contact: contact,
       deal: deal,
       direction: :outbound,
-      from_address: from_address,
-      to_addresses: Array(contact&.email).compact,
+      from_address: from_address(account),
+      to_addresses: Array(to_addresses).presence || Array(contact&.email).compact,
+      cc_addresses: Array(cc_addresses),
+      bcc_addresses: Array(bcc_addresses),
       subject: subject,
       body: body,
       status: :draft
     )
-    return email unless resend_configured?
+    return email unless resend_configured?(account)
 
     deliver(email)
   rescue StandardError => e
@@ -40,8 +43,9 @@ class EmailService
             .gsub("{{company}}", contact.company&.name.to_s)
   end
 
-  def self.from_address
-    ENV.fetch("EMAIL_FROM_ADDRESS", "noreply@example.com")
+  def self.from_address(account = nil)
+    setting_address = account&.email_setting&.from_address.presence
+    setting_address || ENV.fetch("EMAIL_FROM_ADDRESS", "noreply@example.com")
   end
 
   def self.unsubscribe_footer(enrollment)
@@ -52,23 +56,38 @@ class EmailService
     "\n\n---\n<a href=\"#{url}\">Unsubscribe</a>"
   end
 
-  def self.resend_configured?
-    ENV["RESEND_API_KEY"].present?
+  def self.resend_configured?(account = nil)
+    resend_api_key(account).present?
   end
 
-  def self.deliver(email)
-    Resend.api_key = ENV.fetch("RESEND_API_KEY")
-    Resend::Emails.send(
-      {
-        from: email.from_address,
-        to: email.to_addresses,
-        subject: email.subject,
-        html: email.body.to_s
-      }
-    )
-    email.update!(status: :sent, sent_at: Time.current)
+  def self.resend_api_key(account = nil)
+    account&.email_setting&.resend_api_key.presence || ENV.fetch("RESEND_API_KEY", nil)
+  end
+
+  def self.redeliver(email)
+    return email unless resend_configured?(email.account)
+
+    deliver(email)
+  rescue StandardError => e
+    email.update!(status: :failed)
+    Rails.logger.warn("[EmailService] redelivery failed (#{e.class}): #{e.message}")
     email
   end
 
-  private_class_method :deliver, :from_address, :resend_configured?, :unsubscribe_footer
+  def self.deliver(email)
+    Resend.api_key = resend_api_key(email.account) || ""
+    params = {
+      from: email.from_address,
+      to: email.to_addresses,
+      subject: email.subject,
+      html: email.body.to_s
+    }
+    params[:cc] = email.cc_addresses if email.cc_addresses.present?
+    params[:bcc] = email.bcc_addresses if email.bcc_addresses.present?
+    response = Resend::Emails.send(params)
+    email.update!(status: :sent, sent_at: Time.current, provider_message_id: response["id"])
+    email
+  end
+
+  private_class_method :deliver, :from_address, :resend_configured?, :resend_api_key, :unsubscribe_footer
 end

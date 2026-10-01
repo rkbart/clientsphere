@@ -79,6 +79,20 @@
 - Editable subject/body, copyable, and sends via the email provider
 - `GET /emails/templates`, `POST /emails/deliver`
 
+### Outbox
+- Every outbound email in one list with status filter
+  (draft/sent/delivered/opened/failed)
+- Read full content; edit drafts inline (to/cc/bcc, subject, body)
+- Retry drafts and failures (`POST /emails/:id/redeliver`)
+- Drafts pile up here automatically when no provider is configured
+
+### Email settings & tracking
+- Settings → Email: Resend API key, sender address, webhook secret
+  (encrypted, write-only, owner/admin only; overrides env vars)
+- Delivery tracking via Resend webhooks (`email.delivered` → delivered,
+  `email.opened` → opened, `email.bounced` → failed); forward-only,
+  signature-verified, per-account URL
+
 ### Lead Scoring
 - Rules-based scoring with reasons
 - Explainable results; Re-score button on contact detail

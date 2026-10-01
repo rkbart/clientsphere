@@ -19,6 +19,11 @@ export default function SettingsPage() {
           <p className="text-[var(--text-secondary)] mt-2">Configure AI settings</p>
         </a>
 
+        <a href="/settings/email" className="card p-6 hover:shadow-md transition-shadow">
+          <h2 className="text-lg font-semibold">Email</h2>
+          <p className="text-[var(--text-secondary)] mt-2">Resend API key, sender and tracking</p>
+        </a>
+
         <a href="/settings/custom-fields" className="card p-6 hover:shadow-md transition-shadow">
           <h2 className="text-lg font-semibold">Custom Fields</h2>
           <p className="text-[var(--text-secondary)] mt-2">Define custom data fields</p>

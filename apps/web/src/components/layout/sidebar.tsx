@@ -13,6 +13,7 @@ import {
   Activity,
   Bot,
   Calendar,
+  Mail,
   Settings,
   Info,
   ChevronRight,
@@ -30,6 +31,7 @@ const navigation = [
   { name: "Calendar", href: "/calendar", icon: Calendar },
   { name: "AI Assistant", href: "/ai", icon: Bot },
   { name: "Automations", href: "/automations", icon: Zap },
+  { name: "Outbox", href: "/emails", icon: Mail },
 ];
 
 const secondary = [

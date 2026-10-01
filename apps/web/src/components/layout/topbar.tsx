@@ -15,6 +15,7 @@ const titles: Record<string, string> = {
   calendar: "Calendar",
   ai: "AI Assistant",
   automations: "Automations",
+  emails: "Outbox",
   sequences: "Sequences",
   settings: "Settings",
   about: "About",

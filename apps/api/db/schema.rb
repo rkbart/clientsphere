@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_090045) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_01_115332) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -270,6 +270,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_090045) do
     t.index ["account_id"], name: "index_email_sequences_on_account_id"
   end
 
+  create_table "email_settings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "account_id", null: false
+    t.text "resend_api_key"
+    t.string "from_address"
+    t.text "webhook_secret"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_email_settings_on_account_id", unique: true
+  end
+
   create_table "emails", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.integer "direction", null: false
@@ -284,9 +294,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_090045) do
     t.datetime "opened_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "cc_addresses", default: [], null: false
+    t.jsonb "bcc_addresses", default: [], null: false
+    t.string "provider_message_id"
     t.index ["account_id"], name: "index_emails_on_account_id"
     t.index ["contact_id"], name: "index_emails_on_contact_id"
     t.index ["deal_id"], name: "index_emails_on_deal_id"
+    t.index ["provider_message_id"], name: "index_emails_on_provider_message_id", unique: true
   end
 
   create_table "invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

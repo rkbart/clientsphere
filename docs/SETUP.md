@@ -74,6 +74,12 @@ Automations and sequences send email via [Resend](https://resend.com).
 Without a key, outbound mail is saved as `draft` rows (visible in the app)
 instead of being delivered.
 
+Two ways to configure (per-workspace settings win over env vars):
+
+**A. In the app (recommended):** Settings → Email — paste the Resend API key,
+sender address, and webhook signing secret. No restart needed.
+
+**B. Via env:**
 1. Create a free Resend account, verify a sending domain, and create an API key.
 2. Set:
    ```
@@ -82,6 +88,10 @@ instead of being delivered.
    ```
 3. Restart the API **and** the worker (`bin/jobs start`) so both pick up the vars.
    Docker Compose forwards both vars to the `api` and `worker` services.
+
+**Delivery tracking:** copy the webhook URL from Settings → Email into a
+Resend webhook to flip `sent` → `delivered`/`opened`. Resend can't reach
+localhost — use a tunnel for local testing.
 
 ### Google OAuth (optional)
 

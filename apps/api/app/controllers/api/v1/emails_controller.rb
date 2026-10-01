@@ -5,6 +5,7 @@ class Api::V1::EmailsController < Api::V1::BaseController
     emails = policy_scope(Email)
     emails = emails.where(contact_id: params[:contact_id]) if params[:contact_id].present?
     emails = emails.where(deal_id: params[:deal_id]) if params[:deal_id].present?
+    emails = emails.where(status: params[:status]) if params[:status].present? && Email.statuses.key?(params[:status])
     emails = emails.order(:created_at).reverse_order
 
     paginate(emails)
@@ -35,6 +36,13 @@ class Api::V1::EmailsController < Api::V1::BaseController
     head :no_content
   end
 
+  def redeliver
+    email = Current.account.emails.find(params[:id])
+    authorize email, :update?
+
+    render json: EmailService.redeliver(email)
+  end
+
   def templates
     skip_authorization
     contact = Current.account.contacts.kept.find_by(id: params[:contact_id]) if params[:contact_id].present?
@@ -53,13 +61,17 @@ class Api::V1::EmailsController < Api::V1::BaseController
     contact = Current.account.contacts.kept.find(params[:contact_id])
     deal = Current.account.deals.find(params[:deal_id]) if params[:deal_id].present?
     authorize Email.new(account: Current.account), :create?
+    recipients = params.permit(to_addresses: [], cc_addresses: [], bcc_addresses: [])
 
     email = EmailService.send_email(
       account: Current.account,
       contact: contact,
       deal: deal,
       subject: params[:subject].to_s,
-      body: params[:body].to_s
+      body: params[:body].to_s,
+      to_addresses: recipients[:to_addresses],
+      cc_addresses: recipients[:cc_addresses],
+      bcc_addresses: recipients[:bcc_addresses]
     )
     render json: email, status: :created
   end
@@ -71,6 +83,6 @@ class Api::V1::EmailsController < Api::V1::BaseController
   end
 
   def email_params
-    params.require(:email).permit(:direction, :from_address, :to_addresses, :subject, :body, :contact_id, :deal_id, :status, :sent_at, :opened_at)
+    params.require(:email).permit(:direction, :from_address, :subject, :body, :contact_id, :deal_id, :status, :sent_at, :opened_at, to_addresses: [], cc_addresses: [], bcc_addresses: [])
   end
 end
