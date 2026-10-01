@@ -22,6 +22,21 @@ apps/api/tmp/
 *.swp
 *.swo
 
+# AI tooling (skills, agents, assistants — local only, never commit)
+.claude/
+.agents/
+.opencode/
+.codex/
+.cursor/
+.windsurf/
+.continue/
+.copilot/
+.aider*
+AGENTS.md
+skills-lock.json
+.mcp.json
+mcp.json
+
 # OS
 .DS_Store
 Thumbs.db
