@@ -13,6 +13,7 @@ interface AutomationRecord {
   name?: string | null;
   trigger_type?: string | null;
   is_active?: boolean;
+  delay_days?: number | null;
   conditions?: Record<string, string> | null;
   actions?: Record<string, string>[] | null;
 }
@@ -47,6 +48,7 @@ export default function EditAutomationPage() {
     name: automation?.name ?? "",
     trigger_type: automation?.trigger_type ?? "contact_created",
     is_active: automation?.is_active ?? true,
+    delay_days: automation?.delay_days != null ? String(automation.delay_days) : "",
     min_amount: automation?.conditions?.min_amount ?? "",
     status: automation?.conditions?.status ?? "",
     tag: automation?.conditions?.tag ?? "",

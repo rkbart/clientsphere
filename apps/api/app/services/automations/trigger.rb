@@ -7,7 +7,12 @@ module Automations
       return unless record.respond_to?(:account_id) && record.account_id == account.id
 
       account.automations.where(trigger_type: event_type, is_active: true).find_each do |automation|
-        AutomationJob.perform_later(automation.id, event_type.to_s, record.class.name, record.id)
+        args = [automation.id, event_type.to_s, record.class.name, record.id]
+        if automation.delay_days.to_i.positive?
+          AutomationJob.set(wait_until: automation.delay_days.days.from_now).perform_later(*args)
+        else
+          AutomationJob.perform_later(*args)
+        end
       end
 
       account.plugins.where(is_active: true).find_each do |plugin|

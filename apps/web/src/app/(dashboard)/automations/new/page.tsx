@@ -13,6 +13,7 @@ const EMPTY_WORKFLOW: WorkflowValues = {
   name: "",
   trigger_type: "contact_created",
   is_active: true,
+  delay_days: "",
   min_amount: "",
   status: "",
   tag: "",

@@ -42,6 +42,7 @@ export interface WorkflowValues {
   name: string;
   trigger_type: string;
   is_active: boolean;
+  delay_days: string;
   min_amount: string;
   status: string;
   tag: string;
@@ -347,6 +348,18 @@ export function WorkflowBuilder({
         Active — run on matching events
       </label>
 
+      <Field label="Delay (days)" htmlFor="wf-delay">
+        <input
+          id="wf-delay"
+          type="number"
+          min="0"
+          className="input"
+          value={values.delay_days}
+          onChange={(e) => setValues((v) => ({ ...v, delay_days: e.target.value }))}
+          placeholder="0"
+        />
+      </Field>
+
       <div>
         <p className="text-sm font-medium text-[var(--text-primary)] mb-1.5">Conditions (all must match; blank = ignore)</p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -477,6 +490,7 @@ export function WorkflowBuilder({
             name: values.name.trim(),
             trigger_type: values.trigger_type,
             is_active: values.is_active,
+            delay_days: parseInt(values.delay_days) || 0,
             conditions,
             actions: values.actions.map((a) => {
               const { pipeline_id, ...rest } = a;

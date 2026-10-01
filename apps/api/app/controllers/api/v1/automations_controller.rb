@@ -53,7 +53,7 @@ class Api::V1::AutomationsController < Api::V1::BaseController
 
   def automation_params
     permitted = params.require(:automation).permit(
-      :name, :trigger_type, :is_active,
+      :name, :trigger_type, :is_active, :delay_days,
       actions: [:type, :subject, :description, :due_days, :tag_name, :stage_id, :webhook_id, :body]
     )
     conditions = params[:automation][:conditions]

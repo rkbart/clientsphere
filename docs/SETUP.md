@@ -68,6 +68,21 @@ MISSION_CONTROL_USER=admin                 # /jobs dashboard login (dev only)
 MISSION_CONTROL_PASSWORD=<generate>
 ```
 
+### Email (optional, Resend)
+
+Automations and sequences send email via [Resend](https://resend.com).
+Without a key, outbound mail is saved as `draft` rows (visible in the app)
+instead of being delivered.
+
+1. Create a free Resend account, verify a sending domain, and create an API key.
+2. Set:
+   ```
+   RESEND_API_KEY=re_xxx
+   EMAIL_FROM_ADDRESS=you@your-verified-domain.com  # defaults to noreply@example.com
+   ```
+3. Restart the API **and** the worker (`bin/jobs start`) so both pick up the vars.
+   Docker Compose forwards both vars to the `api` and `worker` services.
+
 ### Google OAuth (optional)
 
 1. Create OAuth credentials at [Google Cloud Console](https://console.cloud.google.com/apis/credentials)

@@ -245,7 +245,10 @@ Go to **Automations** and click **New Automation**:
    - Move stage (select pipeline and stage)
    - Call webhook (select a webhook)
 5. Drag actions to reorder them
-6. Toggle **Active** to enable/disable
+6. **Delay (days)** (optional) — wait this many days after the trigger fires
+   before running the actions (e.g. send a follow-up email 3 days after a
+   contact is created). Leave at 0 to run immediately.
+7. Toggle **Active** to enable/disable
 
 ### Run history
 

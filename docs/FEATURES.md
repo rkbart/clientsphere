@@ -103,6 +103,8 @@
 - Triggers: contact created/updated, deal created/stage-changed/won/lost,
   activity completed/overdue (overdue fired hourly by the scheduler)
 - Actions: create tasks, send email, tag, move stages, call webhooks
+- Delay: optional `delay_days` per automation — the job is scheduled with
+  `wait_until` at trigger time and runs after the delay (0 = immediate)
 - Enable/disable toggle
 - UI: list, create/edit form, detail with runs
 - Zapier/Make/n8n: see [INTEGRATIONS.md](INTEGRATIONS.md)
