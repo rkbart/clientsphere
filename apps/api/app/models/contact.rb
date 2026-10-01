@@ -14,6 +14,7 @@ class Contact < ApplicationRecord
   has_many :sequence_enrollments, dependent: :destroy
   has_many :taggings, as: :taggable, dependent: :destroy
   has_many :tags, through: :taggings
+  has_many :main_contact_of, class_name: "Company", foreign_key: :main_contact_id, dependent: :nullify
 
   SOCIAL_PLATFORMS = %w[linkedin x facebook instagram youtube github website other].freeze
 

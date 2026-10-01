@@ -26,13 +26,18 @@ class Api::V1::CompaniesController < Api::V1::BaseController
 
   def show
     authorize @company
-    render json: @company.as_json(include: { tags: { only: [:id, :name, :color] } })
+    render json: @company.as_json(include: {
+                                    tags: { only: [:id, :name, :color] },
+                                    added_by: { only: [:id, :name] },
+                                    main_contact: { only: [:id, :first_name, :last_name] }
+                                  })
   end
 
   def create
     company = Company.new(company_params)
     company.account = Current.account
     company.owner = Current.user
+    company.added_by = Current.user
     authorize company
     company.save!
     render json: company, status: :created
@@ -57,6 +62,6 @@ class Api::V1::CompaniesController < Api::V1::BaseController
   end
 
   def company_params
-    params.require(:company).permit(:name, :domain, :industry, :size_range, :annual_revenue, :description, :owner_id, custom_data: {})
+    params.require(:company).permit(:name, :domain, :industry, :size_range, :annual_revenue, :description, :owner_id, :address, :employee_count, :main_contact_id, custom_data: {}, social_links: [:platform, :url])
   end
 end

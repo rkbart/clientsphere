@@ -10,6 +10,7 @@ import { CustomFieldValues } from "@/components/custom-fields/custom-field-input
 import { AiEnrich } from "@/components/ai/ai-enrich";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { CompanyForm, type CompanyFormValues } from "@/components/companies/company-form";
+import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
 import { ChevronLeft, Pencil, Trash2 } from "lucide-react";
@@ -22,7 +23,14 @@ interface CompanyData {
   size_range: string | null;
   annual_revenue: number | null;
   description: string | null;
+  address?: string | null;
+  employee_count?: number | null;
+  social_links?: SocialLink[] | null;
+  added_by?: { id: string; name: string } | null;
+  main_contact?: { id: string; first_name: string; last_name?: string | null } | null;
+  main_contact_id?: string | null;
   custom_data?: Record<string, unknown> | null;
+  created_at: string;
 }
 
 export default function CompanyDetailPage() {
@@ -52,6 +60,13 @@ export default function CompanyDetailPage() {
     size_range: company.size_range ?? "",
     annual_revenue: company.annual_revenue == null ? "" : String(company.annual_revenue),
     description: company.description ?? "",
+    address: company.address ?? "",
+    employee_count: company.employee_count == null ? "" : String(company.employee_count),
+    main_contact_id: company.main_contact?.id ?? company.main_contact_id ?? "",
+    social_links: (company.social_links ?? []).map((l) => ({
+      platform: l.platform ?? "other",
+      url: l.url ?? "",
+    })),
     custom_data: (company.custom_data ?? {}) as CompanyFormValues["custom_data"],
   };
 
@@ -108,6 +123,53 @@ export default function CompanyDetailPage() {
               {company.annual_revenue ? `$${Number(company.annual_revenue).toLocaleString()}` : "—"}
             </dd>
           </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Address</dt>
+            <dd className="mt-0.5 text-sm">{company.address || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Employees</dt>
+            <dd className="mt-0.5 text-sm tabular-nums">
+              {company.employee_count != null ? Number(company.employee_count).toLocaleString() : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Main contact</dt>
+            <dd className="mt-0.5 text-sm">
+              {company.main_contact ? (
+                <Link href={`/contacts/${company.main_contact.id}`} className="hover:text-[var(--accent-hover)] transition-colors">
+                  {company.main_contact.first_name} {company.main_contact.last_name ?? ""}
+                </Link>
+              ) : "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Added by</dt>
+            <dd className="mt-0.5 text-sm">{company.added_by?.name || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Added on</dt>
+            <dd className="mt-0.5 text-sm">{new Date(company.created_at).toLocaleDateString()}</dd>
+          </div>
+          {(company.social_links ?? []).length > 0 && (
+            <div className="sm:col-span-2">
+              <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Social</dt>
+              <dd className="mt-1.5 flex flex-wrap gap-2">
+                {(company.social_links ?? []).map((l, i) => (
+                  <a
+                    key={i}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn-secondary text-sm !px-2.5"
+                    aria-label={`${l.platform} profile`}
+                  >
+                    <SocialIcon platform={l.platform} />
+                  </a>
+                ))}
+              </dd>
+            </div>
+          )}
         </dl>
         {company.description && (
           <>
@@ -144,6 +206,7 @@ export default function CompanyDetailPage() {
         <FormError message={editError} />
         <CompanyForm
           initial={initial}
+          companyId={company.id}
           submitting={update.isPending}
           submitLabel="Save changes"
           onSubmit={async (values) => {

@@ -78,6 +78,55 @@ RSpec.describe "Companies CRUD", type: :request do
     expect(JSON.parse(response.body)["data"].map { |c| c["name"] }).to eq(["Cascade"])
   end
 
+  it "saves address, employees, social links, main contact and records added_by" do
+    contact = account.contacts.create!(first_name: "Ada", email: "ada-co@example.com")
+
+    post "/api/v1/companies",
+         params: {
+           company: {
+             name: "Acme Corp",
+             address: "123 Main St, Berlin",
+             employee_count: 42,
+             main_contact_id: contact.id,
+             social_links: [{ platform: "linkedin", url: "https://linkedin.com/company/acme" }]
+           }
+         },
+         headers: headers
+
+    expect(response).to have_http_status(:created)
+    body = JSON.parse(response.body)
+    expect(body["address"]).to eq("123 Main St, Berlin")
+    expect(body["employee_count"]).to eq(42)
+    expect(body["main_contact_id"]).to eq(contact.id)
+    expect(body["added_by_id"]).to eq(owner.id)
+    expect(body["social_links"]).to eq([
+      { "platform" => "linkedin", "url" => "https://linkedin.com/company/acme" }
+    ])
+  end
+
+  it "rejects a main contact from another account" do
+    outsider = other_account.contacts.create!(first_name: "Eve", email: "eve-other@example.com")
+
+    post "/api/v1/companies",
+         params: { company: { name: "Acme Corp", main_contact_id: outsider.id } },
+         headers: headers
+
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
+  it "rejects social links with unknown platform or bad URL" do
+    post "/api/v1/companies",
+         params: {
+           company: {
+             name: "Acme Corp",
+             social_links: [{ platform: "myspace", url: "not-a-url" }]
+           }
+         },
+         headers: headers
+
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   it "paginates with meta and includes tags" do
     tag = Tag.create!(account: account, name: "vip", color: "#22c55e")
     company = create_company(name: "First")

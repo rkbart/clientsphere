@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Field } from "@/components/forms/fields";
 import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/custom-field-inputs";
 import { useCompanies } from "@/hooks/use-companies";
-import { SocialLinksEditor, type SocialLink } from "@/components/contacts/social-links-editor";
+import { SocialLinksEditor, type SocialLink } from "@/components/shared/social-links-editor";
 
 export interface ContactFormValues {
   first_name: string;

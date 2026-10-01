@@ -18,6 +18,7 @@ interface Company {
   name: string;
   domain: string | null;
   industry: string | null;
+  employee_count?: number | null;
   tags?: Tag[];
 }
 
@@ -81,6 +82,15 @@ export default function CompaniesPage() {
     },
     { key: "domain", label: "Domain", sortable: true, render: (c) => <span className="text-[var(--text-secondary)]">{c.domain || "—"}</span> },
     { key: "industry", label: "Industry", sortable: true, render: (c) => <span className="text-[var(--text-secondary)]">{c.industry || "—"}</span> },
+    {
+      key: "employees",
+      label: "Employees",
+      render: (c) => (
+        <span className="text-[var(--text-secondary)] tabular-nums">
+          {c.employee_count != null ? Number(c.employee_count).toLocaleString() : "—"}
+        </span>
+      ),
+    },
     { key: "tags", label: "Tags", render: (c) => <TagsCell tags={c.tags} /> },
   ];
 

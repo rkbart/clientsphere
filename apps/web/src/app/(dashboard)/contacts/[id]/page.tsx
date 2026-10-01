@@ -10,7 +10,7 @@ import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { ContactForm, type ContactFormValues } from "@/components/contacts/contact-form";
-import { SocialIcon, type SocialLink } from "@/components/contacts/social-links-editor";
+import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
 import { ChevronLeft, Pencil, Trash2 } from "lucide-react";
