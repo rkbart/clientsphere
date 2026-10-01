@@ -17,6 +17,7 @@ import {
   Info,
   ChevronRight,
   X,
+  Zap,
 } from "lucide-react";
 
 const navigation = [
@@ -28,6 +29,7 @@ const navigation = [
   { name: "Activities", href: "/activities", icon: Activity },
   { name: "Calendar", href: "/calendar", icon: Calendar },
   { name: "AI Assistant", href: "/ai", icon: Bot },
+  { name: "Automations", href: "/automations", icon: Zap },
 ];
 
 const secondary = [
