@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useWebhooks, useDeleteWebhook } from "@/hooks/use-webhooks";
 import { errMessage } from "@/lib/ai/error";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronLeft } from "lucide-react";
 import { useState } from "react";
+import { useCanManageSettings } from "@/hooks/use-current-role";
+import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 
 interface Webhook {
   id: string;
@@ -18,12 +20,22 @@ export default function WebhooksSettingsPage() {
   const remove = useDeleteWebhook();
   const [error, setError] = useState<string | null>(null);
   const list = ((data as unknown as { data?: Webhook[] })?.data ?? []);
+  const canManage = useCanManageSettings();
+
+  if (!canManage) return <ManagerOnlyNotice title="Webhooks" />;
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Webhooks</h1>
+          <Link
+            href="/settings"
+            className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to settings
+          </Link>
+          <h1 className="text-2xl font-semibold tracking-tight mt-2">Webhooks</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
             Signed POST deliveries with retries and a delivery log
           </p>

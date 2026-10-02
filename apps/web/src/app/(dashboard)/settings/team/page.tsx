@@ -146,7 +146,7 @@ export default function TeamSettingsPage() {
                     </td>
                     <td className="table-cell">
                       <div className="flex justify-end">
-                        {isManager && (
+                        {isManager && !isSelf && (
                           <button
                             onClick={async () => {
                               if (!confirm(`Remove ${m.user?.email} from the workspace?`)) return;
@@ -162,6 +162,14 @@ export default function TeamSettingsPage() {
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
+                        )}
+                        {isManager && isSelf && (
+                          <span
+                            className="text-xs text-[var(--text-tertiary)] pr-2"
+                            title="You can't remove yourself from the workspace"
+                          >
+                            —
+                          </span>
                         )}
                       </div>
                     </td>

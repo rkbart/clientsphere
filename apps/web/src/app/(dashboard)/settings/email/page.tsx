@@ -6,6 +6,8 @@ import { useEmailSettings, useUpdateEmailSettings } from "@/hooks/use-emails";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
 import { Check, ChevronLeft, Copy } from "lucide-react";
+import { useCanManageSettings } from "@/hooks/use-current-role";
+import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 
 export default function EmailSettingsPage() {
   const { data: settings, isLoading } = useEmailSettings();
@@ -14,10 +16,13 @@ export default function EmailSettingsPage() {
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const canManage = useCanManageSettings();
 
   useEffect(() => {
     setForm((f) => ({ ...f, from_address: settings?.from_address ?? "" }));
   }, [settings]);
+
+  if (!canManage) return <ManagerOnlyNotice title="Email Settings" />;
 
   if (isLoading) {
     return (

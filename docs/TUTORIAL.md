@@ -397,7 +397,10 @@ promote someone to owner.
 - **Member** — can create/edit records
 - **Viewer** — read-only access
 
-Change roles or remove members from the team table.
+Change roles or remove members from the team table. Your own row shows "(you)"
+and has no remove button — you can't remove yourself, and an account must always
+keep at least one owner. To hand over ownership, promote someone else to owner
+first.
 
 ### First login for new members
 
@@ -481,6 +484,17 @@ Go to **Settings → Profile** to update your name and email.
 ### AI provider
 
 Go to **Settings → AI** to configure or change your AI provider.
+
+### Who can change settings
+
+Every settings page links back here. Settings that affect the whole workspace —
+**AI provider, Email, Plugins, Pipelines, Webhooks, API Tokens and
+Import/Export** — can only be changed by an **owner or admin**. For members and
+viewers those cards are shown locked, and opening the page directly explains why.
+
+Personal settings (**Profile**), **Custom Fields**, and viewing the **Team** list
+stay available to everyone; changing roles, inviting, and removing members
+remain owner/admin actions.
 
 ---
 

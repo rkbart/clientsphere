@@ -167,12 +167,19 @@
 ### Roles & Permissions
 - Owner, admin, member, viewer
 - Pundit policies on every action
+- Workspace-wide settings (AI provider, email, plugins, webhooks, pipelines,
+  API tokens, import/export) are owner/admin only; the API returns 403 and the
+  UI shows a locked card plus a notice if opened directly by URL
+- Bulk import/export authorize as workspace operations, not record edits, so
+  members and viewers cannot upload or download the whole workspace
 
 ### Invitations
 - Invitation records with expiring tokens (7-day default)
 - Role assignment on acceptance; pending list with revoke
 - Re-inviting an email reissues the pending invite with a fresh token
 - Only owners can promote to owner
+- Members cannot remove themselves (API returns 422) and the last owner can
+  never be removed; the Team table hides the remove button on your own row
 - Email delivery via Resend when configured, invite link + copy button otherwise
 
 ### First login

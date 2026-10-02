@@ -71,6 +71,30 @@ RSpec.describe "Team memberships", type: :request do
     expect(Membership.exists?(membership.id)).to be(true)
   end
 
+  it "refuses to remove yourself even when another owner remains" do
+    co_owner = User.create!(name: "Co", email: "co-owner@example.com", password: "password123")
+    Membership.create!(account: account, user: co_owner, role: :owner)
+    own = owner.memberships.find_by(account: account)
+
+    delete "/api/v1/memberships/#{own.id}", headers: headers
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(JSON.parse(response.body)["error"]).to include("yourself")
+    expect(Membership.exists?(own.id)).to be(true)
+  end
+
+  it "lets an admin remove a member" do
+    admin_user = User.create!(name: "Adm", email: "adm-rm@example.com", password: "password123")
+    Membership.create!(account: account, user: admin_user, role: :admin)
+    member_user = User.create!(name: "Mem", email: "mem-rm@example.com", password: "password123")
+    target = Membership.create!(account: account, user: member_user, role: :member)
+
+    delete "/api/v1/memberships/#{target.id}", headers: headers
+
+    expect(response).to have_http_status(:no_content)
+    expect(Membership.exists?(target.id)).to be(false)
+  end
+
   it "reports invite delivery status on create" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
     sender = class_double("Resend::Emails").as_stubbed_const

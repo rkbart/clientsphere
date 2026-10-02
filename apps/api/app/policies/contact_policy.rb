@@ -11,6 +11,16 @@ class ContactPolicy < ApplicationPolicy
     member_or_above?
   end
 
+  # Bulk import/export is a workspace-level operation, not record editing.
+  # (Named bulk_* to avoid colliding with the per-contact `export?` below.)
+  def bulk_import?
+    owner_or_admin?
+  end
+
+  def bulk_export?
+    owner_or_admin?
+  end
+
   def update?
     member_or_above?
   end

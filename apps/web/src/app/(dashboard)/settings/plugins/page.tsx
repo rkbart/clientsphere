@@ -10,7 +10,10 @@ import {
 } from "@/hooks/use-plugins";
 import { Field, FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { Pencil, Plus, Trash2, X, ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { useCanManageSettings } from "@/hooks/use-current-role";
+import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 
 const TRIGGER_OPTIONS = [
   "contact_created",
@@ -48,6 +51,7 @@ export default function PluginsSettingsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<PluginFormState>(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
+  const canManage = useCanManageSettings();
 
   const startCreate = () => {
     setEditingId(null);
@@ -96,11 +100,20 @@ export default function PluginsSettingsPage() {
     }
   };
 
+  if (!canManage) return <ManagerOnlyNotice title="Plugins" />;
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Plugins</h1>
+          <Link
+            href="/settings"
+            className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to settings
+          </Link>
+          <h1 className="text-2xl font-semibold tracking-tight mt-2">Plugins</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
             Webhook plugins that fire on CRM events
           </p>

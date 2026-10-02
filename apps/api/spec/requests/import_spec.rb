@@ -80,4 +80,62 @@ RSpec.describe "CSV import", type: :request do
 
     expect(response).to have_http_status(:unprocessable_entity)
   end
+
+  describe "workspace-level access" do
+    def upload_as(user, csv)
+      file = Tempfile.new(["import", ".csv"])
+      file.write(csv)
+      file.rewind
+      post "/api/v1/import/csv",
+           params: { file: Rack::Test::UploadedFile.new(file.path, "text/csv") },
+           headers: { "Authorization" => "Bearer #{Session.create!(user: user).token}" }
+      file.close
+    end
+
+    let(:member) do
+      User.create!(name: "M", email: "member-imp@example.com", password: "password123").tap do |u|
+        Membership.create!(account: account, user: u, role: :member)
+        u.update!(current_account: account)
+      end
+    end
+
+    it "allows an admin" do
+      admin = User.create!(name: "A", email: "admin-imp@example.com", password: "password123")
+      Membership.create!(account: account, user: admin, role: :admin)
+      admin.update!(current_account: account)
+
+      upload_as(admin, "first_name\nAda\n")
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "forbids a member" do
+      upload_as(member, "first_name\nAda\n")
+
+      expect(response).to have_http_status(:forbidden)
+      expect(account.contacts.count).to eq(0)
+    end
+
+    it "forbids a viewer from exporting" do
+      viewer = User.create!(name: "V", email: "viewer-imp@example.com", password: "password123")
+      Membership.create!(account: account, user: viewer, role: :viewer)
+      viewer.update!(current_account: account)
+
+      get "/api/v1/export/csv/contacts",
+          headers: { "Authorization" => "Bearer #{Session.create!(user: viewer).token}" }
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "allows an admin to export" do
+      admin = User.create!(name: "A2", email: "admin2-imp@example.com", password: "password123")
+      Membership.create!(account: account, user: admin, role: :admin)
+      admin.update!(current_account: account)
+
+      get "/api/v1/export/csv/contacts",
+          headers: { "Authorization" => "Bearer #{Session.create!(user: admin).token}" }
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end

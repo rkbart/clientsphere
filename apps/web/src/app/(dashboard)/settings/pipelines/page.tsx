@@ -18,6 +18,8 @@ import { FormError } from "@/components/forms/fields";
 import { ConfirmDialog } from "@/components/ui/modal";
 import { errMessage } from "@/lib/ai/error";
 import { ChevronLeft, Pencil, Plus, Star, Trash2 } from "lucide-react";
+import { useCanManageSettings } from "@/hooks/use-current-role";
+import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 
 const KIND_OPTIONS = [
   { value: "open", label: "Open" },
@@ -162,6 +164,7 @@ export default function PipelinesSettingsPage() {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [newStage, setNewStage] = useState({ name: "", kind: "open" });
+  const canManage = useCanManageSettings();
 
   const createPipeline = useCreatePipeline();
   const updatePipeline = useUpdatePipeline();
@@ -219,6 +222,8 @@ export default function PipelinesSettingsPage() {
       setError(errMessage(e, "Could not add the stage."));
     }
   };
+
+  if (!canManage) return <ManagerOnlyNotice title="Pipelines" />;
 
   return (
     <div className="space-y-6 animate-fade-in max-w-3xl">

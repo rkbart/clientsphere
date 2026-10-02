@@ -1,3 +1,5 @@
+require "csv"
+
 module Exports
   class CsvExporter
     def initialize(account)

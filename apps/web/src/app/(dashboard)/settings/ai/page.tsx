@@ -5,7 +5,10 @@ import { PROVIDERS, DEFAULT_PROVIDER, displayName } from "@/lib/ai/providers";
 import { loadSettingsStore, saveSettingsStore } from "@/lib/ai/local-provider";
 import type { AIProvider } from "@/types/ai";
 import { useAiSettings, useUpdateAiSettings, useTestAiConnection } from "@/hooks/use-ai";
-import { CheckCircle2, XCircle, Server, Laptop, Zap } from "lucide-react";
+import { CheckCircle2, ChevronLeft, XCircle, Server, Laptop, Zap } from "lucide-react";
+import Link from "next/link";
+import { useCanManageSettings } from "@/hooks/use-current-role";
+import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 
 interface FormState {
   provider: string;
@@ -81,6 +84,10 @@ export default function AISettingsPage() {
     }
   };
 
+  const canManage = useCanManageSettings();
+
+  if (!canManage) return <ManagerOnlyNotice title="AI Settings" />;
+
   if (isLoading || !form || !def) {
     return (
       <div className="space-y-6">
@@ -103,7 +110,14 @@ export default function AISettingsPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">AI Settings</h1>
+          <Link
+            href="/settings"
+            className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to settings
+          </Link>
+          <h1 className="text-2xl font-semibold tracking-tight mt-2">AI Settings</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
             Bring your own model — keys are stored encrypted and never returned.
           </p>

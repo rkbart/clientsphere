@@ -10,7 +10,8 @@ import {
 } from "@/hooks/use-custom-objects";
 import { Field, FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { ChevronLeft, Pencil, Plus, Trash2, X } from "lucide-react";
+import Link from "next/link";
 
 const FIELD_TYPES = ["text", "number", "boolean", "date", "select"];
 
@@ -87,7 +88,14 @@ export default function CustomObjectsSettingsPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Custom Objects</h1>
+          <Link
+          href="/settings"
+          className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to settings
+        </Link>
+        <h1 className="text-2xl font-semibold tracking-tight mt-2">Custom Objects</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
             Define your own record types with custom fields
           </p>

@@ -22,6 +22,12 @@ class Api::V1::MembershipsController < Api::V1::BaseController
   def destroy
     membership = Membership.find(params[:id])
     authorize membership
+    # Removing yourself would leave you signed in with no membership, so
+    # hand ownership over (or ask someone else) instead.
+    if membership.user_id == Current.user.id
+      return render json: { error: "You cannot remove yourself from the workspace." },
+                    status: :unprocessable_entity
+    end
     membership.destroy!
     head :no_content
   end

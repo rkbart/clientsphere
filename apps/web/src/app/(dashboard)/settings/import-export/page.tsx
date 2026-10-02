@@ -4,7 +4,10 @@ import { useState } from "react";
 import { Field, FormError } from "@/components/forms/fields";
 import { getAuthHeadersForApi } from "@/lib/api/client";
 import { errMessage } from "@/lib/ai/error";
-import { Download, Upload } from "lucide-react";
+import { ChevronLeft, Download, Upload } from "lucide-react";
+import Link from "next/link";
+import { useCanManageSettings } from "@/hooks/use-current-role";
+import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 
 const FIELDS = ["first_name", "last_name", "email", "phone"];
 const ALIASES: Record<string, string> = {
@@ -91,6 +94,7 @@ export default function ImportExportSettingsPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
+  const canManage = useCanManageSettings();
 
   const pickFile = async (f: File | null) => {
     setFile(f);
@@ -160,9 +164,18 @@ export default function ImportExportSettingsPage() {
     }
   };
 
+  if (!canManage) return <ManagerOnlyNotice title="Import / Export" />;
+
   return (
     <div className="space-y-6 animate-fade-in">
-      <h1 className="text-2xl font-semibold tracking-tight">Import / Export</h1>
+      <Link
+        href="/settings"
+        className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to settings
+      </Link>
+      <h1 className="text-2xl font-semibold tracking-tight mt-2">Import / Export</h1>
       <FormError message={error} />
 
       <div className="card p-6 space-y-4">

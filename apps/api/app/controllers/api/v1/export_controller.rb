@@ -1,6 +1,6 @@
 class Api::V1::ExportController < Api::V1::BaseController
   def show
-    authorize Contact
+    authorize Contact, :bulk_export?
 
     case params[:type]
     when "contacts"

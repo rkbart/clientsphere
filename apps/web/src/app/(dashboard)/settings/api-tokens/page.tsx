@@ -4,7 +4,10 @@ import { useState } from "react";
 import { useApiTokens, useCreateApiToken, useRevokeApiToken } from "@/hooks/use-api-tokens";
 import { Field, FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { Check, Copy, Plus, Trash2 } from "lucide-react";
+import { Check, ChevronLeft, Copy, Plus, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useCanManageSettings } from "@/hooks/use-current-role";
+import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 
 export default function ApiTokensSettingsPage() {
   const { data: tokens = [], isLoading } = useApiTokens();
@@ -15,6 +18,7 @@ export default function ApiTokensSettingsPage() {
   const [expiresAt, setExpiresAt] = useState("");
   const [newToken, setNewToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const canManage = useCanManageSettings();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,10 +45,19 @@ export default function ApiTokensSettingsPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  if (!canManage) return <ManagerOnlyNotice title="API Tokens" />;
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">API Tokens</h1>
+        <Link
+          href="/settings"
+          className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to settings
+        </Link>
+        <h1 className="text-2xl font-semibold tracking-tight mt-2">API Tokens</h1>
         <p className="text-[var(--text-secondary)] text-sm mt-1">
           Personal access tokens for scripts and integrations — send as{" "}
           <code className="font-mono">Authorization: Bearer csk_…</code>
