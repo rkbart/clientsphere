@@ -35,9 +35,9 @@ Your home screen shows:
 - **Pipeline by stage** — visual bar chart of deal value per stage
 - **Outcomes & win rate** — donut chart of open/won/lost deals
 - **Deals by source** — pie chart showing where deals come from
-- **Tasks due** — open activities sorted by due date
+- **Tasks due** — open activities sorted by due date; click through to detail
 - **Needs attention** — your most urgent open deal with a rule-based status line
-- **Recent activity** — latest actions across all records
+- **Recent activity** — latest actions across all records; click through to detail
 
 ---
 
