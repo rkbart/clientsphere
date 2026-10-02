@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_01_115332) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_051508) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -232,7 +232,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_01_115332) do
     t.uuid "company_id"
     t.uuid "owner_id"
     t.date "expected_close_date"
-    t.integer "probability", default: 0
+    t.integer "probability"
     t.integer "position", default: 0
     t.datetime "closed_at"
     t.jsonb "custom_data", default: {}

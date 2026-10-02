@@ -133,6 +133,11 @@ Click **Add Deal**. You must select a pipeline and stage. The form includes:
 - Custom fields (automatically appear)
 - Contact and company links
 
+**Probability** (0–100) defaults to the stage average (New 10%, Contacted
+25%, Proposal 50%, Negotiation 75%) and follows the stage when the deal
+moves — until you type your own number, which always wins. The weighted
+forecast is amount × probability, e.g. $10,000 at 50% ≈ $5,000.
+
 ---
 
 ## Activities & Calendar

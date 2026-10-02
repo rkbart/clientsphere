@@ -55,7 +55,7 @@ export function DealForm({
     [pipelines],
   );
   const stageList = useMemo(
-    () => (stages as unknown as { id: string; name: string }[] | undefined) ?? [],
+    () => (stages as unknown as { id: string; name: string; probability?: number | null }[] | undefined) ?? [],
     [stages],
   );
   const contacts = ((contactsRes as unknown as { data?: { id: string; first_name: string; last_name: string }[] })?.data ?? []);
@@ -66,6 +66,23 @@ export function DealForm({
   ) => {
     const next = e.target.value;
     setValues((v) => (key === "pipeline_id" ? { ...v, pipeline_id: next, stage_id: "" } : { ...v, [key]: next }));
+  };
+
+  // Stage drives probability: when the stage changes and the field is blank
+  // or still holds the previous stage default, fill in the new default.
+  // An explicitly typed value is left alone. The backend enforces the same.
+  const setStage = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const next = e.target.value;
+    setValues((v) => {
+      const oldDefault = stageList.find((s) => s.id === v.stage_id)?.probability;
+      const nextDefault = stageList.find((s) => s.id === next)?.probability;
+      const untouched = v.probability === "" || (oldDefault != null && v.probability === String(oldDefault));
+      return {
+        ...v,
+        stage_id: next,
+        probability: untouched && nextDefault != null ? String(nextDefault) : v.probability,
+      };
+    });
   };
 
   return (
@@ -131,7 +148,7 @@ export function DealForm({
             id="deal-stage"
             className="input"
             value={values.stage_id}
-            onChange={set("stage_id")}
+            onChange={setStage}
             required
             disabled={!values.pipeline_id}
           >

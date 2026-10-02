@@ -15,7 +15,10 @@ class Deal < ApplicationRecord
 
   validates :title, presence: true
   validates :amount, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :probability, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: 100 }, allow_nil: true
   validate :custom_data_matches_definitions
+
+  before_validation :default_probability_from_stage, on: :create
 
   after_create_commit { Automations::Trigger.call(account, :deal_created, self) }
   after_update_commit :trigger_deal_update_events
@@ -26,8 +29,12 @@ class Deal < ApplicationRecord
   scope :lost, -> { where.not(closed_at: nil).where(stage: { kind: :lost }) }
 
   def move_to!(target_stage_id, position: nil)
+    old_stage = stage
     transaction do
       update!(stage_id: target_stage_id, position: 0)
+      if probability.nil? || probability == old_stage&.probability
+        update_column(:probability, Stage.find(target_stage_id).probability)
+      end
       siblings = Deal.kept.where(stage_id: target_stage_id).where.not(id: id).order(:position, :created_at).to_a
       index = position.to_i.clamp(0, siblings.length)
       siblings.insert(index, self)
@@ -36,6 +43,10 @@ class Deal < ApplicationRecord
   end
 
   private
+
+  def default_probability_from_stage
+    self.probability = stage&.probability if probability.nil?
+  end
 
   def custom_data_matches_definitions
     return if account.nil?

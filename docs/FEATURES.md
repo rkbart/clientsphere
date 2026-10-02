@@ -24,7 +24,8 @@
 - Kanban board with drag-drop (mouse and touch)
 - Won/lost tracking
 - Expected close dates
-- Deal value tracking
+- Deal value tracking with stage-driven probability (0–100 validated,
+  manual overrides preserved, weighted forecast)
 - List with search, stage/tag filters, sortable columns, pagination
 - Add/edit via modal dialogs (server 422 displayed inline)
 

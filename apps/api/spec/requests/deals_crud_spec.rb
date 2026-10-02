@@ -77,6 +77,40 @@ RSpec.describe "Deals CRUD", type: :request do
     expect(JSON.parse(response.body)["data"].map { |d| d["title"] }).to eq(["Open one"])
   end
 
+  it "defaults probability from the stage on create" do
+    post "/api/v1/deals",
+         params: { deal: { title: "Fresh", pipeline_id: pipeline.id, stage_id: stage.id } },
+         headers: headers
+
+    expect(response).to have_http_status(:created)
+    expect(JSON.parse(response.body)["probability"]).to eq(stage.probability)
+  end
+
+  it "follows the stage on move unless manually overridden" do
+    untouched = create_deal(probability: nil)
+    expect(untouched.reload.probability).to eq(stage.probability)
+
+    proposal = pipeline.stages.find_by!(name: "Proposal")
+    patch "/api/v1/deals/#{untouched.id}/move", params: { stage_id: proposal.id }, headers: headers
+    expect(untouched.reload.probability).to eq(proposal.probability)
+
+    manual = create_deal(title: "Manual", probability: 90)
+    patch "/api/v1/deals/#{manual.id}/move", params: { stage_id: proposal.id }, headers: headers
+    expect(manual.reload.probability).to eq(90)
+  end
+
+  it "rejects probability outside 0-100" do
+    post "/api/v1/deals",
+         params: { deal: { title: "Bad", pipeline_id: pipeline.id, stage_id: stage.id, probability: 150 } },
+         headers: headers
+    expect(response).to have_http_status(:unprocessable_entity)
+
+    post "/api/v1/deals",
+         params: { deal: { title: "Bad", pipeline_id: pipeline.id, stage_id: stage.id, probability: -5 } },
+         headers: headers
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   it "searches by title and filters by pipeline" do
     create_deal(title: "Beta contract")
     create_deal(title: "Gamma contract")
