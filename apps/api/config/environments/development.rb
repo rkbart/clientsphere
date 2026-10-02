@@ -16,4 +16,8 @@ Rails.application.configure do
   config.active_support.disallowed_deprecation_warnings = []
   config.active_record.migration_error = :page_load
   config.active_record.verbose_query_logs = true
+
+  # Allow Cloudflare tunnel hosts so inbound webhooks (e.g. Resend tracking)
+  # can reach local dev. Production keeps the default host restrictions.
+  config.hosts << /.*\.trycloudflare\.com/
 end

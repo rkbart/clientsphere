@@ -56,7 +56,7 @@ RSpec.describe "Email templates", type: :request do
   it "marks sent when Resend delivers" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
     sender = class_double("Resend::Emails").as_stubbed_const
-    allow(sender).to receive(:send).and_return({ "id" => "x" })
+    allow(sender).to receive(:send).and_return({ id: "x" })
 
     post "/api/v1/emails/deliver",
          params: { contact_id: contact.id, subject: "Hi", body: "Hello Ada" },

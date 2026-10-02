@@ -91,7 +91,8 @@ sender address, and webhook signing secret. No restart needed.
 
 **Delivery tracking:** copy the webhook URL from Settings → Email into a
 Resend webhook to flip `sent` → `delivered`/`opened`. Resend can't reach
-localhost — use a tunnel for local testing.
+localhost — use a tunnel for local testing (dev already allows
+`*.trycloudflare.com` hosts, no config needed).
 
 ### Google OAuth (optional)
 

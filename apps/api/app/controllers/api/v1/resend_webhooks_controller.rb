@@ -30,19 +30,21 @@ class Api::V1::ResendWebhooksController < Api::V1::BaseController
 
   private
 
+  # Resend signs with svix-* headers; accept webhook-* as a fallback.
+  def webhook_header(name)
+    request.headers["svix-#{name}"].presence || request.headers["webhook-#{name}"]
+  end
+
   def valid_signature?(secret, raw_body)
-    id = request.headers["webhook-id"]
-    timestamp = request.headers["webhook-timestamp"]
-    signatures = request.headers["webhook-signature"]&.split(" ")
+    id = webhook_header("id")
+    timestamp = webhook_header("timestamp")
+    signatures = webhook_header("signature")&.split(" ")
     return false if id.blank? || timestamp.blank? || signatures.blank?
     return false if (Time.current.to_i - timestamp.to_i).abs > TIMESTAMP_TOLERANCE
 
-    key = begin
-      Base64.strict_decode64(secret.sub(/\Awhsec_/, ""))
-    rescue ArgumentError
-      nil
-    end
-    return false if key.nil?
+    # Lenient decode like official Svix: secrets may be unpadded.
+    key = Base64.decode64(secret.strip.sub(/\Awhsec_/, ""))
+    return false if key.empty?
 
     signed = "#{id}.#{timestamp}.#{raw_body}"
     expected = Base64.strict_encode64(OpenSSL::HMAC.digest("SHA256", key, signed))

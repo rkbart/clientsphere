@@ -15,7 +15,7 @@ RSpec.describe EmailService do
   it "passes a positional params hash to Resend and marks sent" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test", "EMAIL_FROM_ADDRESS" => "me@example.com"))
     sender = class_double("Resend::Emails").as_stubbed_const
-    allow(sender).to receive(:send).and_return({ "id" => "x" })
+    allow(sender).to receive(:send).and_return({ id: "x" })
 
     email = described_class.send_email(account: account, contact: contact, subject: "Hi", body: "Hello")
 
@@ -29,7 +29,7 @@ RSpec.describe EmailService do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_env", "EMAIL_FROM_ADDRESS" => "env@example.com"))
     account.create_email_setting!(resend_api_key: "re_account", from_address: "me@example.com")
     sender = class_double("Resend::Emails").as_stubbed_const
-    allow(sender).to receive(:send).and_return({ "id" => "re_abc" })
+    allow(sender).to receive(:send).and_return({ id: "re_abc" })
 
     email = described_class.send_email(account: account, contact: contact, subject: "Hi", body: "Hello")
 

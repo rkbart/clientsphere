@@ -85,7 +85,7 @@ class EmailService
     params[:cc] = email.cc_addresses if email.cc_addresses.present?
     params[:bcc] = email.bcc_addresses if email.bcc_addresses.present?
     response = Resend::Emails.send(params)
-    email.update!(status: :sent, sent_at: Time.current, provider_message_id: response["id"])
+    email.update!(status: :sent, sent_at: Time.current, provider_message_id: response[:id])
     email
   end
 

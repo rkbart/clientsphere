@@ -170,6 +170,11 @@ Go to **Settings → AI**:
 
 - **AI Assistant** (`/ai`) — chat with your CRM data; ask questions like "What deals are closing this week?"
 - **Compose Email** — on the deal page, pick a template, edit, and send
+- **Outbox** — every outbound email with status filter; edit drafts inline,
+  retry failures (retry saves your edits first)
+- **Delivery tracking** — Settings → Email holds the Resend key and the
+  webhook URL to paste into Resend; Outbox rows flip sent → delivered →
+  opened as events arrive (tunnel needed for local testing)
 - **Re-score** — recalculate lead scores with AI
 - **Deal Summary** — rule-based status (stage, value, close date, activity, staleness)
 

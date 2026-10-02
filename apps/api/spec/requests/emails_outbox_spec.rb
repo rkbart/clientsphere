@@ -37,7 +37,7 @@ RSpec.describe "Emails outbox", type: :request do
   it "redelivers a draft through the provider" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
     sender = class_double("Resend::Emails").as_stubbed_const
-    allow(sender).to receive(:send).and_return({ "id" => "x" })
+    allow(sender).to receive(:send).and_return({ id: "x" })
     email = create_email(status: :draft)
 
     post "/api/v1/emails/#{email.id}/redeliver", headers: headers
@@ -72,7 +72,7 @@ RSpec.describe "Emails outbox", type: :request do
   it "delivers to custom to/cc/bcc addresses" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
     sender = class_double("Resend::Emails").as_stubbed_const
-    allow(sender).to receive(:send).and_return({ "id" => "x" })
+    allow(sender).to receive(:send).and_return({ id: "x" })
 
     post "/api/v1/emails/deliver",
          params: {

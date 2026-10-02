@@ -9,7 +9,7 @@ RSpec.describe "Resend webhooks", type: :request do
     account.create_email_setting!(resend_api_key: "re_xxx", webhook_secret: secret)
   end
 
-  def signed_post(payload, key: raw_key, timestamp: Time.current.to_i, account_id: account.id)
+  def signed_post(payload, key: raw_key, timestamp: Time.current.to_i, account_id: account.id, prefix: "webhook")
     body = JSON.generate(payload)
     id = "msg_#{SecureRandom.hex(8)}"
     sig = Base64.strict_encode64(OpenSSL::HMAC.digest("SHA256", key, "#{id}.#{timestamp}.#{body}"))
@@ -17,9 +17,9 @@ RSpec.describe "Resend webhooks", type: :request do
          params: body,
          headers: {
            "CONTENT_TYPE" => "application/json",
-           "webhook-id" => id,
-           "webhook-timestamp" => timestamp.to_s,
-           "webhook-signature" => "v1,#{sig}"
+           "#{prefix}-id" => id,
+           "#{prefix}-timestamp" => timestamp.to_s,
+           "#{prefix}-signature" => "v1,#{sig}"
          }
   end
 
@@ -43,6 +43,12 @@ RSpec.describe "Resend webhooks", type: :request do
     signed_post(event("email.opened", "re_msg_123"))
     expect(email.reload.status).to eq("opened")
     expect(email.reload.opened_at).to be_present
+  end
+
+  it "accepts Resend's svix-* headers" do
+    signed_post(event("email.delivered", "re_msg_123"), prefix: "svix")
+    expect(response).to have_http_status(:ok)
+    expect(email.reload.status).to eq("delivered")
   end
 
   it "marks bounced as failed" do
