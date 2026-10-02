@@ -36,7 +36,7 @@ class Api::V1::PipelinesController < Api::V1::BaseController
   private
 
   def set_pipeline
-    @pipeline = Pipeline.find(params[:id])
+    @pipeline = Current.account.pipelines.find(params[:id])
   end
 
   def pipeline_params

@@ -62,10 +62,8 @@ Rails.application.routes.draw do
       end
 
       resources :pipelines do
-        resources :stages, only: [:index, :create]
+        resources :stages
       end
-
-      resources :stages, only: [:update, :destroy]
 
       resources :activities
       resources :notes

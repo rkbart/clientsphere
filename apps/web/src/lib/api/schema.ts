@@ -351,6 +351,13 @@ export interface paths {
           id: string;
         };
       };
+      requestBody: {
+        content: {
+          "application/json": {
+            pipeline: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         200: {
           content: {
@@ -391,6 +398,13 @@ export interface paths {
           pipeline_id: string;
         };
       };
+      requestBody: {
+        content: {
+          "application/json": {
+            stage: Record<string, unknown>;
+          };
+        };
+      };
       responses: {
         201: {
           content: {
@@ -400,11 +414,19 @@ export interface paths {
       };
     };
   };
-  "/stages/{id}": {
+  "/pipelines/{pipeline_id}/stages/{id}": {
     patch: {
       parameters: {
         path: {
+          pipeline_id: string;
           id: string;
+        };
+      };
+      requestBody: {
+        content: {
+          "application/json": {
+            stage: Record<string, unknown>;
+          };
         };
       };
       responses: {
@@ -418,6 +440,7 @@ export interface paths {
     delete: {
       parameters: {
         path: {
+          pipeline_id: string;
           id: string;
         };
       };

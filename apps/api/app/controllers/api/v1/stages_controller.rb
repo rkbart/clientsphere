@@ -29,7 +29,7 @@ class Api::V1::StagesController < Api::V1::BaseController
   private
 
   def set_pipeline
-    @pipeline = Pipeline.find(params[:pipeline_id])
+    @pipeline = Current.account.pipelines.find(params[:pipeline_id])
   end
 
   def set_stage

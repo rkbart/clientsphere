@@ -113,9 +113,21 @@ Go to **Deals** for the table view:
 ### Pipeline board
 
 Go to **Pipeline** to see a Kanban board:
+- Switch pipelines with the dropdown (e.g. Sales vs Catering & Events)
 - Drag cards between stages (mouse or touch)
 - Click a card to open the deal
 - Visual stage colors and probability indicators
+- **Show closed** toggle — Won/Lost columns hide by default so finished
+  deals don't clutter the board (preference is remembered)
+
+### Manage pipelines
+
+Go to **Settings → Pipelines**:
+- Create pipelines (Sales, Catering & Events, Partnerships…) — each starts
+  with the default 6 stages
+- Rename, set default, delete (pipelines holding deals can't be deleted)
+- Edit stages: rename, change kind (open/won/lost), probability, color;
+  add new ones (appended at the end)
 
 ### Deal detail
 

@@ -20,8 +20,11 @@
 - Add/edit via modal dialogs (server 422 displayed inline)
 
 ### Deals
-- Pipelines with customizable stages (API)
-- Kanban board with drag-drop (mouse and touch)
+- Multiple pipelines (Sales, Catering & Events, …) managed in Settings,
+  each with its own stages; single default
+- Kanban board with drag-drop (mouse and touch), pipeline switcher,
+  hide-closed toggle
+- Guarded deletes (pipelines/stages holding deals refuse with 422)
 - Won/lost tracking
 - Expected close dates
 - Deal value tracking with stage-driven probability (0–100 validated,

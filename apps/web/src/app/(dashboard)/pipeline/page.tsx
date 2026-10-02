@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
@@ -24,11 +24,22 @@ function formatMoney(value: number): string {
   return value >= 1000 ? `$${(value / 1000).toFixed(1)}k` : `$${value.toFixed(0)}`;
 }
 
+const HIDE_CLOSED_KEY = "pipeline-hide-closed";
+
 export default function PipelinePage() {
   const { data: pipelines, isLoading: pipelinesLoading } = usePipelines();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [hideClosed, setHideClosed] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const stored = window.localStorage.getItem(HIDE_CLOSED_KEY);
+    return stored === null ? true : stored === "1";
+  });
   const pipeline = useMemo(
-    () => pipelines?.find((p) => p.is_default) ?? pipelines?.[0],
-    [pipelines]
+    () =>
+      (pipelines ?? []).find((p) => p.id === selectedId) ??
+      pipelines?.find((p) => p.is_default) ??
+      pipelines?.[0],
+    [pipelines, selectedId]
   );
   const { data: stages, isLoading: stagesLoading } = useStages(pipeline?.id);
   const { data: dealsRes, isLoading: dealsLoading } = useDeals(
@@ -36,7 +47,18 @@ export default function PipelinePage() {
   );
   const moveDeal = useMoveDeal();
 
+  const toggleClosed = () => {
+    setHideClosed((v) => {
+      window.localStorage.setItem(HIDE_CLOSED_KEY, v ? "0" : "1");
+      return !v;
+    });
+  };
+
   const deals = (dealsRes as unknown as DealsResponse)?.data ?? [];
+  const visibleStages = useMemo(
+    () => (stages ?? []).filter((s) => !hideClosed || s.kind === "open"),
+    [stages, hideClosed]
+  );
 
   const byStage = useMemo(() => {
     const map: Record<string, Deal[]> = {};
@@ -74,17 +96,44 @@ export default function PipelinePage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Pipeline</h1>
-        <p className="text-[var(--text-secondary)] text-sm mt-1">
-          {pipeline?.name} · {deals.length} deals · drag cards between stages
-        </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Pipeline</h1>
+          <p className="text-[var(--text-secondary)] text-sm mt-1">
+            {pipeline?.name} · {deals.length} deals · drag cards between stages
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {(pipelines ?? []).length > 1 && (
+            <select
+              value={pipeline?.id ?? ""}
+              onChange={(e) => setSelectedId(e.target.value || null)}
+              className="input w-auto text-sm"
+              aria-label="Select pipeline"
+            >
+              {(pipelines ?? []).map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          )}
+          <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={!hideClosed}
+              onChange={toggleClosed}
+              className="h-4 w-4 accent-[var(--accent)]"
+            />
+            Show closed
+          </label>
+        </div>
       </div>
 
-      {stages && stages.length > 0 ? (
+      {visibleStages.length > 0 ? (
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
-            {stages.map((stage) => {
+            {visibleStages.map((stage) => {
               const list = byStage[stage.id] ?? [];
               const total = list.reduce((sum, d) => sum + (parseFloat(d.amount || "0") || 0), 0);
               return (
@@ -166,7 +215,9 @@ export default function PipelinePage() {
         </DragDropContext>
       ) : (
         <div className="card p-6 text-center">
-          <p className="text-[var(--text-secondary)]">No pipeline found.</p>
+          <p className="text-[var(--text-secondary)]">
+            {!pipeline ? "No pipeline found." : "No open stages — turn on “Show closed” to see closed columns."}
+          </p>
         </div>
       )}
     </div>

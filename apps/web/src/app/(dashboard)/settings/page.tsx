@@ -39,6 +39,11 @@ export default function SettingsPage() {
           <p className="text-[var(--text-secondary)] mt-2">Webhook plugins for CRM events</p>
         </a>
 
+        <a href="/settings/pipelines" className="card p-6 hover:shadow-md transition-shadow">
+          <h2 className="text-lg font-semibold">Pipelines</h2>
+          <p className="text-[var(--text-secondary)] mt-2">Manage sales processes and their stages</p>
+        </a>
+
         <a href="/settings/views" className="card p-6 hover:shadow-md transition-shadow">
           <h2 className="text-lg font-semibold">Saved Views</h2>
           <p className="text-[var(--text-secondary)] mt-2">Manage saved filters and views</p>

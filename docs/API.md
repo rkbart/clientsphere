@@ -94,8 +94,8 @@ DELETE /pipelines/:id
 
 GET    /pipelines/:pipeline_id/stages
 POST   /pipelines/:pipeline_id/stages
-PATCH  /stages/:id
-DELETE /stages/:id
+PATCH  /pipelines/:pipeline_id/stages/:id
+DELETE /pipelines/:pipeline_id/stages/:id
 ```
 
 ## Activities

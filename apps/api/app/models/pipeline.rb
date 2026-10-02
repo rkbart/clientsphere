@@ -6,8 +6,21 @@ class Pipeline < ApplicationRecord
   validates :name, presence: true
 
   after_create :create_default_stages
+  before_save :ensure_single_default, if: :is_default?
+  before_destroy :ensure_no_deals, prepend: true
 
   private
+
+  def ensure_single_default
+    account.pipelines.where.not(id: id).where(is_default: true).update_all(is_default: false)
+  end
+
+  def ensure_no_deals
+    if stages.joins(:deals).exists?
+      errors.add(:base, "cannot delete a pipeline with deals — move or delete them first")
+      throw :abort
+    end
+  end
 
   def create_default_stages
     stages.create!([
