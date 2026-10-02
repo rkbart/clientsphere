@@ -203,11 +203,15 @@ export default function DashboardPage() {
             {dueTasks?.map((task) => {
               const due = dueLabel(task.due_at);
               return (
-                <div key={task.id} className="px-5 py-3 flex items-center gap-3 hover:bg-[var(--bg-elevated)] transition-colors duration-150">
+                <Link
+                  key={task.id}
+                  href={`/activities/${task.id}`}
+                  className="px-5 py-3 flex items-center gap-3 hover:bg-[var(--bg-elevated)] transition-colors duration-150"
+                >
                   <Circle className="h-4 w-4 text-[var(--text-tertiary)] shrink-0" />
                   <span className="text-sm flex-1 truncate">{task.subject}</span>
                   <span className={`text-xs shrink-0 ${due.className}`}>{due.text}</span>
-                </div>
+                </Link>
               );
             })}
             {dueTasks?.length === 0 && (
@@ -260,7 +264,11 @@ export default function DashboardPage() {
         </div>
         <div className="divide-y divide-[var(--border-subtle)]">
           {recentActivities?.map((activity) => (
-            <div key={activity.id} className="px-5 py-3 flex items-center justify-between gap-4 hover:bg-[var(--bg-elevated)] transition-colors duration-150">
+            <Link
+              key={activity.id}
+              href={`/activities/${activity.id}`}
+              className="px-5 py-3 flex items-center justify-between gap-4 hover:bg-[var(--bg-elevated)] transition-colors duration-150"
+            >
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-2 h-2 rounded-full bg-[var(--accent)] shrink-0" />
                 <div className="min-w-0">
@@ -271,7 +279,7 @@ export default function DashboardPage() {
               <span className="text-xs text-[var(--text-tertiary)] shrink-0">
                 {new Date(activity.created_at).toLocaleDateString()}
               </span>
-            </div>
+            </Link>
           ))}
           {(!recentActivities || recentActivities.length === 0) && (
             <div className="px-5 py-8 text-center text-sm text-[var(--text-tertiary)]">
