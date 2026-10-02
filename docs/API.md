@@ -77,7 +77,7 @@ GET    /deals/:id             # Show (includes stage, company, tags)
 PATCH  /deals/:id
 DELETE /deals/:id             # Soft delete
 PATCH  /deals/:id/move        # Stage change
-GET    /deals/:id/summary      # Rule-based summary (no AI)
+GET    /deals/:id/summary      # Rule-based summary + facts (no AI)
 GET    /deals/attention         # Highest-scoring open deal (?pipeline_id=)
 ```
 

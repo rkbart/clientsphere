@@ -16,10 +16,61 @@ module Deals
     end
 
     def call
-      { summary: lines.join("\n"), stale: stale? }
+      { summary: lines.join("\n"), stale: stale?, facts: facts }
     end
 
     private
+
+    def facts
+      {
+        position: {
+          stage: @deal.stage&.name,
+          stage_color: @deal.stage&.color,
+          amount: formatted_amount,
+          weighted: weighted_amount,
+          probability: probability
+        },
+        close: close_fact,
+        activity: activity_fact
+      }
+    end
+
+    def close_fact
+      if closed?
+        tone = @deal.stage&.kind == "won" ? "ok" : "muted"
+        { tone: tone, label: "Closed as #{@deal.stage.kind} on #{date(@deal.closed_at)}" }
+      elsif @deal.expected_close_date.nil?
+        { tone: "muted", label: "No close date set" }
+      elsif @deal.expected_close_date < Date.current
+        days = (Date.current - @deal.expected_close_date).to_i
+        { tone: "bad", label: "Passed #{days} #{day_label(days)} ago" }
+      elsif @deal.expected_close_date <= CLOSING_SOON_DAYS.days.from_now.to_date
+        days = (@deal.expected_close_date - Date.current).to_i
+        { tone: "warn", label: "In #{days} #{day_label(days)} (#{date(@deal.expected_close_date)})" }
+      else
+        { tone: "ok", label: date(@deal.expected_close_date) }
+      end
+    end
+
+    def activity_fact
+      last = last_activity
+      overdue = overdue_tasks_count
+
+      if last.nil?
+        { tone: "warn", label: "No activity logged yet", overdue_tasks: overdue }
+      else
+        days = ((Time.current - last.created_at) / 1.day).floor
+        recency = days.zero? ? "today" : "#{days} #{day_label(days)} ago"
+        tone = if days > STALE_AFTER_DAYS
+                 "bad"
+               elsif days > QUIET_AFTER_DAYS
+                 "warn"
+               else
+                 "ok"
+               end
+        { tone: tone, label: "#{recency} (#{last.kind}: #{last.subject})", overdue_tasks: overdue }
+      end
+    end
 
     def lines
       [position_line, close_line, activity_line].compact

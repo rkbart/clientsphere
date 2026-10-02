@@ -36,6 +36,9 @@ RSpec.describe "Deal summary", type: :request do
     expect(body["summary"]).to include("Big deal", open_stage.name, "$10,000")
     expect(body["summary"]).to include("Intro call")
     expect(body["stale"]).to be(false)
+    expect(body["facts"]["position"]["stage"]).to eq(open_stage.name)
+    expect(body["facts"]["position"]["amount"]).to eq("$10,000")
+    expect(body["facts"]["activity"]["tone"]).to eq("ok")
   end
 
   it "flags a stale deal with overdue tasks" do
@@ -52,6 +55,9 @@ RSpec.describe "Deal summary", type: :request do
     expect(body["summary"]).to include("stale")
     expect(body["summary"]).to include("1 overdue task")
     expect(body["stale"]).to be(true)
+    expect(body["facts"]["close"]["tone"]).to eq("bad")
+    expect(body["facts"]["activity"]["tone"]).to eq("bad")
+    expect(body["facts"]["activity"]["overdue_tasks"]).to eq(1)
   end
 
   it "reports a closed deal as not stale" do
