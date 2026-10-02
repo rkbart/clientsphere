@@ -34,6 +34,8 @@
 - Assigned to team members
 - Surfaced in the dashboard (tasks due, recent activity)
 - Logging UI on the Activities page (new + edit)
+- List with search, kind/status filters (incl. overdue), sortable
+  columns, pagination
 
 ### Notes
 - Polymorphic notes on any record

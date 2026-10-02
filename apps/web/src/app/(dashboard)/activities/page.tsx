@@ -1,34 +1,174 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
+import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import type { SortDir } from "@/components/shared/sort-header";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
+
+interface Activity {
+  id: string;
+  subject: string;
+  kind: string | null;
+  due_at?: string | null;
+  completed_at?: string | null;
+}
+
+const KIND_OPTIONS = [
+  { value: "", label: "All types" },
+  { value: "call", label: "Call" },
+  { value: "meeting", label: "Meeting" },
+  { value: "task", label: "Task" },
+  { value: "email", label: "Email" },
+  { value: "other", label: "Other" },
+];
+
+const STATUS_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "open", label: "Open" },
+  { value: "completed", label: "Completed" },
+  { value: "overdue", label: "Overdue" },
+];
+
+type SortKey = "subject" | "kind" | "due_at";
+
+interface ActivitiesResponse {
+  data: Activity[];
+  meta: { total_count: number; total_pages: number; current_page: number };
+}
+
+function statusOf(a: Activity): "completed" | "overdue" | "open" {
+  if (a.completed_at) return "completed";
+  if (a.due_at && new Date(a.due_at) < new Date()) return "overdue";
+  return "open";
+}
+
+const STATUS_BADGE: Record<string, string> = {
+  completed: "badge-success",
+  overdue: "badge-danger",
+  open: "badge-warning",
+};
 
 export default function ActivitiesPage() {
+  const router = useRouter();
+  const [q, setQ] = useState("");
+  const [debouncedQ, setDebouncedQ] = useState("");
+  const [kind, setKind] = useState("");
+  const [status, setStatus] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
+  const [sort, setSort] = useState<SortKey>("due_at");
+  const [direction, setDirection] = useState<SortDir>("asc");
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedQ(q);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [q]);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["activities"],
+    queryKey: ["activities", debouncedQ, kind, status, page, perPage, sort, direction],
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/activities", {
-        params: { query: { per_page: 50 } },
+        params: {
+          query: {
+            q: debouncedQ || undefined,
+            kind: kind || undefined,
+            completed: status === "completed" ? "true" : status === "open" ? "false" : undefined,
+            overdue: status === "overdue" ? "true" : undefined,
+            page,
+            per_page: perPage,
+            sort,
+            direction,
+          } as never,
+        },
         headers: getAuthHeadersForApi(),
       });
       if (error) throw error;
-      return data;
+      return data as unknown as ActivitiesResponse;
     },
   });
 
-  if (isLoading) {
-    return <div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>;
-  }
+  const total = data?.meta?.total_count ?? 0;
+  const totalPages = data?.meta?.total_pages ?? 0;
+  const currentPage = data?.meta?.current_page ?? page;
+  const isFiltered = !!debouncedQ || !!kind || !!status;
+
+  const handleSort = (key: string) => {
+    if (key === sort) {
+      setDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSort(key as SortKey);
+      setDirection("asc");
+    }
+    setPage(1);
+  };
+
+  const clearFilters = () => {
+    setQ("");
+    setDebouncedQ("");
+    setKind("");
+    setStatus("");
+    setPage(1);
+  };
+
+  const columns: DataTableColumn<Activity>[] = [
+    {
+      key: "subject",
+      label: "Subject",
+      sortable: true,
+      minWidth: "w-[240px]",
+      render: (a) => (
+        <Link
+          href={`/activities/${a.id}/edit`}
+          className="font-medium text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
+        >
+          {a.subject}
+        </Link>
+      ),
+    },
+    {
+      key: "kind",
+      label: "Type",
+      sortable: true,
+      render: (a) => <span className="text-[var(--text-secondary)] capitalize">{a.kind || "—"}</span>,
+    },
+    {
+      key: "due_at",
+      label: "Due Date",
+      sortable: true,
+      render: (a) => (
+        <span className="text-[var(--text-secondary)]">
+          {a.due_at ? new Date(a.due_at).toLocaleDateString() : "—"}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (a) => {
+        const s = statusOf(a);
+        return (
+          <span className={`badge ${STATUS_BADGE[s]}`}>
+            {s === "open" ? "Open" : s === "overdue" ? "Overdue" : "Completed"}
+          </span>
+        );
+      },
+    },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Activities</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
-            Log calls, meetings, tasks and emails
+            {total} {total === 1 ? "activity" : "activities"}
           </p>
         </div>
         <Link href="/activities/new" className="btn-primary self-start sm:self-auto">
@@ -37,55 +177,87 @@ export default function ActivitiesPage() {
         </Link>
       </div>
 
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] divide-y divide-[var(--border-subtle)]">
-          <thead className="bg-[var(--bg-elevated)]">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                Subject
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                Type
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                Due Date
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--border-subtle)]">
-            {data?.data?.map((activity: any) => (
-              <tr key={activity.id} className="table-row">
-                <td className="px-6 py-4 whitespace-nowrap font-medium">
-                  <Link
-                    href={`/activities/${activity.id}/edit`}
-                    className="hover:text-[var(--text-secondary)] transition-colors"
-                  >
-                    {activity.subject}
-                  </Link>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-[var(--text-secondary)] capitalize">
-                  {activity.kind}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-[var(--text-secondary)]">
-                  {activity.due_at ? new Date(activity.due_at).toLocaleDateString() : "-"}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    activity.completed_at ? "bg-emerald-50 text-emerald-700" : "bg-yellow-100 text-yellow-800"
-                  }`}>
-                    {activity.completed_at ? "Completed" : "Pending"}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-tertiary)] pointer-events-none" />
+          <input
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search subject or description…"
+            className="input pl-9"
+            aria-label="Search activities"
+          />
         </div>
+        <select
+          value={kind}
+          onChange={(e) => {
+            setKind(e.target.value);
+            setPage(1);
+          }}
+          className="input w-auto text-sm"
+          aria-label="Filter by type"
+        >
+          {KIND_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        <select
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(1);
+          }}
+          className="input w-auto text-sm"
+          aria-label="Filter by status"
+        >
+          {STATUS_OPTIONS.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {isFiltered && (
+          <button onClick={clearFilters} className="btn-ghost" aria-label="Clear filters">
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
+
+      <DataTable
+        columns={columns}
+        rows={data?.data}
+        isLoading={isLoading}
+        onRowClick={(a) => router.push(`/activities/${a.id}/edit`)}
+        sortKey={sort}
+        direction={direction}
+        onSort={handleSort}
+        minWidth="min-w-[720px]"
+        empty={
+          <div className="px-5 py-12 text-center">
+            <p className="text-sm text-[var(--text-tertiary)]">
+              {isFiltered ? "No activities match your filters" : "No activities yet"}
+            </p>
+            {!isFiltered && (
+              <Link href="/activities/new" className="btn-primary mt-4">
+                <Plus className="h-4 w-4" />
+                Log your first activity
+              </Link>
+            )}
+          </div>
+        }
+        page={currentPage}
+        totalPages={totalPages}
+        total={total}
+        perPage={perPage}
+        onPerPage={(n) => {
+          setPerPage(n);
+          setPage(1);
+        }}
+        onPage={setPage}
+      />
     </div>
   );
 }

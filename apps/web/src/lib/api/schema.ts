@@ -414,11 +414,16 @@ export interface paths {
     get: {
       parameters: {
         query: {
+          q?: string;
           kind?: string;
           assignee_id?: string;
           completed?: string;
+          overdue?: string;
+          due_from?: string;
+          due_to?: string;
           sort?: string;
           order?: string;
+          direction?: string;
           page?: number;
           per_page?: number;
         };

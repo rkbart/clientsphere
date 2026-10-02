@@ -109,8 +109,10 @@ Click **Add Deal**. You must select a pipeline and stage. The form includes:
 ### Activities list
 
 Go to **Activities** to see all calls, meetings, tasks, and emails:
+- Search subject and description
 - Filter by kind (call, meeting, task, email, other)
-- Filter by completion status
+- Filter by status (open, completed, overdue)
+- Sort by subject, type, or due date; paginated
 - Click to edit or complete
 
 ### Calendar view
