@@ -500,9 +500,11 @@ Every settings page links back here. Settings that affect the whole workspace �
 Import/Export** — can only be changed by an **owner or admin**. For members and
 viewers those cards are shown locked, and opening the page directly explains why.
 
-Personal settings (**Profile**), **Custom Fields**, and viewing the **Team** list
-stay available to everyone; changing roles, inviting, and removing members
-remain owner/admin actions.
+Personal settings (**Profile**), viewing the **Team** list, and viewing
+**Custom Fields** stay available to everyone. Members and viewers can read
+custom fields and custom objects but get no add/edit/delete controls there —
+those definitions are owner/admin only, matching what the API allows. Changing
+roles, inviting, and removing members remain owner/admin actions.
 
 ---
 

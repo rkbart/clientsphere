@@ -10,7 +10,8 @@ import {
 } from "@/hooks/use-custom-objects";
 import { Field, FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { ChevronLeft, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ChevronLeft, Lock, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useCanManageSettings } from "@/hooks/use-current-role";
 import Link from "next/link";
 
 const FIELD_TYPES = ["text", "number", "boolean", "date", "select"];
@@ -36,6 +37,7 @@ export default function CustomObjectsSettingsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<DefinitionFormState>(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
+  const canManage = useCanManageSettings();
 
   const startCreate = () => {
     setEditingId(null);
@@ -100,11 +102,20 @@ export default function CustomObjectsSettingsPage() {
             Define your own record types with custom fields
           </p>
         </div>
-        <button onClick={startCreate} className="btn-primary self-start sm:self-auto">
-          <Plus className="h-4 w-4" />
-          New Object
-        </button>
+        {canManage && (
+          <button onClick={startCreate} className="btn-primary self-start sm:self-auto">
+            <Plus className="h-4 w-4" />
+            New Object
+          </button>
+        )}
       </div>
+
+      {!canManage && (
+        <p className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+          <Lock className="h-3.5 w-3.5" />
+          You can view these objects, but only owners and admins can add or change them.
+        </p>
+      )}
 
       <FormError message={error} />
 
@@ -214,7 +225,7 @@ export default function CustomObjectsSettingsPage() {
                 <th className="table-cell table-header text-left">Icon</th>
                 <th className="table-cell table-header text-left">Name</th>
                 <th className="table-cell table-header text-left">Fields</th>
-                <th className="table-cell table-header text-right">Actions</th>
+                {canManage && <th className="table-cell table-header text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-subtle)]">
@@ -227,28 +238,32 @@ export default function CustomObjectsSettingsPage() {
                   </td>
                   <td className="table-cell">
                     <div className="flex justify-end gap-1">
-                      <button
-                        onClick={() => startEdit(d)}
-                        className="btn-ghost p-2"
-                        aria-label={`Edit ${d.name}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={async () => {
-                          if (!confirm(`Delete ${d.name}? All records will be lost.`)) return;
-                          setError(null);
-                          try {
-                            await remove.mutateAsync(d.id);
-                          } catch (e) {
-                            setError(errMessage(e, "Could not delete the object."));
-                          }
-                        }}
-                        className="btn-ghost p-2"
-                        aria-label={`Delete ${d.name}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {canManage && (
+                          <>
+                        <button
+                          onClick={() => startEdit(d)}
+                          className="btn-ghost p-2"
+                          aria-label={`Edit ${d.name}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!confirm(`Delete ${d.name}? All records will be lost.`)) return;
+                            setError(null);
+                            try {
+                              await remove.mutateAsync(d.id);
+                            } catch (e) {
+                              setError(errMessage(e, "Could not delete the object."));
+                            }
+                          }}
+                          className="btn-ghost p-2"
+                          aria-label={`Delete ${d.name}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

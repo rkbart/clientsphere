@@ -26,7 +26,11 @@ const CARDS: SettingsCard[] = [
     description: "Resend API key, sender and tracking",
     managerOnly: true,
   },
-  { href: "/settings/custom-fields", title: "Custom Fields", description: "Define custom data fields" },
+  {
+    href: "/settings/custom-fields",
+    title: "Custom Fields",
+    description: "Custom data fields on your records",
+  },
   {
     href: "/settings/plugins",
     title: "Plugins",

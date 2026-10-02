@@ -176,6 +176,9 @@
   UI shows a locked card plus a notice if opened directly by URL
 - Bulk import/export authorize as workspace operations, not record edits, so
   members and viewers cannot upload or download the whole workspace
+- Reading custom field and custom object definitions is open to every role;
+  creating, editing and deleting them is owner/admin only, and the UI hides
+  those controls for members and viewers
 
 ### Invitations
 - Invitation records with expiring tokens (7-day default)

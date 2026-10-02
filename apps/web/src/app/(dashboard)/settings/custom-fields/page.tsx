@@ -11,7 +11,8 @@ import {
 } from "@/hooks/use-custom-fields";
 import { Field, FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { ChevronLeft, Pencil, Plus, Trash2, X } from "lucide-react";
+import { ChevronLeft, Lock, Pencil, Plus, Trash2, X } from "lucide-react";
+import { useCanManageSettings } from "@/hooks/use-current-role";
 
 const ENTITY_TYPES = [
   { value: "Contact", label: "Contacts" },
@@ -80,6 +81,7 @@ export default function CustomFieldsSettingsPage() {
     return map;
   }, [allDefinitions]);
   const tabLabel = ENTITY_TYPES.find((t) => t.value === tab)?.label ?? tab;
+  const canManage = useCanManageSettings();
   const create = useCreateCustomFieldDefinition();
   const update = useUpdateCustomFieldDefinition();
   const remove = useDeleteCustomFieldDefinition();
@@ -153,11 +155,20 @@ export default function CustomFieldsSettingsPage() {
             Extra typed fields on records, stored per account
           </p>
         </div>
-        <button onClick={startCreate} className="btn-primary self-start sm:self-auto">
-          <Plus className="h-4 w-4" />
-          New Field
-        </button>
+        {canManage && (
+          <button onClick={startCreate} className="btn-primary self-start sm:self-auto">
+            <Plus className="h-4 w-4" />
+            New Field
+          </button>
+        )}
       </div>
+      {!canManage && (
+        <p className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+          <Lock className="h-3.5 w-3.5" />
+          You can view these fields, but only owners and admins can add or change them.
+        </p>
+      )}
+
 
       <div className="flex gap-2" role="tablist" aria-label="Entity types">
         {ENTITY_TYPES.map((t) => {
@@ -295,7 +306,7 @@ export default function CustomFieldsSettingsPage() {
                 <th className="table-cell table-header text-left">Key</th>
                 <th className="table-cell table-header text-left">Type</th>
                 <th className="table-cell table-header text-left">Required</th>
-                <th className="table-cell table-header text-right">Actions</th>
+                {canManage && <th className="table-cell table-header text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-subtle)]">
@@ -309,28 +320,32 @@ export default function CustomFieldsSettingsPage() {
                   </td>
                   <td className="table-cell">
                     <div className="flex justify-end gap-1">
-                      <button
-                        onClick={() => startEdit(d)}
-                        className="btn-ghost p-2"
-                        aria-label={`Edit field ${d.label}`}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={async () => {
-                          if (!confirm(`Delete field ${d.label}? Existing values stay on records.`)) return;
-                          setError(null);
-                          try {
-                            await remove.mutateAsync(d.id);
-                          } catch (e) {
-                            setError(errMessage(e, "Could not delete the field."));
-                          }
-                        }}
-                        className="btn-ghost p-2"
-                        aria-label={`Delete field ${d.label}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {canManage && (
+                          <>
+                        <button
+                          onClick={() => startEdit(d)}
+                          className="btn-ghost p-2"
+                          aria-label={`Edit field ${d.label}`}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!confirm(`Delete field ${d.label}? Existing values stay on records.`)) return;
+                            setError(null);
+                            try {
+                              await remove.mutateAsync(d.id);
+                            } catch (e) {
+                              setError(errMessage(e, "Could not delete the field."));
+                            }
+                          }}
+                          className="btn-ghost p-2"
+                          aria-label={`Delete field ${d.label}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
