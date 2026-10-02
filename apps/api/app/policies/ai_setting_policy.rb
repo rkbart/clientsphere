@@ -11,10 +11,6 @@ class AiSettingPolicy < ApplicationPolicy
     owner_or_admin?
   end
 
-  def chat?
-    member_or_above?
-  end
-
   def prompts?
     member_or_above?
   end

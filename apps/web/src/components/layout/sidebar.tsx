@@ -11,7 +11,6 @@ import {
   TrendingUp,
   GitBranch,
   Activity,
-  Bot,
   Calendar,
   Mail,
   Settings,
@@ -29,7 +28,6 @@ const navigation = [
   { name: "Pipeline", href: "/pipeline", icon: GitBranch },
   { name: "Activities", href: "/activities", icon: Activity },
   { name: "Calendar", href: "/calendar", icon: Calendar },
-  { name: "AI Assistant", href: "/ai", icon: Bot },
   { name: "Automations", href: "/automations", icon: Zap },
   { name: "Outbox", href: "/emails", icon: Mail },
 ];

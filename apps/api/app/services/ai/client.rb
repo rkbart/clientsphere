@@ -16,16 +16,6 @@ module Ai
       { success: false, message: e.message }
     end
 
-    def chat(message, context = nil)
-      call("chat", Prompts.chat(context || {}), message.to_s)
-    end
-
-    # Applies the redaction toggle to a prompt pair without invoking the
-    # provider — used by browser-direct mode.
-    def prepare(system_prompt, user_prompt)
-      [mask_pii(system_prompt), mask_pii(user_prompt)]
-    end
-
     private
 
     def call(action, system_prompt, user_prompt)

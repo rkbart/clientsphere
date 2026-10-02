@@ -4,7 +4,7 @@
 
 ### Contacts
 - List with search (debounced), status/tag filters, sortable columns, pagination
-- Detail pages with notes, tags, AI cards
+- Detail pages with notes and tags
 - Status field: lead / customer / churned (filter + column)
 - Tags for categorization (filter by tag, attach/detach chips on detail)
 - Soft delete (discard)
@@ -71,11 +71,6 @@
   OpenAI, Anthropic, custom endpoint)
 - Write-only API key (encrypted server-side, never returned by the API)
 - Test connection, Enable toggle, Redact-PII toggle, Server/Local mode badge
-
-### AI Chat
-- Conversational assistant with CRM context
-- Context assembled server-side, keyword-matched to the question
-- Scoped to account data
 
 ### Email Composer
 - Template gallery (follow-up, introduction, proposal, check-in,

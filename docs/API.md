@@ -212,8 +212,6 @@ GET    /webhooks/:id/deliveries
 GET    /ai/settings             # Read config (api_key never returned; api_key_set flag instead)
 PATCH  /ai/settings             # Write config (blank api_key keeps the stored key)
 POST   /ai/test_connection      # { success, message }
-POST   /ai/prompts              # Server-assembled prompts for browser-direct mode
-POST   /ai/chat                 # Scoped-context assistant
 ```
 
 Usage endpoints return `422 { error }` when AI is unconfigured or disabled.

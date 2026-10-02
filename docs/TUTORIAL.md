@@ -206,11 +206,9 @@ Go to **Settings → AI**:
 ### Privacy modes
 
 - **Server** — AI calls go through your server (API key stored encrypted)
-- **Local** — for Ollama/LM Studio, calls go browser-direct (data never leaves your device)
 
 ### What you can do
 
-- **AI Assistant** (`/ai`) — chat with your CRM data; ask questions like "What deals are closing this week?"
 - **Compose Email** — on the deal page, pick a template, edit, and send
 - **Outbox** — every outbound email with status filter; edit drafts inline,
   retry failures (retry saves your edits first)
