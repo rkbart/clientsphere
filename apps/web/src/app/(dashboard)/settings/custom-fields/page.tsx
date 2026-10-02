@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   useCustomFieldDefinitions,
   useCreateCustomFieldDefinition,
@@ -10,9 +11,13 @@ import {
 } from "@/hooks/use-custom-fields";
 import { Field, FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { Pencil, Plus, Trash2, X } from "lucide-react";
+import { ChevronLeft, Pencil, Plus, Trash2, X } from "lucide-react";
 
-const ENTITY_TYPES = ["Contact", "Company", "Deal"];
+const ENTITY_TYPES = [
+  { value: "Contact", label: "Contacts" },
+  { value: "Company", label: "Companies" },
+  { value: "Deal", label: "Deals" },
+];
 const FIELD_TYPES = [
   "text",
   "text_area",
@@ -126,7 +131,14 @@ export default function CustomFieldsSettingsPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Custom Fields</h1>
+          <Link
+            href="/settings"
+            className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to settings
+          </Link>
+          <h1 className="text-2xl font-semibold tracking-tight mt-2">Custom Fields</h1>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
             Extra typed fields on records, stored per account
           </p>
@@ -140,11 +152,11 @@ export default function CustomFieldsSettingsPage() {
       <div className="flex gap-2">
         {ENTITY_TYPES.map((t) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`btn-ghost text-sm border border-[var(--border)] ${tab === t ? "!bg-[var(--bg-elevated)]" : ""}`}
+            key={t.value}
+            onClick={() => setTab(t.value)}
+            className={`btn-ghost text-sm border border-[var(--border)] ${tab === t.value ? "!bg-[var(--bg-elevated)]" : ""}`}
           >
-            {t}s
+            {t.label}
           </button>
         ))}
       </div>
@@ -168,8 +180,8 @@ export default function CustomFieldsSettingsPage() {
             <Field label="Applies to" htmlFor="cf-entity">
               <select id="cf-entity" className="input" value={form.entity_type} onChange={set("entity_type")}>
                 {ENTITY_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
+                  <option key={t.value} value={t.value}>
+                    {t.label}
                   </option>
                 ))}
               </select>

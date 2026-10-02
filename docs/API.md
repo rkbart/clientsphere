@@ -158,16 +158,6 @@ PATCH  /custom_field_definitions/:id
 DELETE /custom_field_definitions/:id
 ```
 
-## Saved Views
-
-```
-GET    /saved_views
-POST   /saved_views
-GET    /saved_views/:id
-PATCH  /saved_views/:id
-DELETE /saved_views/:id
-```
-
 ## Automations
 
 ```

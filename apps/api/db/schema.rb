@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_051508) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_062427) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -361,21 +361,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_051508) do
     t.index ["account_id"], name: "index_plugins_on_account_id"
   end
 
-  create_table "saved_views", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.uuid "user_id", null: false
-    t.string "entity_type", null: false
-    t.string "name", null: false
-    t.jsonb "filters", default: {}
-    t.jsonb "sort", default: {}
-    t.jsonb "columns", default: {}
-    t.boolean "shared", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_saved_views_on_account_id"
-    t.index ["user_id"], name: "index_saved_views_on_user_id"
-  end
-
   create_table "sequence_enrollments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.uuid "sequence_id", null: false
@@ -701,8 +686,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_051508) do
   add_foreign_key "notes", "users", column: "author_id"
   add_foreign_key "pipelines", "accounts"
   add_foreign_key "plugins", "accounts"
-  add_foreign_key "saved_views", "accounts"
-  add_foreign_key "saved_views", "users"
   add_foreign_key "sequence_enrollments", "accounts"
   add_foreign_key "sequence_enrollments", "contacts"
   add_foreign_key "sequence_enrollments", "email_sequences", column: "sequence_id"

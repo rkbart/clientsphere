@@ -153,7 +153,7 @@
   `?custom[key]=value` filters on list endpoints
 
 ### Custom Objects
-- User-defined record types with custom fields (Settings → Custom Objects)
+- User-defined record types with custom fields (API only; settings card removed)
 - JSON-based field storage, CRUD API
 - Polymorphic records linked to accounts
 
@@ -161,10 +161,6 @@
 - Webhook plugins that fire on CRM events (Settings → Plugins)
 - Trigger on contact/deal/activity events
 - Delivers JSON payloads to plugin webhook URLs
-
-### Saved Views
-- Save filters, sort, columns
-- Per entity type
 
 ## Teams
 
@@ -174,7 +170,8 @@
 
 ### Invitations
 - Invitation records with expiring tokens (7-day default)
-- Role assignment on acceptance
+- Role assignment on acceptance; pending list with revoke
+- Only owners can promote to owner
 - Email delivery via Resend when configured, invite link + copy button otherwise
 
 ## Import/Export

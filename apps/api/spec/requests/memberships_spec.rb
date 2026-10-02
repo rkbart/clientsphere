@@ -38,6 +38,30 @@ RSpec.describe "Team memberships", type: :request do
     expect(membership.reload.role).to eq("owner")
   end
 
+  it "refuses non-owner promotion to owner" do
+    admin_user = User.create!(name: "A", email: "a-team@example.com", password: "password123")
+    Membership.create!(account: account, user: admin_user, role: :admin)
+    admin_user.update!(current_account: account)
+    admin_headers = { "Authorization" => "Bearer #{Session.create!(user: admin_user).token}" }
+
+    member_user = User.create!(name: "M2", email: "m2-team@example.com", password: "password123")
+    membership = Membership.create!(account: account, user: member_user, role: :member)
+
+    patch "/api/v1/memberships/#{membership.id}", params: { role: "owner" }, headers: admin_headers, as: :json
+
+    expect(response).to have_http_status(:forbidden)
+    expect(membership.reload.role).to eq("member")
+  end
+
+  it "rejects invalid roles" do
+    member_user = User.create!(name: "M3", email: "m3-team@example.com", password: "password123")
+    membership = Membership.create!(account: account, user: member_user, role: :member)
+
+    patch "/api/v1/memberships/#{membership.id}", params: { role: "superadmin" }, headers: headers, as: :json
+
+    expect(response).to have_http_status(:unprocessable_entity)
+  end
+
   it "refuses to remove the last owner" do
     membership = owner.memberships.find_by(account: account)
 

@@ -42,7 +42,6 @@ PostgreSQL (Neon free tier for demo, self-hosted for production)
 
 ### Customization
 - `custom_field_definitions` — field definitions
-- `saved_views` — saved filters/sorts
 
 ### Automation
 - `automations` + `automation_runs`

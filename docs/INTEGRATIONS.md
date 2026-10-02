@@ -66,6 +66,29 @@ curl -X POST https://YOUR-API/api/v1/activities \
   -d '{"activity": {"kind": "call", "subject": "Intro call", "contact_id": "CONTACT_ID"}}'
 ```
 
+## Plugins (Settings → Plugins)
+
+Plugins are plain webhook URLs that fire directly on CRM events — no
+automation needed. Anything with an HTTP endpoint works: Slack or Discord
+webhooks, Make, n8n, Zapier catch hooks, or your own app.
+
+1. Go to Settings → Plugins → New Plugin.
+2. Enter a name, the webhook URL, and tick trigger events
+   (`contact_created`, `deal_won`, …).
+3. Save and keep it Active.
+
+Each event POSTs JSON (no signature — use the signed Webhooks above when
+you need verification or retries):
+
+```json
+{
+  "event": "deal_won",
+  "plugin": "Slack notifier",
+  "data": { "id": "…", "title": "Big deal", "...": "full record JSON" },
+  "timestamp": "2026-09-30T05:00:00Z"
+}
+```
+
 Tips:
 
 - Tokens are workspace-pinned and revocable; give each Zap its own token.

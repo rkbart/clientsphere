@@ -55,5 +55,43 @@ RSpec.describe "Invitations", type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    it "rejects double accept gracefully" do
+      post "/api/v1/invitations",
+           params: { invitation: { email: "twice@example.com", role: "member" } },
+           headers: headers, as: :json
+      token = JSON.parse(response.body)["token"]
+      post "/api/v1/invitations/#{token}/accept", as: :json
+      expect(response).to have_http_status(:ok)
+
+      post "/api/v1/invitations/#{token}/accept", as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
+  describe "GET /api/v1/invitations" do
+    it "lists pending invitations for managers" do
+      post "/api/v1/invitations",
+           params: { invitation: { email: "wait@example.com", role: "member" } },
+           headers: headers, as: :json
+
+      get "/api/v1/invitations", headers: headers
+
+      expect(response).to have_http_status(:ok)
+      body = JSON.parse(response.body)
+      expect(body.map { |i| i["email"] }).to eq(["wait@example.com"])
+      expect(body.first).not_to have_key("token_digest")
+    end
+  end
+
+  describe "DELETE /api/v1/invitations/:id" do
+    it "revokes a pending invitation" do
+      invitation = account.invitations.create!(email: "gone@example.com", role: :member, invited_by: owner)
+
+      delete "/api/v1/invitations/#{invitation.id}", headers: headers
+
+      expect(response).to have_http_status(:no_content)
+      expect(Invitation.find_by(id: invitation.id)).to be_nil
+    end
   end
 end

@@ -1098,80 +1098,6 @@ export interface paths {
       };
     };
   };
-  "/saved_views": {
-    get: {
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>[];
-          };
-        };
-      };
-    };
-    post: {
-      requestBody: {
-        content: {
-          "application/json": {
-            saved_view?: Record<string, unknown>;
-          };
-        };
-      };
-      responses: {
-        201: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-  };
-  "/saved_views/{id}": {
-    get: {
-      parameters: {
-        path: {
-          id: string;
-        };
-      };
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-    patch: {
-      parameters: {
-        path: {
-          id: string;
-        };
-      };
-      requestBody: {
-        content: {
-          "application/json": {
-            saved_view?: Record<string, unknown>;
-          };
-        };
-      };
-      responses: {
-        200: {
-          content: {
-            "application/json": Record<string, unknown>;
-          };
-        };
-      };
-    };
-    delete: {
-      parameters: {
-        path: {
-          id: string;
-        };
-      };
-      responses: {
-        204: never;
-      };
-    };
-  };
   "/automations": {
     get: {
       responses: {
@@ -1790,6 +1716,15 @@ export interface paths {
     };
   };
   "/invitations": {
+    get: {
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>[];
+          };
+        };
+      };
+    };
     post: {
       requestBody: {
         content: {
@@ -1804,6 +1739,18 @@ export interface paths {
             "application/json": Record<string, unknown>;
           };
         };
+      };
+    };
+  };
+  "/invitations/{id}": {
+    delete: {
+      parameters: {
+        path: {
+          id: string;
+        };
+      };
+      responses: {
+        204: never;
       };
     };
   };

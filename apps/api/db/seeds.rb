@@ -151,29 +151,6 @@ emails_data.each do |data|
 end
 puts "Created #{account.emails.count} emails"
 
-# Create saved view
-account.saved_views.create!(
-  user: owner,
-  entity_type: "Contact",
-  name: "Hot Leads",
-  filters: { status: "lead" },
-  sort: { field: "lead_score", order: "desc" },
-  columns: ["first_name", "last_name", "email", "company", "lead_score"],
-  shared: true
-)
-
-account.saved_views.create!(
-  user: owner,
-  entity_type: "Deal",
-  name: "Closing This Week",
-  filters: { expected_close_date: "this_week" },
-  sort: { field: "amount", order: "desc" },
-  columns: ["title", "amount", "stage", "contact", "expected_close_date"],
-  shared: true
-)
-
-puts "Created #{account.saved_views.count} saved views"
-
 # Demo custom fields (idempotent so re-seeding is safe)
 plan_field = account.custom_field_definitions.find_or_create_by!(entity_type: "Contact", key: "plan") do |f|
   f.label = "Plan"

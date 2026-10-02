@@ -61,7 +61,46 @@ export function useRemoveMembership() {
   });
 }
 
+export interface InvitationRecord {
+  id: string;
+  email: string;
+  role: string;
+  expires_at?: string | null;
+  created_at: string;
+}
+
+export function useInvitations(enabled = true) {
+  return useQuery({
+    queryKey: ["invitations"],
+    enabled,
+    queryFn: async () => {
+      const { data, error } = await apiClient.GET("/invitations", {
+        headers: headers(),
+      });
+      if (error) throw error;
+      return (data as unknown as InvitationRecord[]) ?? [];
+    },
+  });
+}
+
+export function useRevokeInvitation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await apiClient.DELETE("/invitations/{id}", {
+        params: { path: { id } },
+        headers: headers(),
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invitations"] });
+    },
+  });
+}
+
 export function useInviteMember() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ email, role }: { email: string; role: string }) => {
       const { data, error } = await apiClient.POST("/invitations", {
@@ -70,6 +109,9 @@ export function useInviteMember() {
       });
       if (error) throw error;
       return data as unknown as InvitationResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["invitations"] });
     },
   });
 }

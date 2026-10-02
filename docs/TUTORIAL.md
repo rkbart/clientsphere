@@ -61,7 +61,6 @@ reacts to it.
 - **Search** — debounced search across name and email
 - **Filter by status** — lead, customer, or churned
 - **Filter by tag** — click a tag to filter
-- **Saved views** — save filter combinations for quick access
 
 ### Detail page
 
@@ -261,29 +260,16 @@ Custom fields automatically appear on create/edit forms and detail pages. List e
 
 ## Custom Objects
 
-Go to **Settings → Custom Objects** to define entirely new record types:
+Custom objects are defined via the API (`POST /api/v1/custom_objects`) —
+there is no settings UI for them. Each object type has a name, an icon
+(emoji) and fields (same types as custom fields).
 
-1. Click **New Object**
-2. Enter a name and icon (emoji)
-3. Add fields (same types as custom fields)
-4. Save
-
-Custom objects let you track anything — projects, invoices, tickets, etc. Records are stored as JSON with full CRUD API support.
+Custom objects let you track anything — projects, invoices, tickets, etc.
+Records are stored as JSON with full CRUD API support.
 
 ---
 
-## Saved Views
 
-Save any filter combination for quick access:
-
-1. Set filters on the contacts list (search, status, tag)
-2. Click **Save view**
-3. Name it and optionally share with the team
-4. Re-apply from the view dropdown anytime
-
-Manage views in **Settings → Saved Views** — rename, toggle sharing, or delete.
-
----
 
 ## Automations
 
@@ -399,6 +385,11 @@ Go to **Settings → Team**:
 3. Click **Send invite**
 4. They receive an email with an accept link (or copy the link directly)
 
+Invitees click the link and are logged in automatically — links expire
+after 7 days. Pending invitations show on the Team page until accepted,
+and can be revoked. Only owners and admins can invite; only owners can
+promote someone to owner.
+
 ### Manage roles
 
 - **Owner** — full access, can't be removed
@@ -480,8 +471,6 @@ Go to **Settings → AI** to configure or change your AI provider.
 - **Mobile**: The sidebar becomes a hamburger menu; tables scroll horizontally
 - **Search**: Use the search box on any list page — it's debounced for performance
 - **Filters**: Combine search, status, and tags for powerful filtering
-- **Views**: Save frequently-used filter combinations as saved views
-- **AI**: Start with the AI Assistant to ask questions about your data
 - **Automations**: Start simple — one trigger, one action — then build up
 
 ---

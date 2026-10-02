@@ -1,6 +1,7 @@
 class Account < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :users, through: :memberships
+  has_many :invitations, dependent: :destroy
   has_many :contacts, dependent: :destroy
   has_many :companies, dependent: :destroy
   has_many :deals, dependent: :destroy
@@ -13,7 +14,6 @@ class Account < ApplicationRecord
   has_many :custom_object_definitions, dependent: :destroy
   has_many :custom_object_records, dependent: :destroy
   has_many :plugins, dependent: :destroy
-  has_many :saved_views, dependent: :destroy
   has_many :automations, dependent: :destroy
   has_many :automation_runs, dependent: :destroy
   has_many :email_sequences, dependent: :destroy

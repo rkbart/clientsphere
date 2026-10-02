@@ -1,16 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   useMemberships,
   useUpdateMembershipRole,
   useRemoveMembership,
   useInviteMember,
+  useInvitations,
+  useRevokeInvitation,
 } from "@/hooks/use-team";
 import { useAuthStore } from "@/store/auth-store";
+import { Avatar } from "@/components/shared/avatar";
 import { Field, FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { Check, Copy, Trash2 } from "lucide-react";
+import { Check, ChevronLeft, Copy, Trash2 } from "lucide-react";
 
 const ROLES = ["owner", "admin", "member", "viewer"];
 const INVITE_ROLES = ["admin", "member", "viewer"];
@@ -20,6 +24,7 @@ export default function TeamSettingsPage() {
   const updateRole = useUpdateMembershipRole();
   const remove = useRemoveMembership();
   const invite = useInviteMember();
+  const revoke = useRevokeInvitation();
   const currentUser = useAuthStore((s) => s.user);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
@@ -30,6 +35,18 @@ export default function TeamSettingsPage() {
 
   const ownMembership = memberships.find((m) => m.user?.id === (currentUser as { id?: string } | null)?.id);
   const isManager = ownMembership?.role === "owner" || ownMembership?.role === "admin";
+  const isOwner = ownMembership?.role === "owner";
+  const roleOptions = isOwner ? ROLES : ROLES.filter((r) => r !== "owner");
+  const { data: invitations = [] } = useInvitations(isManager);
+
+  const revokeInvite = async (id: string) => {
+    setError(null);
+    try {
+      await revoke.mutateAsync(id);
+    } catch (e) {
+      setError(errMessage(e, "Could not revoke the invitation."));
+    }
+  };
 
   const sendInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,9 +76,18 @@ export default function TeamSettingsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Team</h1>
+        <Link
+          href="/settings"
+          className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1 transition-colors"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to settings
+        </Link>
+        <h1 className="text-2xl font-semibold tracking-tight mt-2">Team</h1>
         <p className="text-[var(--text-secondary)] text-sm mt-1">
-          Members, roles and invitations for this workspace
+          Members, roles and invitations for this workspace. Only owners and
+          admins can invite — invitees click the link and are logged in
+          automatically. Links expire after 7 days.
         </p>
       </div>
 
@@ -84,7 +110,10 @@ export default function TeamSettingsPage() {
                 return (
                   <tr key={m.id} className="table-row">
                     <td className="table-cell font-medium">
-                      {m.user?.name ?? "—"}
+                      <span className="flex items-center gap-2">
+                        <Avatar name={m.user?.name} size="sm" />
+                        {m.user?.name ?? "—"}
+                      </span>
                       {isSelf && (
                         <span className="ml-2 text-xs text-[var(--text-tertiary)]">(you)</span>
                       )}
@@ -105,7 +134,7 @@ export default function TeamSettingsPage() {
                           className="input w-auto text-sm"
                           aria-label={`Role for ${m.user?.email}`}
                         >
-                          {ROLES.map((r) => (
+                          {roleOptions.map((r) => (
                             <option key={r} value={r}>
                               {r}
                             </option>
@@ -146,6 +175,37 @@ export default function TeamSettingsPage() {
           )}
         </div>
       </div>
+
+      {isManager && invitations.length > 0 && (
+        <div className="card overflow-hidden">
+          <div className="px-5 py-4 border-b border-[var(--border-subtle)]">
+            <h2 className="text-sm font-semibold">Pending invitations ({invitations.length})</h2>
+          </div>
+          <ul className="divide-y divide-[var(--border-subtle)]">
+            {invitations.map((inv) => (
+              <li key={inv.id} className="px-5 py-3 flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{inv.email}</p>
+                  <p className="text-xs text-[var(--text-tertiary)]">
+                    {inv.role}
+                    {inv.expires_at ? ` · expires ${new Date(inv.expires_at).toLocaleDateString()}` : ""}
+                  </p>
+                </div>
+                <button
+                  onClick={async () => {
+                    if (!confirm(`Revoke the invitation for ${inv.email}?`)) return;
+                    await revokeInvite(inv.id);
+                  }}
+                  className="btn-ghost p-2 text-[var(--danger)]"
+                  aria-label={`Revoke invitation for ${inv.email}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {isManager && (
         <form onSubmit={sendInvite} className="card p-6 space-y-4">

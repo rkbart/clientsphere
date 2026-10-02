@@ -133,7 +133,7 @@ export default function PluginsSettingsPage() {
                 className="input"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="Slack notifier"
+                placeholder="Deal alerts"
                 required
               />
             </Field>
@@ -144,7 +144,7 @@ export default function PluginsSettingsPage() {
                 className="input"
                 value={form.webhook_url}
                 onChange={(e) => setForm((f) => ({ ...f, webhook_url: e.target.value }))}
-                placeholder="https://hooks.slack.com/…"
+                placeholder="https://hooks.slack.com/… or Make/n8n webhook URL"
               />
             </Field>
           </div>

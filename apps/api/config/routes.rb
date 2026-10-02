@@ -24,7 +24,7 @@ Rails.application.routes.draw do
       post "auth/switch_account", to: "auth#switch_account"
 
       # Invitations
-      resources :invitations, only: [:create] do
+      resources :invitations, only: [:index, :create, :destroy] do
         member do
           post :accept
         end
@@ -91,9 +91,6 @@ Rails.application.routes.draw do
 
       # Plugins
       resources :plugins
-
-      # Saved Views
-      resources :saved_views
 
       # Automations
       resources :automations do
