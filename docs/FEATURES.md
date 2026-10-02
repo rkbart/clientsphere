@@ -25,7 +25,7 @@
 - Won/lost tracking
 - Expected close dates
 - Deal value tracking
-- List with search, sortable columns, pagination
+- List with search, stage/tag filters, sortable columns, pagination
 - Add/edit via modal dialogs (server 422 displayed inline)
 
 ### Activities

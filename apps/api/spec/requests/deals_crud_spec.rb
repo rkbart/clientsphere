@@ -63,6 +63,20 @@ RSpec.describe "Deals CRUD", type: :request do
     expect(response).to have_http_status(:ok)
   end
 
+  it "filters by stage and tag" do
+    won = pipeline.stages.find_by!(kind: :won)
+    create_deal(title: "Open one")
+    create_deal(title: "Won one", stage: won)
+    tag = account.tags.create!(name: "hot")
+    Tagging.create!(account: account, tag: tag, taggable: Deal.find_by(title: "Open one"))
+
+    get "/api/v1/deals", params: { stage_id: won.id }, headers: headers
+    expect(JSON.parse(response.body)["data"].map { |d| d["title"] }).to eq(["Won one"])
+
+    get "/api/v1/deals", params: { tag_id: tag.id }, headers: headers
+    expect(JSON.parse(response.body)["data"].map { |d| d["title"] }).to eq(["Open one"])
+  end
+
   it "searches by title and filters by pipeline" do
     create_deal(title: "Beta contract")
     create_deal(title: "Gamma contract")

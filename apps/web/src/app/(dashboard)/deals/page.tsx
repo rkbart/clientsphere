@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDeals, useCreateDeal } from "@/hooks/use-deals";
+import { usePipelines, useStages } from "@/hooks/use-pipelines";
+import { useTags } from "@/hooks/use-tags";
 import type { Tag } from "@/hooks/use-tags";
 import { TagsCell } from "@/components/shared/tags-cell";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
@@ -11,7 +13,7 @@ import { Modal } from "@/components/ui/modal";
 import { DealForm, EMPTY_DEAL } from "@/components/deals/deal-form";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/ai/error";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 
 interface Deal {
   id: string;
@@ -43,6 +45,8 @@ export default function DealsPage() {
   const router = useRouter();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
+  const [stageId, setStageId] = useState("");
+  const [tagId, setTagId] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(25);
   const [sort, setSort] = useState<SortKey>("");
@@ -60,13 +64,19 @@ export default function DealsPage() {
 
   const { data, isLoading } = useDeals({
     q: debouncedQ || undefined,
+    stage_id: stageId || undefined,
+    tag_id: tagId || undefined,
     page,
     per_page: perPage,
     ...(sort ? { sort, direction } : {}),
   });
+  const { data: pipelines } = usePipelines();
+  const pipeline = pipelines?.find((p) => p.is_default) ?? pipelines?.[0];
+  const { data: stages } = useStages(pipeline?.id);
+  const { data: tags } = useTags();
   const create = useCreateDeal();
   const typed = data as unknown as DealsResponse;
-  const isFiltered = !!debouncedQ;
+  const isFiltered = !!debouncedQ || !!stageId || !!tagId;
   const total = typed?.meta?.total_count ?? 0;
   const totalPages = typed?.meta?.total_pages ?? 0;
   const currentPage = typed?.meta?.current_page ?? page;
@@ -162,9 +172,49 @@ export default function DealsPage() {
             aria-label="Search deals"
           />
         </div>
+        <select
+          value={stageId}
+          onChange={(e) => {
+            setStageId(e.target.value);
+            setPage(1);
+          }}
+          className="input w-auto text-sm"
+          aria-label="Filter by stage"
+        >
+          <option value="">All stages</option>
+          {(stages ?? []).map((s) => (
+            <option key={s.id} value={s.id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={tagId}
+          onChange={(e) => {
+            setTagId(e.target.value);
+            setPage(1);
+          }}
+          className="input w-auto text-sm"
+          aria-label="Filter by tag"
+        >
+          <option value="">All tags</option>
+          {(tags ?? []).map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.name}
+            </option>
+          ))}
+        </select>
         {isFiltered && (
-          <button onClick={() => setQ("")} className="btn-ghost" aria-label="Clear search">
-            Clear
+          <button
+            onClick={() => {
+              setQ("");
+              setStageId("");
+              setTagId("");
+            }}
+            className="btn-ghost"
+            aria-label="Clear filters"
+          >
+            <X className="h-4 w-4" />
           </button>
         )}
       </div>

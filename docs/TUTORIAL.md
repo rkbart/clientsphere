@@ -29,7 +29,10 @@ The demo workspace (Bean & Brew Coffee Supplies) includes:
 
 ## Dashboard
 
-Your home screen shows:
+Your home screen answers "am I on track this week?" at a glance. Start your
+day here: clear what's overdue in **Tasks due**, then work the deal in
+**Needs attention** — e.g. a $1,200 catering quote closing Friday with no
+activity in 10 days is your first call, not your tenth email. The widgets:
 
 - **Stats** — total contacts, deals, and activities
 - **Pipeline by stage** — visual bar chart of deal value per stage
@@ -42,6 +45,13 @@ Your home screen shows:
 ---
 
 ## Contacts
+
+Contacts answer *"who do I know?"* — every person you sell to, support, or
+might sell to one day. A contact moves through a lifecycle: it starts as a
+**lead** (e.g. Lisa from Green Leaf Café, met at a trade event), becomes a
+**customer** when they buy, and ends **churned** if they leave. Set the status
+accordingly and the rest of the app (filters, automations, win-back emails)
+reacts to it.
 
 ### List view
 
@@ -58,7 +68,6 @@ Click any contact to see:
 - Custom fields (if defined)
 - Tags — add/remove with the tag chips
 - Notes — add notes with ⌘/Ctrl + Enter to save
-- Compose email from templates, rule-based deal summary
 
 ### Create / edit
 
@@ -71,13 +80,32 @@ Click **Add Contact** or the **Edit** button on any detail page. The form includ
 
 ## Companies
 
-Same pattern as contacts:
+Companies are the account-level view: one company links many contacts and
+deals, so "TechStart Inc." shows you Mike *and* Alex, plus the $600 office
+service deal, in one place. Set a **main contact** (your primary buyer) so
+anyone opening the record knows who to call first. Same pattern as contacts
+otherwise:
 - List with search and filters
 - Detail page with notes, tags, social links, main contact, and custom fields
 
 ---
 
 ## Deals & Pipeline
+
+A deal is a sales opportunity with a dollar amount — it answers *"what money
+am I chasing, and how close is it?"* Rule of thumb: **no amount, no deal**.
+A first hello is a contact; a logged call with no opportunity is an activity;
+a $600 quote waiting on a signature is a deal. Closing means dragging the card
+into **Won** (thank-you email and `customer` tag can fire automatically) or
+**Lost** (a win-back email can go out 30 days later on its own).
+
+### Deals list
+
+Go to **Deals** for the table view:
+- Search by title
+- Filter by stage (e.g. everything sitting in Negotiation) and by tag
+- Sort by title, amount, or close date; paginated
+- Click a row to open the detail page
 
 ### Pipeline board
 
@@ -105,6 +133,13 @@ Click **Add Deal**. You must select a pipeline and stage. The form includes:
 ---
 
 ## Activities & Calendar
+
+Activities are the touches that move deals forward — every call, meeting,
+task, and email, logged against the contact, company, or deal it belongs to.
+If a deal goes quiet, its activity history tells you exactly where it stalled
+("proposal sent 12 days ago, nothing since" means call today, not next week).
+Log the touch *when it happens*; the dashboard, summaries, and automations
+all read this timeline.
 
 ### Activities list
 
@@ -136,6 +171,10 @@ Click **Log Activity** from the activities or calendar page:
 ---
 
 ## Notes & Tags
+
+Notes are the running timeline ("called Tuesday, wants a quote by Friday");
+tags are lightweight labels (`hot-lead`, `catering`) you filter and automate
+on — e.g. an automation that emails every contact tagged `new-lead`.
 
 ### Notes
 
@@ -230,6 +269,12 @@ Manage views in **Settings → Saved Views** — rename, toggle sharing, or dele
 
 ## Automations
 
+Automations follow one mental model: **when** something happens (trigger) →
+**only if** conditions hold → **then** do things (actions). Example: *when* a
+deal is won, *then* send the thank-you email and tag the contact `customer` —
+no manual step, no forgotten follow-up. Start from a template and tweak it;
+start simple (one trigger, one action) and build up.
+
 ### Templates
 
 On **Automations → New Automation**, a collapsible **Start from a template**
@@ -272,6 +317,11 @@ Each automation shows recent runs with status (completed, failed, running) and a
 
 ## Email Sequences
 
+Sequences are multi-step drip campaigns for when one email isn't enough —
+e.g. a 3-touch onboarding series (day 0 welcome, day 3 tips, day 7 check-in)
+for every new customer, instead of remembering to follow up by hand. For a
+single send, use **Compose Email** on the deal page instead.
+
 Go to **Sequences** to create multi-step email drips:
 
 1. Click **New Sequence**
@@ -280,6 +330,19 @@ Go to **Sequences** to create multi-step email drips:
    - Delay before sending (days)
 3. Enroll contacts manually or via automation
 4. Each email includes an unsubscribe link (signed, per-enrollment)
+
+---
+
+## Outbox
+
+Go to **Outbox** (sidebar) to see every outbound email in one place:
+- Filter by status: **draft** (waiting on a provider), **sent**, **delivered**,
+  **opened**, **failed**
+- Click a row to read it; drafts open editable — fix the address, subject,
+  or body, save, and retry
+- **Retry** on a draft or failure re-sends through your provider
+- Delivery tracking (`delivered`/`opened`) needs the Resend webhook
+  configured in **Settings → Email**
 
 ---
 
