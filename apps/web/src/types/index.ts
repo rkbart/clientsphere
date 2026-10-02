@@ -11,6 +11,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  welcome_seen_at: string | null;
   created_at: string;
   updated_at: string;
 }

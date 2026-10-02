@@ -21,6 +21,8 @@ class Api::V1::InvitationsController < Api::V1::BaseController
     render json: invitation.as_json.except("token_digest").merge(
       "token" => invitation.token, "invite_sent" => sent
     ), status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   def destroy
@@ -48,6 +50,9 @@ class Api::V1::InvitationsController < Api::V1::BaseController
     end
 
     invitation.accept!(user)
+    # Pin the invitee to this workspace: every request derives its tenant
+    # from current_account, so without this they'd see an empty app.
+    user.update!(current_account: invitation.account)
     session = Session.create!(user: user, ip_address: request.remote_ip, user_agent: request.user_agent)
     render json: { token: session.token, user: user, account: invitation.account }
   end

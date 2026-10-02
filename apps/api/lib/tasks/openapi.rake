@@ -12,13 +12,58 @@ namespace :openapi do
       ["api/v1/unsubscribes", "create"],
     ])
 
-    index_query_params = %w[page per_page q]
+    index_query_params = {
+      "q" => { "type" => "string" },
+      "page" => { "type" => "integer" },
+      "per_page" => { "type" => "integer" },
+    }
+
+    # Per-endpoint filter params beyond the defaults above.
+    extra_index_params = {
+      "api/v1/activities" => {
+        "kind" => { "type" => "string" },
+        "assignee_id" => { "type" => "string" },
+        "completed" => { "type" => "string" },
+        "overdue" => { "type" => "string" },
+        "due_from" => { "type" => "string" },
+        "due_to" => { "type" => "string" },
+        "sort" => { "type" => "string" },
+        "order" => { "type" => "string" },
+        "direction" => { "type" => "string" },
+      },
+      "api/v1/notes" => {
+        "notable_type" => { "type" => "string" },
+        "notable_id" => { "type" => "string" },
+      },
+      "api/v1/contacts" => {
+        "status" => { "type" => "string" },
+        "tag_id" => { "type" => "string" },
+        "sort" => { "type" => "string" },
+        "direction" => { "type" => "string" },
+      },
+      "api/v1/companies" => {
+        "sort" => { "type" => "string" },
+        "direction" => { "type" => "string" },
+      },
+      "api/v1/deals" => {
+        "pipeline_id" => { "type" => "string" },
+        "tag_id" => { "type" => "string" },
+        "sort" => { "type" => "string" },
+        "direction" => { "type" => "string" },
+      },
+      "api/v1/emails" => {
+        "contact_id" => { "type" => "string" },
+        "deal_id" => { "type" => "string" },
+        "status" => { "type" => "string" },
+      },
+    }
     summaries = {
       ["api/v1/auth", "signup"] => "Sign up with email, password and workspace name",
       ["api/v1/auth", "login"] => "Log in and receive a session token",
       ["api/v1/auth", "logout"] => "Revoke the current session",
       ["api/v1/auth", "me"] => "Current user, account and memberships",
       ["api/v1/auth", "switch_account"] => "Switch the session's current workspace",
+      ["api/v1/users", "me"] => "Update current user (name, password, first-login setup)",
     }
 
     paths = {}
@@ -46,17 +91,20 @@ namespace :openapi do
       }
 
       if %w[index].include?(action)
-        operation["parameters"] += index_query_params.map do |name|
-          { "name" => name, "in" => "query", "schema" => { "type" => "string" } }
+        params = index_query_params.merge(extra_index_params[controller] || {})
+        operation["parameters"] += params.map do |name, schema|
+          { "name" => name, "in" => "query", "schema" => schema.dup }
         end
       end
 
-      if %w[create update].include?(action)
+      # Bodies are loosely typed: callers send both resource-wrapped
+      # ({ contact: {...} }) and flat ({ contact_id }) payloads.
+      if %w[post patch put].include?(verb)
         operation["requestBody"] = {
-          "required" => true,
+          "required" => false,
           "content" => {
             "application/json" => {
-              "schema" => { "type" => "object", "description" => "#{resource} attributes" },
+              "schema" => { "type" => "object", "additionalProperties" => true },
             },
           },
         }

@@ -4,6 +4,8 @@ class User < ApplicationRecord
   belongs_to :current_account, class_name: "Account", optional: true
   has_many :memberships, dependent: :destroy
   has_many :accounts, through: :memberships
+  has_many :sessions, dependent: :destroy
+  has_many :password_resets, dependent: :destroy
   has_many :created_contacts, class_name: "Contact", foreign_key: :owner_id
   has_many :assigned_activities, class_name: "Activity", foreign_key: :assignee_id
   has_many :authored_notes, class_name: "Note", foreign_key: :author_id

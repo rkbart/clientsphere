@@ -14,7 +14,9 @@ class Api::V1::AuthController < Api::V1::BaseController
     user = User.new(signup_params)
     account = Account.create!(name: params[:account_name])
     Membership.create!(user: user, account: account, role: :owner)
+    # Signup users pick their own password, so no first-login setup needed.
     user.current_account = account
+    user.welcome_seen_at = Time.current
     user.save!
 
     session = Session.create!(user: user, ip_address: request.remote_ip, user_agent: request.user_agent)

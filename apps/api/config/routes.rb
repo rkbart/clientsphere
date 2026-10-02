@@ -23,6 +23,14 @@ Rails.application.routes.draw do
       get "auth/providers", to: "auth#providers"
       post "auth/switch_account", to: "auth#switch_account"
 
+      # Current user (name update, welcome banner dismissal)
+      patch "users/me", to: "users#me"
+
+      # Password reset (public: locked-out users have no session)
+      resources :password_resets, only: [:create] do
+        patch :update
+      end
+
       # Invitations
       resources :invitations, only: [:index, :create, :destroy] do
         member do

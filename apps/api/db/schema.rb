@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_062427) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_083035) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -339,6 +339,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_062427) do
     t.index ["notable_type", "notable_id"], name: "index_notes_on_notable_type_and_notable_id"
   end
 
+  create_table "password_resets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.string "token_digest", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "used_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token_digest"], name: "index_password_resets_on_token_digest", unique: true
+    t.index ["user_id"], name: "index_password_resets_on_user_id"
+  end
+
   create_table "pipelines", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "account_id", null: false
     t.string "name", null: false
@@ -598,6 +609,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_062427) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "google_uid"
+    t.datetime "welcome_seen_at"
     t.index ["current_account_id"], name: "index_users_on_current_account_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
@@ -684,6 +696,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_062427) do
   add_foreign_key "memberships", "users"
   add_foreign_key "notes", "accounts"
   add_foreign_key "notes", "users", column: "author_id"
+  add_foreign_key "password_resets", "users"
   add_foreign_key "pipelines", "accounts"
   add_foreign_key "plugins", "accounts"
   add_foreign_key "sequence_enrollments", "accounts"

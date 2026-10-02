@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { FirstLoginSetupModal } from "@/components/first-login-setup-modal";
 
 export default function DashboardLayout({
   children,
@@ -44,6 +45,7 @@ export default function DashboardLayout({
         <Topbar onMenuClick={() => setNavOpen(true)} />
         <main id="main-content" className="p-4 sm:p-6">{children}</main>
       </div>
+      <FirstLoginSetupModal />
     </div>
   );
 }

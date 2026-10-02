@@ -12,6 +12,8 @@
 | Webhooks | HMAC signature header (`X-Webhook-Signature`), retries with exponential backoff (3 attempts), delivery log with response status |
 | CSV export | Escape cells starting with `=`, `+`, `-`, `@` (formula injection) |
 | Passwords | bcrypt |
+| Password reset | Single-use token stored as a SHA-256 digest, 2-hour expiry, one live reset per user; request endpoint always returns 201 so it can't enumerate accounts; a successful reset destroys all active sessions for that user |
+| Invite tokens | Raw token returned once at creation, only the digest is stored; 7-day expiry; re-inviting revokes the previous token |
 | AI logging | `ai_logs` stores metadata only (action, provider, model, success, duration, error class) — never prompts or completions |
 | Dependencies | Brakeman + bundler-audit run in CI (informational); rubocop on every push |
 

@@ -25,6 +25,7 @@ PostgreSQL (Neon free tier for demo, self-hosted for production)
 - `users` — people
 - `memberships` — user ↔ account with role
 - `invitations` — pending invites
+- `password_resets` — single-use reset tokens (digest only)
 - `sessions` — auth sessions
 
 ### Core CRM

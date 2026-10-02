@@ -9,7 +9,7 @@
     "lint": "oxlint src/",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "gen:api": "openapi-typescript ../api/openapi.yaml -o src/lib/api/schema.d.ts"
+    "gen:api": "openapi-typescript ../api/openapi/v1/swagger.yaml -o src/lib/api/schema.ts && sed -i 's|\"/api/v1/|\"/|g' src/lib/api/schema.ts"
   },
   "dependencies": {
     "next": "latest",

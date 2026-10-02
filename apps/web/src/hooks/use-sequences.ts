@@ -167,8 +167,8 @@ export function useEnrollments(sequenceId: string) {
   return useQuery({
     queryKey: ["sequences", sequenceId, "enrollments"],
     queryFn: async () => {
-      const { data, error } = await apiClient.GET("/email_sequences/{id}/enrollments", {
-        params: { path: { id: sequenceId } },
+      const { data, error } = await apiClient.GET("/email_sequences/{email_sequence_id}/enrollments", {
+        params: { path: { email_sequence_id: sequenceId } },
         headers: headers(),
       });
       if (error) throw error;

@@ -30,7 +30,20 @@ POST   /auth/login
 DELETE /auth/logout
 GET    /auth/me
 POST   /auth/switch_account
+PATCH  /users/me                 # name, password, welcome_seen
 ```
+
+## Password Resets
+
+Public endpoints (no session). `create` always returns 201 so it never reveals
+whether an address exists. Tokens expire after 2 hours and are single-use.
+
+```
+POST   /password_resets          # body: email
+PATCH  /password_resets/:token/update   # body: password, password_confirmation
+```
+
+A successful reset destroys every active session for that user.
 
 ## Invitations & Memberships
 

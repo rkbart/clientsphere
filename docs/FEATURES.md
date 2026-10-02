@@ -171,8 +171,21 @@
 ### Invitations
 - Invitation records with expiring tokens (7-day default)
 - Role assignment on acceptance; pending list with revoke
+- Re-inviting an email reissues the pending invite with a fresh token
 - Only owners can promote to owner
 - Email delivery via Resend when configured, invite link + copy button otherwise
+
+### First login
+- Invitees arrive with a server-generated password, so acceptance pins them to
+  the workspace and prompts a one-time setup modal (name + password)
+- Existing accounts and self-signups are never prompted
+- Completing a password reset also clears the prompt
+
+### Password reset
+- "Forgot password" email with a single-use link (2-hour expiry)
+- Response never reveals whether an address exists
+- Requesting another reset supersedes any outstanding one
+- Resetting invalidates all active sessions
 
 ## Import/Export
 

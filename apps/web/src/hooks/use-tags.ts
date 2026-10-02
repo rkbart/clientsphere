@@ -90,17 +90,17 @@ export function useDetachEntityTag(entity: TaggableEntity, id: string) {
     mutationFn: async (tagId: string) => {
       const { error } =
         entity === "Contact"
-          ? await apiClient.DELETE("/contacts/{contact_id}/tags/{tag_id}", {
-              params: { path: { contact_id: id, tag_id: tagId } },
+          ? await apiClient.DELETE("/contacts/{contact_id}/tags/{id}", {
+              params: { path: { contact_id: id, id: tagId } },
               headers: headers(),
             })
           : entity === "Company"
-            ? await apiClient.DELETE("/companies/{company_id}/tags/{tag_id}", {
-                params: { path: { company_id: id, tag_id: tagId } },
+            ? await apiClient.DELETE("/companies/{company_id}/tags/{id}", {
+                params: { path: { company_id: id, id: tagId } },
                 headers: headers(),
               })
-            : await apiClient.DELETE("/deals/{deal_id}/tags/{tag_id}", {
-                params: { path: { deal_id: id, tag_id: tagId } },
+            : await apiClient.DELETE("/deals/{deal_id}/tags/{id}", {
+                params: { path: { deal_id: id, id: tagId } },
                 headers: headers(),
               });
       if (error) throw error;

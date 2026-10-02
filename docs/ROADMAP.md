@@ -34,6 +34,7 @@
 - [x] Custom fields (13 types, jsonb storage, values in forms/detail/filters)
 - [x] Saved views (removed — orphaned UI, unused by list pages)
 - [x] Roles & invitations (RBAC UI, email invitations, last-owner guard)
+- [x] First-login setup + password reset (invitee sets name/password, reset email)
 - [x] Google OAuth (env-gated; needs live credentials to verify end to end)
 - [x] API docs (generated Swagger UI, API tokens)
 

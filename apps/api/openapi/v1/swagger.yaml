@@ -16,15 +16,51 @@ paths:
       tags:
       - activities
       parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
       - name: page
         in: query
         schema:
-          type: string
+          type: integer
       - name: per_page
         in: query
         schema:
+          type: integer
+      - name: kind
+        in: query
+        schema:
           type: string
-      - name: q
+      - name: assignee_id
+        in: query
+        schema:
+          type: string
+      - name: completed
+        in: query
+        schema:
+          type: string
+      - name: overdue
+        in: query
+        schema:
+          type: string
+      - name: due_from
+        in: query
+        schema:
+          type: string
+      - name: due_to
+        in: query
+        schema:
+          type: string
+      - name: sort
+        in: query
+        schema:
+          type: string
+      - name: order
+        in: query
+        schema:
+          type: string
+      - name: direction
         in: query
         schema:
           type: string
@@ -55,12 +91,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: activity attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/activities/{id}":
@@ -107,12 +143,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: activity attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -136,12 +172,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: activity attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -199,6 +235,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/ai/test_connection":
@@ -217,6 +260,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/api_tokens":
@@ -226,18 +276,18 @@ paths:
       tags:
       - api_tokens
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -265,12 +315,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: api_token attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/api_tokens/{id}":
@@ -312,6 +362,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
   "/api/v1/auth/logout":
     delete:
       summary: Revoke the current session
@@ -382,6 +439,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
   "/api/v1/auth/switch_account":
     post:
       summary: Switch the session's current workspace
@@ -398,6 +462,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/automations":
@@ -407,18 +478,18 @@ paths:
       tags:
       - automations
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -446,12 +517,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: automation attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/automations/templates":
@@ -516,12 +587,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: automation attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -545,12 +616,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: automation attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -619,6 +690,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/companies":
@@ -628,15 +706,23 @@ paths:
       tags:
       - companies
       parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
       - name: page
         in: query
         schema:
-          type: string
+          type: integer
       - name: per_page
         in: query
         schema:
+          type: integer
+      - name: sort
+        in: query
+        schema:
           type: string
-      - name: q
+      - name: direction
         in: query
         schema:
           type: string
@@ -667,12 +753,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: company attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/companies/{company_id}/tags":
@@ -687,18 +773,18 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -731,12 +817,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: company_tag attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/companies/{company_id}/tags/{id}":
@@ -811,12 +897,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: company attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -840,12 +926,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: company attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -877,15 +963,31 @@ paths:
       tags:
       - contacts
       parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
       - name: page
         in: query
         schema:
-          type: string
+          type: integer
       - name: per_page
         in: query
         schema:
+          type: integer
+      - name: status
+        in: query
+        schema:
           type: string
-      - name: q
+      - name: tag_id
+        in: query
+        schema:
+          type: string
+      - name: sort
+        in: query
+        schema:
+          type: string
+      - name: direction
         in: query
         schema:
           type: string
@@ -916,12 +1018,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: contact attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/contacts/import":
@@ -940,6 +1042,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/contacts/{contact_id}/tags":
@@ -954,18 +1063,18 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -998,12 +1107,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: contact_tag attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/contacts/{contact_id}/tags/{id}":
@@ -1078,12 +1187,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: contact attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -1107,12 +1216,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: contact attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -1204,6 +1313,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/custom_field_definitions":
@@ -1213,18 +1329,18 @@ paths:
       tags:
       - custom_field_definitions
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -1252,12 +1368,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_field_definition attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/custom_field_definitions/{id}":
@@ -1304,12 +1420,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_field_definition attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -1333,12 +1449,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_field_definition attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -1370,18 +1486,18 @@ paths:
       tags:
       - custom_object_definitions
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -1409,12 +1525,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_object_definition attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/custom_object_definitions/{custom_object_definition_id}/records":
@@ -1429,18 +1545,18 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -1473,12 +1589,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_object_record attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/custom_object_definitions/{id}":
@@ -1525,12 +1641,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_object_definition attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -1554,12 +1670,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_object_definition attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -1628,12 +1744,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_object_record attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -1657,12 +1773,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: custom_object_record attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -1694,15 +1810,31 @@ paths:
       tags:
       - deals
       parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
       - name: page
         in: query
         schema:
-          type: string
+          type: integer
       - name: per_page
         in: query
         schema:
+          type: integer
+      - name: pipeline_id
+        in: query
+        schema:
           type: string
-      - name: q
+      - name: tag_id
+        in: query
+        schema:
+          type: string
+      - name: sort
+        in: query
+        schema:
+          type: string
+      - name: direction
         in: query
         schema:
           type: string
@@ -1733,12 +1865,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: deal attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/deals/attention":
@@ -1771,18 +1903,18 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -1815,12 +1947,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: deal_tag attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/deals/{deal_id}/tags/{id}":
@@ -1895,12 +2027,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: deal attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -1924,12 +2056,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: deal attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -1975,6 +2107,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/deals/{id}/summary":
@@ -2007,18 +2146,18 @@ paths:
       tags:
       - email_sequences
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -2046,12 +2185,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email_sequence attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/email_sequences/{email_sequence_id}/enrollments":
@@ -2066,18 +2205,18 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -2101,18 +2240,18 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -2145,12 +2284,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email_sequence_step attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/email_sequences/{email_sequence_id}/steps/{id}":
@@ -2207,12 +2346,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email_sequence_step attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -2241,12 +2380,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email_sequence_step attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -2320,12 +2459,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email_sequence attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -2349,12 +2488,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email_sequence attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -2400,6 +2539,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/email_settings":
@@ -2436,12 +2582,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email_setting attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/emails":
@@ -2451,15 +2597,27 @@ paths:
       tags:
       - emails
       parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
       - name: page
         in: query
         schema:
-          type: string
+          type: integer
       - name: per_page
         in: query
         schema:
+          type: integer
+      - name: contact_id
+        in: query
+        schema:
           type: string
-      - name: q
+      - name: deal_id
+        in: query
+        schema:
+          type: string
+      - name: status
         in: query
         schema:
           type: string
@@ -2490,12 +2648,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/emails/deliver":
@@ -2514,6 +2672,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/emails/templates":
@@ -2578,12 +2743,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -2607,12 +2772,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: email attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -2658,6 +2823,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/export/csv/{type}":
@@ -2700,12 +2872,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: import attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/invitations":
@@ -2715,18 +2887,18 @@ paths:
       tags:
       - invitations
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -2754,12 +2926,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: invitation attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/invitations/{id}":
@@ -2806,6 +2978,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
   "/api/v1/memberships":
     get:
       summary: Index membership
@@ -2813,18 +2992,18 @@ paths:
       tags:
       - memberships
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -2858,12 +3037,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: membership attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -2887,12 +3066,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: membership attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -2924,15 +3103,23 @@ paths:
       tags:
       - notes
       parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
       - name: page
         in: query
         schema:
-          type: string
+          type: integer
       - name: per_page
         in: query
         schema:
+          type: integer
+      - name: notable_type
+        in: query
+        schema:
           type: string
-      - name: q
+      - name: notable_id
         in: query
         schema:
           type: string
@@ -2963,12 +3150,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: note attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/notes/{id}":
@@ -3015,12 +3202,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: note attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -3044,12 +3231,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: note attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -3074,6 +3261,61 @@ paths:
           description: Missing or invalid token
       security:
       - bearerAuth: []
+  "/api/v1/password_resets":
+    post:
+      summary: Create password reset
+      operationId: create_api_v1_password_resets
+      tags:
+      - password_resets
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
+  "/api/v1/password_resets/{password_reset_id}/update":
+    patch:
+      summary: Update password reset
+      operationId: update_api_v1_password_resets
+      tags:
+      - password_resets
+      parameters:
+      - name: password_reset_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
   "/api/v1/pipelines":
     get:
       summary: Index pipeline
@@ -3081,18 +3323,18 @@ paths:
       tags:
       - pipelines
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -3120,12 +3362,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: pipeline attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/pipelines/{id}":
@@ -3172,12 +3414,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: pipeline attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -3201,12 +3443,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: pipeline attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -3243,18 +3485,18 @@ paths:
         required: true
         schema:
           type: string
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -3287,12 +3529,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: stage attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/pipelines/{pipeline_id}/stages/{id}":
@@ -3349,12 +3591,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: stage attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -3383,12 +3625,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: stage attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -3425,18 +3667,18 @@ paths:
       tags:
       - plugins
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -3464,12 +3706,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: plugin attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/plugins/{id}":
@@ -3516,12 +3758,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: plugin attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -3545,12 +3787,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: plugin attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:
@@ -3619,6 +3861,13 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/tags":
@@ -3628,18 +3877,18 @@ paths:
       tags:
       - tags
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -3667,12 +3916,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: tag attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/tags/{id}":
@@ -3715,12 +3964,37 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: unsubscribe attributes
+              additionalProperties: true
+  "/api/v1/users/me":
+    patch:
+      summary: Update current user (name, password, first-login setup)
+      operationId: me_api_v1_users
+      tags:
+      - users
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
   "/api/v1/webhooks":
     get:
       summary: Index webhook
@@ -3728,18 +4002,18 @@ paths:
       tags:
       - webhooks
       parameters:
-      - name: page
-        in: query
-        schema:
-          type: string
-      - name: per_page
-        in: query
-        schema:
-          type: string
       - name: q
         in: query
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
       responses:
         '200':
           description: Success
@@ -3767,12 +4041,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: webhook attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/webhooks/resend/{account_id}":
@@ -3797,12 +4071,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: resend_webhook attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/webhooks/{id}":
@@ -3849,12 +4123,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: webhook attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     put:
@@ -3878,12 +4152,12 @@ paths:
         '401':
           description: Missing or invalid token
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
               type: object
-              description: webhook attributes
+              additionalProperties: true
       security:
       - bearerAuth: []
     delete:

@@ -25,6 +25,7 @@ function LoginInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const oauthError = searchParams.get("oauth_error");
+  const justReset = searchParams.get("reset") === "1";
   const { setAuth } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -72,6 +73,12 @@ function LoginInner() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {justReset && (
+            <div className="p-3 rounded-[var(--radius-md)] bg-green-50 border border-green-100 text-green-700 text-sm animate-scale-in">
+              Password updated. Sign in with your new password.
+            </div>
+          )}
+
           {(error || oauthError) && (
             <div className="p-3 rounded-[var(--radius-md)] bg-red-50 border border-red-100 text-red-600 text-sm animate-scale-in">
               {error || OAUTH_ERRORS[oauthError ?? ""] || "Google sign-in failed."}
@@ -108,6 +115,14 @@ function LoginInner() {
               placeholder="Enter your password"
               autoComplete="current-password"
             />
+            <div className="text-right">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <button

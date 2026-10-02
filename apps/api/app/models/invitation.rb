@@ -8,7 +8,8 @@ class Invitation < ApplicationRecord
   # exposes it once in the create response so callers can build the link.
   attr_accessor :token
 
-  validates :email, presence: true, uniqueness: { scope: :account_id }
+  validates :email, presence: true,
+                    uniqueness: { scope: :account_id, conditions: -> { where(accepted_at: nil) } }
   validates :token_digest, presence: true
 
   before_validation :generate_token_digest, on: :create

@@ -399,6 +399,25 @@ promote someone to owner.
 
 Change roles or remove members from the team table.
 
+### First login for new members
+
+When someone accepts an invitation they land straight in the CRM with your
+workspace data — contacts, companies and deals are already there. Because we
+never email a password, the first screen asks them to set:
+
+1. The name their team will see (their email name is just a placeholder)
+2. A password, so they can sign in again
+
+It only appears once, and only for invited members. Anyone who signs up
+themselves picks a password already, so they're never asked — and using
+**Forgot password?** clears it too.
+
+### Forgotten password
+
+On the sign-in page, click **Forgot password?** and enter your email. We send a
+link that works once and expires after 2 hours. Choosing a new password signs
+you out everywhere else.
+
 ---
 
 ## Import / Export
