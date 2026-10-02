@@ -6,6 +6,7 @@ import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/c
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useContacts } from "@/hooks/use-contacts";
 import { useCompanies } from "@/hooks/use-companies";
+import { CUSTOM_SOURCE, DEAL_SOURCES, isKnownSource } from "@/lib/deals/sources";
 
 export interface DealFormValues {
   title: string;
@@ -60,6 +61,13 @@ export function DealForm({
   );
   const contacts = ((contactsRes as unknown as { data?: { id: string; first_name: string; last_name: string }[] })?.data ?? []);
   const companies = ((companiesRes as unknown as { data?: { id: string; name: string }[] })?.data ?? []);
+
+  // `deals.source` is free text. "Others" swaps the select for a text input so
+  // new sources stay possible, and a deal that already holds an unknown value
+  // opens straight into that input rather than being rewritten to a default.
+  const [customSource, setCustomSource] = useState(
+    () => !!initial.source && !isKnownSource(initial.source),
+  );
 
   const set = (key: keyof DealFormValues) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -194,20 +202,40 @@ export function DealForm({
           />
         </Field>
         <Field label="Source" htmlFor="deal-source">
-          <input
+          <select
             id="deal-source"
             className="input"
-            list="deal-source-options"
-            value={values.source}
-            onChange={set("source")}
-            placeholder="e.g. referral"
-            autoComplete="off"
-          />
-          <datalist id="deal-source-options">
-            {["referral", "website", "cold outreach", "social", "event", "partner"].map((s) => (
-              <option key={s} value={s} />
+            value={customSource ? CUSTOM_SOURCE : values.source}
+            onChange={(e) => {
+              const next = e.target.value;
+              if (next === CUSTOM_SOURCE) {
+                setCustomSource(true);
+                // Switching away from a listed option starts the custom value blank.
+                setValues((v) => ({ ...v, source: isKnownSource(v.source) ? "" : v.source }));
+              } else {
+                setCustomSource(false);
+                setValues((v) => ({ ...v, source: next }));
+              }
+            }}
+          >
+            <option value="">None</option>
+            {DEAL_SOURCES.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
             ))}
-          </datalist>
+            <option value={CUSTOM_SOURCE}>Others</option>
+          </select>
+          {customSource && (
+            <input
+              className="input mt-2"
+              value={values.source}
+              onChange={(e) => setValues((v) => ({ ...v, source: e.target.value }))}
+              placeholder="Enter a custom source"
+              aria-label="Custom source"
+              autoComplete="off"
+            />
+          )}
         </Field>
       </div>
       <CustomFieldInputs

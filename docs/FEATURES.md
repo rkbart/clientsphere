@@ -27,6 +27,10 @@
 - Guarded deletes (pipelines/stages holding deals refuse with 422)
 - Won/lost tracking
 - Expected close dates
+- Source dropdown with canonical options (referral, website, cold outreach,
+  social, event, partner) plus an "Others" entry that reveals a free-text
+  input; the column stays free text, so a value we don't recognise on an older
+  deal opens in that input rather than being rewritten to a default
 - Deal value tracking with stage-driven probability (0–100 validated,
   manual overrides preserved, weighted forecast)
 - List with search, stage/tag filters, sortable columns, pagination

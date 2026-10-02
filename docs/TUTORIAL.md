@@ -130,7 +130,8 @@ Go to **Settings → Pipelines**:
 
 ### Deal detail
 
-- Title, amount, currency, source
+- Title, amount, currency, source (dropdown: referral, website, cold outreach,
+  social, event, partner, or **Others** for a custom value)
 - Pipeline and stage
 - Linked contact and company
 - Expected close date and probability
