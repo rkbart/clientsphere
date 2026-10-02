@@ -90,14 +90,14 @@ export function DealCharts({ stages, deals }: { stages: ChartStage[]; deals: Cha
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="card lg:col-span-2">
+      <div className="card">
         <div className="px-5 py-4 border-b border-[var(--border-subtle)]">
           <h2 className="text-sm font-semibold">Pipeline value by stage</h2>
         </div>
         <div className="p-5 h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={valueByStage} margin={{ top: 4, right: 8, bottom: 0, left: 8 }}>
-              <XAxis dataKey="name" tick={tick} interval={0} angle={-12} textAnchor="end" height={48} />
+              <XAxis dataKey="name" tick={tick} interval="preserveEnd" angle={-12} textAnchor="end" height={48} />
               <YAxis tick={tick} tickFormatter={(v: number) => (v >= 1000 ? `$${v / 1000}k` : `$${v}`)} width={56} />
               <Tooltip
                 formatter={(v) => [money(Number(v)), "Value"]}
@@ -151,7 +151,7 @@ export function DealCharts({ stages, deals }: { stages: ChartStage[]; deals: Cha
         </div>
       </div>
 
-      <div className="card lg:col-span-3">
+      <div className="card">
         <div className="px-5 py-4 border-b border-[var(--border-subtle)]">
           <h2 className="text-sm font-semibold">Deals by source</h2>
         </div>

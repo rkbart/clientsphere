@@ -38,6 +38,8 @@ activity in 10 days is your first call, not your tenth email. The widgets:
 - **Pipeline by stage** — visual bar chart of deal value per stage
 - **Outcomes & win rate** — donut chart of open/won/lost deals
 - **Deals by source** — pie chart showing where deals come from
+- All three charts sit side by side in one row on desktop, stacking on smaller
+  screens
 - **Tasks due** — open activities sorted by due date; click through to detail
 - **Needs attention** — top of the page, impossible to miss: the open deal
   scoring highest on overdue close date, staleness, and overdue tasks,
