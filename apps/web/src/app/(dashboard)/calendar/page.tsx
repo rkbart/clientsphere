@@ -150,7 +150,7 @@ export default function CalendarPage() {
                   {items.slice(0, 3).map((a) => (
                     <Link
                       key={a.id}
-                      href={`/activities/${a.id}/edit`}
+                      href={`/activities/${a.id}`}
                       title={a.subject}
                       className={`flex items-center gap-1.5 text-xs px-1.5 py-0.5 rounded truncate hover:bg-[var(--bg-elevated)] ${
                         a.completed_at

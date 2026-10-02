@@ -67,3 +67,19 @@ export function useUpdateActivity() {
     },
   });
 }
+
+export function useDeleteActivity() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await apiClient.DELETE("/activities/{id}", {
+        params: { path: { id } },
+        headers: headers(),
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+    },
+  });
+}

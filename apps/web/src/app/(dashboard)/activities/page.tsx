@@ -125,7 +125,7 @@ export default function ActivitiesPage() {
       minWidth: "w-[240px]",
       render: (a) => (
         <Link
-          href={`/activities/${a.id}/edit`}
+          href={`/activities/${a.id}`}
           className="font-medium text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
         >
           {a.subject}
@@ -230,7 +230,7 @@ export default function ActivitiesPage() {
         columns={columns}
         rows={data?.data}
         isLoading={isLoading}
-        onRowClick={(a) => router.push(`/activities/${a.id}/edit`)}
+        onRowClick={(a) => router.push(`/activities/${a.id}`)}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

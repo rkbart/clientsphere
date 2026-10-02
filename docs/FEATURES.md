@@ -34,6 +34,8 @@
 - Assigned to team members
 - Surfaced in the dashboard (tasks due, recent activity)
 - Logging UI on the Activities page (new + edit)
+- Detail page with complete/reopen toggle, edit modal, delete,
+  linked records
 - List with search, kind/status filters (incl. overdue), sortable
   columns, pagination
 

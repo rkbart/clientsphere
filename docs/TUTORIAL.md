@@ -113,7 +113,8 @@ Go to **Activities** to see all calls, meetings, tasks, and emails:
 - Filter by kind (call, meeting, task, email, other)
 - Filter by status (open, completed, overdue)
 - Sort by subject, type, or due date; paginated
-- Click to edit or complete
+- Click a row to open its detail page: complete/reopen, edit, delete,
+  linked contact/company/deal
 
 ### Calendar view
 
