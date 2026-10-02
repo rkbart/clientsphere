@@ -72,13 +72,16 @@ RSpec.describe "Team memberships", type: :request do
   end
 
   it "reports invite delivery status on create" do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
+    sender = class_double("Resend::Emails").as_stubbed_const
+    allow(sender).to receive(:send).and_return({ id: "msg_1" })
+
     post "/api/v1/invitations",
          params: { invitation: { email: "teammate@example.com", role: "member" } },
          headers: headers, as: :json
 
     body = JSON.parse(response.body)
-    # No RESEND_API_KEY in test: skipped gracefully, token still returned.
-    expect(body["invite_sent"]).to be(false)
+    expect(body["invite_sent"]).to be(true)
     expect(body["token"]).to be_present
   end
 

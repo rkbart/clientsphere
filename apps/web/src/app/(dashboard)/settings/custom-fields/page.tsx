@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   useCustomFieldDefinitions,
@@ -69,7 +69,17 @@ function toForm(def: CustomFieldDefinitionRecord): DefinitionFormState {
 
 export default function CustomFieldsSettingsPage() {
   const [tab, setTab] = useState("Contact");
-  const { data: definitions = [], isLoading } = useCustomFieldDefinitions(tab);
+  const { data: allDefinitions = [], isLoading } = useCustomFieldDefinitions();
+  const definitions = useMemo(
+    () => allDefinitions.filter((d) => d.entity_type === tab),
+    [allDefinitions, tab]
+  );
+  const counts = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const d of allDefinitions) map[d.entity_type] = (map[d.entity_type] ?? 0) + 1;
+    return map;
+  }, [allDefinitions]);
+  const tabLabel = ENTITY_TYPES.find((t) => t.value === tab)?.label ?? tab;
   const create = useCreateCustomFieldDefinition();
   const update = useUpdateCustomFieldDefinition();
   const remove = useDeleteCustomFieldDefinition();
@@ -149,16 +159,28 @@ export default function CustomFieldsSettingsPage() {
         </button>
       </div>
 
-      <div className="flex gap-2">
-        {ENTITY_TYPES.map((t) => (
-          <button
-            key={t.value}
-            onClick={() => setTab(t.value)}
-            className={`btn-ghost text-sm border border-[var(--border)] ${tab === t.value ? "!bg-[var(--bg-elevated)]" : ""}`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="flex gap-2" role="tablist" aria-label="Entity types">
+        {ENTITY_TYPES.map((t) => {
+          const selected = tab === t.value;
+          return (
+            <button
+              key={t.value}
+              role="tab"
+              aria-selected={selected}
+              onClick={() => setTab(t.value)}
+              className={`btn-ghost text-sm border px-3.5 py-1.5 ${
+                selected
+                  ? "!bg-[var(--accent)] !text-[var(--text-inverse)] !border-transparent font-medium"
+                  : "!border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:!bg-[var(--accent-soft)]"
+              }`}
+            >
+              {t.label}
+              <span className={`ml-1.5 text-xs ${selected ? "opacity-80" : "text-[var(--text-tertiary)]"}`}>
+                {counts[t.value] ?? 0}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       <FormError message={error} />
@@ -259,6 +281,12 @@ export default function CustomFieldsSettingsPage() {
       )}
 
       <div className="card overflow-hidden">
+        <div className="px-5 py-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
+          <h2 className="text-sm font-semibold">Existing fields — {tabLabel}</h2>
+          <span className="text-xs text-[var(--text-tertiary)]">
+            {definitions.length} {definitions.length === 1 ? "field" : "fields"}
+          </span>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px]">
             <thead>

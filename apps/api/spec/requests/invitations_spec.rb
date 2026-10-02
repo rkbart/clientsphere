@@ -11,6 +11,12 @@ RSpec.describe "Invitations", type: :request do
   let(:session) { Session.create!(user: owner) }
   let(:headers) { { "Authorization" => "Bearer #{session.token}" } }
 
+  before do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
+    sender = class_double("Resend::Emails").as_stubbed_const
+    allow(sender).to receive(:send).and_return({ id: "msg_1" })
+  end
+
   describe "POST /api/v1/invitations" do
     it "creates an invitation and returns the raw token once" do
       post "/api/v1/invitations",
@@ -30,6 +36,24 @@ RSpec.describe "Invitations", type: :request do
 
       invitation = Invitation.find_by(email: "new2@example.com")
       expect(invitation.expires_at).to be_within(1.minute).of(7.days.from_now)
+    end
+
+    it "reissues when a pending invitation already exists" do
+      post "/api/v1/invitations",
+           params: { invitation: { email: "again@example.com", role: "member" } },
+           headers: headers, as: :json
+      first = JSON.parse(response.body)
+
+      post "/api/v1/invitations",
+           params: { invitation: { email: "again@example.com", role: "viewer" } },
+           headers: headers, as: :json
+
+      expect(response).to have_http_status(:created)
+      second = JSON.parse(response.body)
+      expect(second["id"]).not_to eq(first["id"])
+      expect(second["token"]).not_to eq(first["token"])
+      expect(Invitation.where(account: account, email: "again@example.com", accepted_at: nil).count).to eq(1)
+      expect(Invitation.exists?(first["id"])).to be(false)
     end
   end
 

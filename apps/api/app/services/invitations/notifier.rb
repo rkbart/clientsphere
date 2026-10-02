@@ -3,17 +3,25 @@ module Invitations
   # Failures are logged and swallowed: the raw token is still returned in
   # the create response so owners can share the link manually.
   class Notifier
+    # Resend normally answers in ~1s; a hung socket must not block the
+    # request past the proxy timeout (60s), so cap delivery tightly.
+    DEFAULT_DELIVERY_TIMEOUT = 10
+
     def self.send_invite(invitation, raw_token)
       return false unless ENV["RESEND_API_KEY"].present?
 
       Resend.api_key = ENV.fetch("RESEND_API_KEY")
-      Resend::Emails.send(
+      params = {
         from: ENV.fetch("EMAIL_FROM_ADDRESS", "noreply@example.com"),
         to: [invitation.email],
         subject: "You've been invited to #{invitation.account.name} on ClientSphere",
         html: invite_body(invitation, raw_token)
-      )
+      }
+      Timeout.timeout(delivery_timeout) { Resend::Emails.send(params) }
       true
+    rescue Timeout::Error
+      Rails.logger.warn("[Invitations::Notifier] delivery timed out after #{delivery_timeout}s")
+      false
     rescue StandardError => e
       Rails.logger.warn("[Invitations::Notifier] delivery failed (#{e.class}): #{e.message}")
       false
@@ -22,6 +30,10 @@ module Invitations
     def self.invite_link(invitation, raw_token)
       base = ENV.fetch("WEB_URL", "http://localhost:3001")
       "#{base}/accept-invite/#{raw_token}?email=#{CGI.escape(invitation.email)}"
+    end
+
+    def self.delivery_timeout
+      Integer(ENV.fetch("INVITE_DELIVERY_TIMEOUT_SECONDS", DEFAULT_DELIVERY_TIMEOUT.to_s))
     end
 
     def self.invite_body(invitation, raw_token)
@@ -33,6 +45,6 @@ module Invitations
         <p><a href="#{link}">Accept invitation</a> (expires #{invitation.expires_at.to_date})</p>
       HTML
     end
-    private_class_method :invite_body
+    private_class_method :invite_body, :delivery_timeout
   end
 end

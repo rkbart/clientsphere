@@ -245,7 +245,7 @@ export default function TeamSettingsPage() {
               <p className="text-sm">
                 {inviteEmailed
                   ? "Invitation emailed — or share this link directly:"
-                  : "Email delivery isn't configured — share this link directly:"}
+                  : "The invite email couldn't be sent — share this link directly:"}
               </p>
               <div className="flex items-center gap-2">
                 <code className="text-xs break-all flex-1">{inviteLink}</code>

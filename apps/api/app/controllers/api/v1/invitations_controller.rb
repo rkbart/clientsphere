@@ -13,6 +13,9 @@ class Api::V1::InvitationsController < Api::V1::BaseController
     invitation.invited_by = Current.user
     invitation.account = Current.account
     authorize invitation
+    # Re-inviting an email that still has a pending invite reissues it:
+    # the old token is revoked and a fresh one goes out.
+    Current.account.invitations.where(email: invitation.email, accepted_at: nil).destroy_all
     invitation.save!
     sent = Invitations::Notifier.send_invite(invitation, invitation.token)
     render json: invitation.as_json.except("token_digest").merge(
