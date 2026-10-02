@@ -67,6 +67,28 @@ class Api::V1::DealsController < Api::V1::BaseController
     render json: Deals::Summary.call(@deal)
   end
 
+  def attention
+    authorize Deal, :index?
+    deals = policy_scope(Deal)
+    deals = deals.where(pipeline_id: params[:pipeline_id]) if params[:pipeline_id].present?
+    entry = Deals::Attention.call(deals)
+    return render json: { deal: nil } if entry.nil?
+
+    deal = entry[:deal]
+    render json: {
+      deal: {
+        id: deal.id,
+        title: deal.title,
+        amount: deal.amount,
+        currency: deal.currency,
+        stage: deal.stage && { id: deal.stage.id, name: deal.stage.name }
+      },
+      score: entry[:score],
+      stale: entry[:stale],
+      reasons: entry[:reasons]
+    }
+  end
+
   private
 
   def set_deal

@@ -47,6 +47,32 @@ export function useDealSummary(id: string) {
   });
 }
 
+export function useAttentionDeal(pipelineId?: string) {
+  return useQuery({
+    queryKey: ["deals", "attention", pipelineId ?? null],
+    enabled: !!pipelineId,
+    queryFn: async () => {
+      const { data, error } = await apiClient.GET("/deals/attention", {
+        params: { query: { pipeline_id: pipelineId } },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as unknown as {
+        deal: {
+          id: string;
+          title: string;
+          amount: number | string | null;
+          currency: string | null;
+          stage: { id: string; name: string } | null;
+        } | null;
+        score?: number;
+        stale?: boolean;
+        reasons?: string[];
+      };
+    },
+  });
+}
+
 export function useCreateDeal() {
   const queryClient = useQueryClient();
   return useMutation({

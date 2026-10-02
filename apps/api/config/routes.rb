@@ -51,6 +51,9 @@ Rails.application.routes.draw do
       end
 
       resources :deals do
+        collection do
+          get :attention
+        end
         member do
           patch :move
           get :summary

@@ -50,7 +50,8 @@
 - Pipeline-by-stage bars (value + count per stage)
 - Tasks due widget (overdue/today highlighting)
 - Recent activity feed
-- Needs-attention card for the most urgent open deal (rule-based summary)
+- Needs-attention card (top of page): highest-scoring open deal by
+  close urgency + staleness + overdue tasks, with reasons listed
 
 ## Views
 

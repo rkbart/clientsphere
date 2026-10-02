@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
-import { useDeals, useDealSummary } from "@/hooks/use-deals";
+import { useDeals, useAttentionDeal } from "@/hooks/use-deals";
 import { DealCharts } from "@/components/dashboard/deal-charts";
-import { TrendingUp, Users, Activity, ChevronRight, CheckCircle2, Circle } from "lucide-react";
+import { TrendingUp, Users, Activity, AlertTriangle, ChevronRight, CheckCircle2, Circle } from "lucide-react";
 
 const headers = () => getAuthHeadersForApi();
 
@@ -90,19 +90,8 @@ export default function DashboardPage() {
   }, [stages, deals]);
   const maxCount = Math.max(1, ...stageStats.map((s) => s.count));
 
-  const nextDeal = useMemo(() => {
-    const open = deals.filter((d) => !d.closed_at);
-    if (open.length === 0) return null;
-    return [...open].sort((a, b) => {
-      const da = a.expected_close_date || "9999-12-31";
-      const db = b.expected_close_date || "9999-12-31";
-      return da < db ? -1 : da > db ? 1 : 0;
-    })[0];
-  }, [deals]);
-
-  const { data: attention } = useDealSummary(nextDeal?.id ?? "");
-  const attentionSummary = (attention as unknown as { summary?: string; stale?: boolean } | undefined);
-  const attentionLine = attentionSummary?.summary?.split("\n")[0] ?? "";
+  const { data: attention } = useAttentionDeal(pipeline?.id);
+  const attentionDeal = attention?.deal ?? null;
 
   const statCards = [
     { label: "Contacts", value: stats?.contacts ?? 0, icon: Users, color: "text-[var(--text-primary)]" },
@@ -126,6 +115,44 @@ export default function DashboardPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="text-[var(--text-secondary)] text-sm mt-1">Overview of your CRM data</p>
       </div>
+
+      {/* Needs attention */}
+      {attentionDeal && (
+        <div className="rounded-[var(--radius-lg)] border-l-4 border-l-[var(--warning)] border border-[var(--border)] bg-[var(--bg-card)] p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="p-2.5 rounded-[var(--radius-lg)] bg-[var(--warning)]/10 shrink-0 self-start">
+              <AlertTriangle className="h-5 w-5 text-[var(--warning)]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--warning)]">
+                Needs attention
+                {attention?.stale && <span className="badge badge-warning text-xs ml-2">Stale</span>}
+              </p>
+              <Link
+                href={`/deals/${attentionDeal.id}`}
+                className="text-lg font-semibold tracking-tight hover:text-[var(--accent-hover)] transition-colors block truncate mt-0.5"
+              >
+                {attentionDeal.title}
+              </Link>
+              <ul className="mt-1.5 space-y-0.5">
+                {(attention?.reasons ?? []).map((reason) => (
+                  <li key={reason} className="text-sm text-[var(--text-secondary)] flex items-start gap-1.5">
+                    <span aria-hidden="true">•</span>
+                    <span>{reason}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Link
+              href={`/deals/${attentionDeal.id}`}
+              className="btn-primary text-sm shrink-0 self-start sm:self-center"
+            >
+              Open deal
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger">
@@ -223,36 +250,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-
-      {/* Needs attention */}
-      {nextDeal && (
-        <div className="card">
-          <div className="px-5 py-4 flex items-center gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="text-xs uppercase tracking-wider text-[var(--text-tertiary)]">
-                Needs attention
-                {attentionSummary?.stale && <span className="badge badge-warning text-xs ml-2">Stale</span>}
-              </p>
-              <Link
-                href={`/deals/${nextDeal.id}`}
-                className="font-medium hover:text-[var(--accent-hover)] transition-colors truncate block"
-              >
-                {nextDeal.title}
-              </Link>
-              {attentionLine && (
-                <p className="text-sm text-[var(--text-secondary)] truncate">{attentionLine}</p>
-              )}
-            </div>
-            <Link
-              href={`/deals/${nextDeal.id}`}
-              className="btn-secondary text-sm shrink-0"
-              aria-label={`Open ${nextDeal.title}`}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      )}
 
       {/* Analytics */}
       {stages && <DealCharts stages={stages} deals={deals} />}

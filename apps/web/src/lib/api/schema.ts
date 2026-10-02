@@ -265,6 +265,22 @@ export interface paths {
       };
     };
   };
+  "/deals/attention": {
+    get: {
+      parameters: {
+        query: {
+          pipeline_id?: string;
+        };
+      };
+      responses: {
+        200: {
+          content: {
+            "application/json": Record<string, unknown>;
+          };
+        };
+      };
+    };
+  };
   "/deals/{id}/summary": {
     get: {
       parameters: {

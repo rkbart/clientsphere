@@ -78,6 +78,7 @@ PATCH  /deals/:id
 DELETE /deals/:id             # Soft delete
 PATCH  /deals/:id/move        # Stage change
 GET    /deals/:id/summary      # Rule-based summary (no AI)
+GET    /deals/attention         # Highest-scoring open deal (?pipeline_id=)
 ```
 
 Sort: `title`, `amount`, `expected_close_date` — `direction=asc|desc` (default: pipeline position)

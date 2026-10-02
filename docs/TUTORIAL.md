@@ -39,7 +39,10 @@ activity in 10 days is your first call, not your tenth email. The widgets:
 - **Outcomes & win rate** — donut chart of open/won/lost deals
 - **Deals by source** — pie chart showing where deals come from
 - **Tasks due** — open activities sorted by due date; click through to detail
-- **Needs attention** — your most urgent open deal with a rule-based status line
+- **Needs attention** — top of the page, impossible to miss: the open deal
+  scoring highest on overdue close date, staleness, and overdue tasks,
+  with the reasons listed ("Close date passed 3 days ago", "2 overdue
+  tasks") and a button straight into the deal
 - **Recent activity** — latest actions across all records; click through to detail
 
 ---
