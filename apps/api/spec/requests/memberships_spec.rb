@@ -62,6 +62,98 @@ RSpec.describe "Team memberships", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
   end
 
+  describe "owner limit" do
+    def member_membership(email)
+      user = User.create!(name: email, email: email, password: "password123")
+      Membership.create!(account: account, user: user, role: :member)
+    end
+
+    it "allows a second owner" do
+      membership = member_membership("second@example.com")
+
+      patch "/api/v1/memberships/#{membership.id}", params: { role: "owner" }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(membership.reload.role).to eq("owner")
+    end
+
+    it "refuses a third owner" do
+      Membership.create!(account: account, user: User.create!(
+        name: "Two", email: "two@example.com", password: "password123"
+      ), role: :owner)
+      membership = member_membership("third@example.com")
+
+      patch "/api/v1/memberships/#{membership.id}", params: { role: "owner" }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)["error"]).to include("at most 2")
+      expect(membership.reload.role).to eq("member")
+    end
+
+    it "lets an existing owner keep the owner role" do
+      co_owner = member_membership("keep@example.com")
+      co_owner.update!(role: :owner)
+
+      patch "/api/v1/memberships/#{co_owner.id}", params: { role: "owner" }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe "admin tier" do
+    let(:admin_user) do
+      User.create!(name: "Adm", email: "adm-tier@example.com", password: "password123").tap do |u|
+        Membership.create!(account: account, user: u, role: :admin)
+        u.update!(current_account: account)
+      end
+    end
+    let(:admin_headers) { { "Authorization" => "Bearer #{Session.create!(user: admin_user).token}" } }
+
+    it "forbids an admin from promoting someone to admin" do
+      membership = Membership.create!(account: account, user: User.create!(
+        name: "Up", email: "up-tier@example.com", password: "password123"
+      ), role: :member)
+
+      patch "/api/v1/memberships/#{membership.id}", params: { role: "admin" }, headers: admin_headers, as: :json
+
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)["error"]).to include("Only owners")
+      expect(membership.reload.role).to eq("member")
+    end
+
+    it "forbids an admin from demoting another admin" do
+      target = Membership.create!(account: account, user: User.create!(
+        name: "Down", email: "down-tier@example.com", password: "password123"
+      ), role: :admin)
+
+      patch "/api/v1/memberships/#{target.id}", params: { role: "member" }, headers: admin_headers, as: :json
+
+      expect(response).to have_http_status(:forbidden)
+      expect(target.reload.role).to eq("admin")
+    end
+
+    it "still lets an admin manage members and viewers" do
+      membership = Membership.create!(account: account, user: User.create!(
+        name: "Plain", email: "plain-tier@example.com", password: "password123"
+      ), role: :member)
+
+      patch "/api/v1/memberships/#{membership.id}", params: { role: "viewer" }, headers: admin_headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(membership.reload.role).to eq("viewer")
+    end
+
+    it "lets an owner change the admin role" do
+      membership = Membership.create!(account: account, user: User.create!(
+        name: "ByOwner", email: "owner-tier@example.com", password: "password123"
+      ), role: :member)
+
+      patch "/api/v1/memberships/#{membership.id}", params: { role: "admin" }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   it "refuses to remove the last owner" do
     membership = owner.memberships.find_by(account: account)
 

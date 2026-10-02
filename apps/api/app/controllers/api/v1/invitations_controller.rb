@@ -13,6 +13,11 @@ class Api::V1::InvitationsController < Api::V1::BaseController
     invitation.invited_by = Current.user
     invitation.account = Current.account
     authorize invitation
+    # The admin tier is the owner's to give; an admin may only invite
+    # member/viewer.
+    if invitation.role == "admin" && Current.user.role_for(Current.account) != "owner"
+      return render json: { error: "Only owners can invite an admin." }, status: :forbidden
+    end
     # Re-inviting an email that still has a pending invite reissues it:
     # the old token is revoked and a fresh one goes out.
     Current.account.invitations.where(email: invitation.email, accepted_at: nil).destroy_all

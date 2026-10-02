@@ -6,7 +6,7 @@
 |------|---------|
 | Sessions | Bearer tokens returned on login; stored server-side as SHA-256 digests, revoked on logout; sent as `Authorization: Bearer <token>` |
 | Tenant isolation | Explicit `account_id` scoping + Pundit `policy_scope` on index actions; `ApplicationPolicy` rejects records from other accounts (403) |
-| Authorization | Pundit on every action; roles: owner, admin, member, viewer. Workspace-wide settings (AI, email, plugins, pipelines, webhooks, API tokens, import/export) authorize as owner/admin; the UI additionally hides the form |
+| Authorization | Pundit on every action; roles: owner, admin, member, viewer. Owner count capped at 2 (`OWNER_LIMIT`); only owners may grant/revoke the admin role or invite an admin, so the admin tier can't self-replicate. Workspace-wide settings (AI, email, plugins, pipelines, webhooks, API tokens, import/export) authorize as owner/admin; the UI additionally hides the form |
 | Secrets | Rails `encrypts` for AI provider keys and webhook secrets; AI key never returned by the API (write-only, `api_key_set` flag) |
 | Rate limiting | rack-attack: 30 AI requests per IP per 5 minutes, JSON 429 responder |
 | Webhooks | HMAC signature header (`X-Webhook-Signature`), retries with exponential backoff (3 attempts), delivery log with response status |

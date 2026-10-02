@@ -167,6 +167,10 @@
 ### Roles & Permissions
 - Owner, admin, member, viewer
 - Pundit policies on every action
+- At most 2 owners per workspace (`OWNER_LIMIT` env overrides); the Team
+  table disables the owner option once the cap is reached
+- Only owners may grant or revoke the admin role, and only owners may invite
+  someone as admin — admins manage member/viewer only
 - Workspace-wide settings (AI provider, email, plugins, webhooks, pipelines,
   API tokens, import/export) are owner/admin only; the API returns 403 and the
   UI shows a locked card plus a notice if opened directly by URL

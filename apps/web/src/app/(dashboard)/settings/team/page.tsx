@@ -18,6 +18,7 @@ import { Check, ChevronLeft, Copy, Trash2 } from "lucide-react";
 
 const ROLES = ["owner", "admin", "member", "viewer"];
 const INVITE_ROLES = ["admin", "member", "viewer"];
+const OWNER_LIMIT = 2;
 
 export default function TeamSettingsPage() {
   const { data: memberships = [], isLoading } = useMemberships();
@@ -36,7 +37,12 @@ export default function TeamSettingsPage() {
   const ownMembership = memberships.find((m) => m.user?.id === (currentUser as { id?: string } | null)?.id);
   const isManager = ownMembership?.role === "owner" || ownMembership?.role === "admin";
   const isOwner = ownMembership?.role === "owner";
-  const roleOptions = isOwner ? ROLES : ROLES.filter((r) => r !== "owner");
+  // Owners pick every role; admins can only hand out member/viewer, and the
+  // owner option closes once the workspace cap is reached.
+  const ownerCount = memberships.filter((m) => m.role === "owner").length;
+  const ownerLimitReached = ownerCount >= OWNER_LIMIT;
+  const roleOptions = isOwner ? ROLES : ROLES.filter((r) => r === "member" || r === "viewer");
+  const inviteRoleOptions = isOwner ? INVITE_ROLES : INVITE_ROLES.filter((r) => r !== "admin");
   const { data: invitations = [] } = useInvitations(isManager);
 
   const revokeInvite = async (id: string) => {
@@ -120,7 +126,7 @@ export default function TeamSettingsPage() {
                     </td>
                     <td className="table-cell text-[var(--text-secondary)] text-sm">{m.user?.email}</td>
                     <td className="table-cell">
-                      {isManager ? (
+                      {isManager && (isOwner || m.role !== "admin") ? (
                         <select
                           value={m.role}
                           onChange={async (e) => {
@@ -135,8 +141,15 @@ export default function TeamSettingsPage() {
                           aria-label={`Role for ${m.user?.email}`}
                         >
                           {roleOptions.map((r) => (
-                            <option key={r} value={r}>
+                            <option
+                              key={r}
+                              value={r}
+                              disabled={r === "owner" && ownerLimitReached && m.role !== "owner"}
+                            >
                               {r}
+                              {r === "owner" && ownerLimitReached && m.role !== "owner"
+                                ? ` (limit ${OWNER_LIMIT} reached)`
+                                : ""}
                             </option>
                           ))}
                         </select>
@@ -237,7 +250,7 @@ export default function TeamSettingsPage() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
               >
-                {INVITE_ROLES.map((r) => (
+                {inviteRoleOptions.map((r) => (
                   <option key={r} value={r}>
                     {r}
                   </option>

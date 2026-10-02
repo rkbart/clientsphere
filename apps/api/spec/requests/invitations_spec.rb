@@ -54,8 +54,34 @@ RSpec.describe "Invitations", type: :request do
       expect(JSON.parse(response.body)["token"]).to be_present
     end
 
-    it "reissues when a pending invitation already exists" do
+    it "forbids an admin from inviting another admin" do
+      admin_user = User.create!(name: "Adm", email: "adm-inv@example.com", password: "password123")
+      Membership.create!(account: account, user: admin_user, role: :admin)
+      admin_user.update!(current_account: account)
+      admin_headers = { "Authorization" => "Bearer #{Session.create!(user: admin_user).token}" }
+
       post "/api/v1/invitations",
+           params: { invitation: { email: "risky@example.com", role: "admin" } },
+           headers: admin_headers, as: :json
+
+      expect(response).to have_http_status(:forbidden)
+      expect(Invitation.find_by(email: "risky@example.com")).to be_nil
+    end
+
+    it "lets an admin invite a member" do
+      admin_user = User.create!(name: "Adm2", email: "adm2-inv@example.com", password: "password123")
+      Membership.create!(account: account, user: admin_user, role: :admin)
+      admin_user.update!(current_account: account)
+      admin_headers = { "Authorization" => "Bearer #{Session.create!(user: admin_user).token}" }
+
+      post "/api/v1/invitations",
+           params: { invitation: { email: "fine@example.com", role: "member" } },
+           headers: admin_headers, as: :json
+
+      expect(response).to have_http_status(:created)
+    end
+
+    it "reissues when a pending invitation already exists" do      post "/api/v1/invitations",
            params: { invitation: { email: "again@example.com", role: "member" } },
            headers: headers, as: :json
       first = JSON.parse(response.body)

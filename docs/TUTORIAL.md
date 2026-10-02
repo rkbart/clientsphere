@@ -402,6 +402,14 @@ and has no remove button — you can't remove yourself, and an account must alwa
 keep at least one owner. To hand over ownership, promote someone else to owner
 first.
 
+Two rules keep responsibility clear:
+
+- **At most 2 owners.** Once both slots are taken, the owner option greys out
+  for everyone else. Demote an owner to free a slot.
+- **Owners alone manage admins.** Only an owner can set the admin role — for
+  existing members and for new invites. An admin can promote people to member or
+  viewer, but not to admin, and can't change anyone's admin role either way.
+
 ### First login for new members
 
 When someone accepts an invitation they land straight in the CRM with your

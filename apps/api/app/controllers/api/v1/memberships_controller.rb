@@ -9,13 +9,31 @@ class Api::V1::MembershipsController < Api::V1::BaseController
   def update
     membership = Membership.find(params[:id])
     authorize membership
-    unless Membership.roles.key?(params[:role].to_s)
+    new_role = params[:role].to_s
+    unless Membership.roles.key?(new_role)
       return render json: { error: "Invalid role." }, status: :unprocessable_entity
     end
-    if params[:role] == "owner" && Current.user.role_for(Current.account) != "owner"
-      return render json: { error: "Only owners can promote to owner." }, status: :forbidden
+
+    actor_is_owner = Current.user.role_for(Current.account) == "owner"
+
+    if new_role == "owner"
+      unless actor_is_owner
+        return render json: { error: "Only owners can promote to owner." }, status: :forbidden
+      end
+      # Small-workspace guard: ownership stays deliberately scarce so the
+      # "always keep an owner" invariant is easy to reason about.
+      if membership.role != "owner" && owner_count >= owner_limit
+        return render json: { error: "This workspace allows at most #{owner_limit} owners." },
+                      status: :unprocessable_entity
+      end
     end
-    membership.update!(role: params[:role])
+
+    # The admin tier is the owner's to give and take away.
+    if !actor_is_owner && (new_role == "admin" || membership.role == "admin")
+      return render json: { error: "Only owners can manage the admin role." }, status: :forbidden
+    end
+
+    membership.update!(role: new_role)
     render json: membership
   end
 
@@ -30,5 +48,15 @@ class Api::V1::MembershipsController < Api::V1::BaseController
     end
     membership.destroy!
     head :no_content
+  end
+
+  private
+
+  def owner_count
+    @owner_count ||= Current.account.memberships.where(role: :owner).count
+  end
+
+  def owner_limit
+    Integer(ENV.fetch("OWNER_LIMIT", "2"))
   end
 end
