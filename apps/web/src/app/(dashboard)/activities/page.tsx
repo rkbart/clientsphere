@@ -1,11 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { useDeal } from "@/hooks/use-deals";
+import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-filters";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
+import { useBulkCompleteActivities } from "@/hooks/use-activities";
 import type { SortDir } from "@/components/shared/sort-header";
 import Link from "next/link";
 import { Plus, Search, X } from "lucide-react";
@@ -63,15 +65,66 @@ export default function ActivitiesPage() {
 
 function ActivitiesPageInner() {
   const searchParams = useSearchParams();
-  const [q, setQ] = useState("");
-  const [debouncedQ, setDebouncedQ] = useState("");
-  const [kind, setKind] = useState(() => searchParams.get("kind") ?? "");
-  const [status, setStatus] = useState(() => searchParams.get("status") ?? "");
-  const [dealId, setDealId] = useState(() => searchParams.get("deal_id") ?? "");
+  // Deep-link params win; otherwise restore the last-used filter set.
+  const stored = useMemo(() => readRememberedFilters("activities"), []);
+  const [q, setQ] = useState(() => (stored.q as string | undefined) ?? "");
+  const [debouncedQ, setDebouncedQ] = useState(() => (stored.q as string | undefined) ?? "");
+  const [kind, setKind] = useState(() => searchParams.get("kind") ?? (stored.kind as string | undefined) ?? "");
+  const [status, setStatus] = useState(() => searchParams.get("status") ?? (stored.status as string | undefined) ?? "");
+  const [dealId, setDealId] = useState(() => searchParams.get("deal_id") ?? (stored.dealId as string | undefined) ?? "");
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(25);
-  const [sort, setSort] = useState<SortKey>("due_at");
-  const [direction, setDirection] = useState<SortDir>("asc");
+  const [perPage, setPerPage] = useState(() => {
+    const storedPerPage = stored.perPage as number | undefined;
+    return [10, 25, 50].includes(storedPerPage ?? 0) ? (storedPerPage as number) : 25;
+  });
+  const [sort, setSort] = useState<SortKey>(() => ((stored.sort as SortKey | undefined) ?? "due_at"));
+  const [direction, setDirection] = useState<SortDir>(() => ((stored.direction as SortDir | undefined) ?? "asc"));
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [bulkAnnouncement, setBulkAnnouncement] = useState("");
+  const bulkComplete = useBulkCompleteActivities();
+
+  const clearSelection = () => setSelectedIds(new Set());
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  const toggleSelectAll = () =>
+    setSelectedIds((prev) => {
+      const visible = (data?.data ?? []).map((a) => a.id);
+      const allSelected = visible.length > 0 && visible.every((id) => prev.has(id));
+      if (allSelected) return new Set();
+      return new Set([...prev, ...visible]);
+    });
+
+  const runBulkComplete = () => {
+    const ids = [...selectedIds];
+    if (ids.length === 0) return;
+    setBulkError(null);
+    bulkComplete.mutate(ids, {
+      onSuccess: (result) => {
+        const done = result.completed.length;
+        const failed = result.failed.length;
+        setBulkAnnouncement(
+          failed === 0
+            ? `${done} ${done === 1 ? "activity" : "activities"} marked complete.`
+            : `${done} completed, ${failed} failed.`
+        );
+        if (failed === 0) {
+          clearSelection();
+        } else {
+          setSelectedIds(new Set(result.failed.map((f) => f.id)));
+          setBulkError(
+            `${failed} could not be completed — they stay selected for retry.`
+          );
+        }
+      },
+      onError: () => setBulkError("Bulk complete failed — try again."),
+    });
+  };
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -80,6 +133,16 @@ function ActivitiesPageInner() {
     }, 300);
     return () => clearTimeout(t);
   }, [q]);
+
+  // Selection is page-scoped: any filter/page/sort change invalidates it.
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [debouncedQ, kind, status, dealId, page, perPage, sort, direction]);
+
+  // Remember the filter set (never the page number).
+  useEffect(() => {
+    persistFilters("activities", { q, kind, status, dealId, perPage, sort, direction });
+  }, [q, kind, status, dealId, perPage, sort, direction]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["activities", debouncedQ, kind, status, dealId, page, perPage, sort, direction],
@@ -130,6 +193,7 @@ function ActivitiesPageInner() {
     setStatus("");
     setDealId("");
     setPage(1);
+    clearSelection();
   };
 
   const columns: DataTableColumn<Activity>[] = [
@@ -270,10 +334,39 @@ function ActivitiesPageInner() {
         )}
       </div>
 
+      <span aria-live="polite" role="status" className="sr-only">
+        {bulkAnnouncement}
+      </span>
+      {selectedIds.size > 0 && (
+        <div className="flex flex-wrap items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--bg-card)] px-4 py-2.5 text-sm">
+          <span className="tabular-nums font-medium">
+            {selectedIds.size} selected
+          </span>
+          <button
+            type="button"
+            onClick={runBulkComplete}
+            disabled={bulkComplete.isPending}
+            className="btn-primary !px-3 !py-1.5 text-xs"
+          >
+            {bulkComplete.isPending ? "Completing…" : "Mark complete"}
+          </button>
+          <button type="button" onClick={clearSelection} className="btn-ghost !px-3 !py-1.5 text-xs">
+            Clear
+          </button>
+          {bulkError && (
+            <span className="text-xs text-[var(--danger-ink)]">{bulkError}</span>
+          )}
+        </div>
+      )}
+
       <DataTable
         columns={columns}
         rows={data?.data}
         isLoading={isLoading}
+        selectable
+        selectedIds={selectedIds}
+        onToggleSelect={toggleSelect}
+        onToggleSelectAll={toggleSelectAll}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

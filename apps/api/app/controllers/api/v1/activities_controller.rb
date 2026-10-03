@@ -58,6 +58,33 @@ class Api::V1::ActivitiesController < Api::V1::BaseController
     head :no_content
   end
 
+  # Complete up to 100 activities at once. Loops records individually (not
+  # update_all) so completion callbacks and automation triggers keep firing.
+  # Partial success: completed ids come back, failures carry their reason.
+  def bulk_complete
+    authorize Activity, :bulk_complete?
+    ids = Array(params[:activity_ids]).map(&:to_s).reject(&:blank?).uniq.first(100)
+    return render json: { error: "activity_ids is required" }, status: :unprocessable_entity if ids.empty?
+
+    completed = []
+    failed = []
+    policy_scope(Activity).where(id: ids).find_each do |activity|
+      authorize activity, :update?
+      activity.update!(completed_at: Time.current)
+      completed << activity.id
+    rescue Pundit::NotAuthorizedError
+      failed << { id: activity.id, error: "Not authorized" }
+    rescue ActiveRecord::RecordInvalid => e
+      failed << { id: activity.id, error: e.record.errors.full_messages.join(", ") }
+    end
+    # Ids outside the tenant scope resolve to nothing — report them as failed
+    # rather than silently dropping them.
+    found = completed + failed.map { |f| f[:id] }
+    (ids - found).each { |id| failed << { id: id, error: "Not found" } }
+
+    render json: { completed: completed, failed: failed }
+  end
+
   private
 
   def set_activity

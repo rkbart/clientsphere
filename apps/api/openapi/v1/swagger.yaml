@@ -103,6 +103,31 @@ paths:
               additionalProperties: true
       security:
       - bearerAuth: []
+  "/api/v1/activities/bulk_complete":
+    post:
+      summary: Bulk complete activity
+      operationId: bulk_complete_api_v1_activities
+      tags:
+      - activities
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
   "/api/v1/activities/{id}":
     get:
       summary: Show activity

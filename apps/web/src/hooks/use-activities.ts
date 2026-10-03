@@ -83,3 +83,27 @@ export function useDeleteActivity() {
     },
   });
 }
+
+export interface BulkCompleteResult {
+  completed: string[];
+  failed: { id: string; error: string }[];
+}
+
+export function useBulkCompleteActivities() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (activityIds: string[]) => {
+      const { data, error } = await apiClient.POST("/activities/bulk_complete", {
+        body: { activity_ids: activityIds } as never,
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as unknown as BulkCompleteResult;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+      queryClient.invalidateQueries({ queryKey: ["due-tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["deals"] });
+    },
+  });
+}

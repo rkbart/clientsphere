@@ -11,6 +11,10 @@ export interface paths {
     /** Create activity */
     post: operations["create_api_v1_activities"];
   };
+  "/activities/bulk_complete": {
+    /** Bulk complete activity */
+    post: operations["bulk_complete_api_v1_activities"];
+  };
   "/activities/{id}": {
     /** Show activity */
     get: operations["show_api_v1_activities"];
@@ -540,6 +544,28 @@ export interface operations {
     responses: {
       /** @description Success */
       201: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Bulk complete activity */
+  bulk_complete_api_v1_activities: {
+    requestBody?: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Success */
+      200: {
         content: {
           "application/json": Record<string, never>;
         };

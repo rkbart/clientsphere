@@ -26,6 +26,10 @@ export function DataTable<T extends { id: string }>({
   rows,
   isLoading,
   onRowClick,
+  selectable = false,
+  selectedIds,
+  onToggleSelect,
+  onToggleSelectAll,
   sortKey,
   direction,
   onSort,
@@ -42,6 +46,10 @@ export function DataTable<T extends { id: string }>({
   rows?: T[];
   isLoading: boolean;
   onRowClick?: (row: T) => void;
+  selectable?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
+  onToggleSelectAll?: () => void;
   sortKey?: string;
   direction?: SortDir;
   onSort?: (key: string) => void;
@@ -57,6 +65,10 @@ export function DataTable<T extends { id: string }>({
   const showSkeleton = isLoading && columns.length > 0;
   const skeletonWidth = ["w-32", "w-40", "w-24", "w-16", "w-20", "w-28"];
   const isEmpty = !isLoading && (!rows || rows.length === 0);
+  const allSelected =
+    selectable && !!rows?.length && rows.every((r) => selectedIds?.has(r.id));
+  const someSelected =
+    selectable && !allSelected && !!rows?.some((r) => selectedIds?.has(r.id));
 
   return (
     <div className="card overflow-hidden">
@@ -64,6 +76,20 @@ export function DataTable<T extends { id: string }>({
         <table className={`w-full ${minWidth}`}>
           <thead>
             <tr className="border-b border-[var(--border)]">
+              {selectable && (
+                <th className="table-cell w-10" aria-label="Select all rows">
+                  <input
+                    type="checkbox"
+                    checked={!!allSelected}
+                    ref={(el) => {
+                      if (el) el.indeterminate = !!someSelected;
+                    }}
+                    onChange={() => onToggleSelectAll?.()}
+                    aria-label="Select all rows on this page"
+                    className="h-4 w-4 accent-[var(--accent)] cursor-pointer"
+                  />
+                </th>
+              )}
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -88,6 +114,11 @@ export function DataTable<T extends { id: string }>({
             {showSkeleton ? (
               Array.from({ length: 5 }).map((_, i) => (
                 <tr key={i} className="table-row">
+                  {selectable && (
+                    <td className="table-cell w-10">
+                      <div className="h-4 w-4 bg-[var(--bg-elevated)] rounded animate-pulse" />
+                    </td>
+                  )}
                   {columns.map((col, j) => (
                     <td key={col.key} className="table-cell">
                       <div className={`h-4 bg-[var(--bg-elevated)] rounded ${skeletonWidth[j % skeletonWidth.length]} animate-pulse`} />
@@ -119,8 +150,21 @@ export function DataTable<T extends { id: string }>({
                       : undefined
                   }
                   tabIndex={onRowClick ? 0 : undefined}
-                  className={`table-row ${onRowClick ? "cursor-pointer" : ""}`}
+                  className={`table-row ${onRowClick ? "cursor-pointer" : ""} ${
+                    selectedIds?.has(row.id) ? "bg-[var(--accent)]/[0.04]" : ""
+                  }`}
                 >
+                  {selectable && (
+                    <td className="table-cell w-10">
+                      <input
+                        type="checkbox"
+                        checked={!!selectedIds?.has(row.id)}
+                        onChange={() => onToggleSelect?.(row.id)}
+                        aria-label="Select this row"
+                        className="h-4 w-4 accent-[var(--accent)] cursor-pointer"
+                      />
+                    </td>
+                  )}
                   {columns.map((col) => (
                     <td
                       key={col.key}

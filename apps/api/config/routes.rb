@@ -73,7 +73,11 @@ Rails.application.routes.draw do
         resources :stages
       end
 
-      resources :activities
+      resources :activities do
+        collection do
+          post :bulk_complete
+        end
+      end
       resources :notes
       resources :emails do
         collection do

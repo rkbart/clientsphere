@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useContacts, useCreateContact } from "@/hooks/use-contacts";
+import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-filters";
 import { useTags } from "@/hooks/use-tags";
 import { TagsCell } from "@/components/shared/tags-cell";
 import type { Tag } from "@/hooks/use-tags";
@@ -47,14 +48,18 @@ interface ContactsResponse {
 }
 
 export default function ContactsPage() {
-  const [q, setQ] = useState("");
-  const [debouncedQ, setDebouncedQ] = useState("");
-  const [tagId, setTagId] = useState("");
-  const [status, setStatus] = useState("");
+  const stored = useMemo(() => readRememberedFilters("contacts"), []);
+  const [q, setQ] = useState(() => (stored.q as string | undefined) ?? "");
+  const [debouncedQ, setDebouncedQ] = useState(() => (stored.q as string | undefined) ?? "");
+  const [tagId, setTagId] = useState(() => (stored.tagId as string | undefined) ?? "");
+  const [status, setStatus] = useState(() => (stored.status as string | undefined) ?? "");
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(25);
-  const [sort, setSort] = useState<SortKey>("first_name");
-  const [direction, setDirection] = useState<SortDir>("asc");
+  const [perPage, setPerPage] = useState(() => {
+    const n = stored.perPage as number | undefined;
+    return [10, 25, 50].includes(n ?? 0) ? (n as number) : 25;
+  });
+  const [sort, setSort] = useState<SortKey>(() => ((stored.sort as SortKey | undefined) ?? "first_name"));
+  const [direction, setDirection] = useState<SortDir>(() => ((stored.direction as SortDir | undefined) ?? "asc"));
   const [addOpen, setAddOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -65,6 +70,10 @@ export default function ContactsPage() {
     }, 300);
     return () => clearTimeout(t);
   }, [q]);
+
+  useEffect(() => {
+    persistFilters("contacts", { q, tagId, status, perPage, sort, direction });
+  }, [q, tagId, status, perPage, sort, direction]);
 
   const { data, isLoading } = useContacts({
     q: debouncedQ || undefined,

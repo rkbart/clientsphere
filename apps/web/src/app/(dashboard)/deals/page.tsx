@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useDeals, useCreateDeal } from "@/hooks/use-deals";
+import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-filters";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useTags } from "@/hooks/use-tags";
 import type { Tag } from "@/hooks/use-tags";
@@ -42,14 +43,18 @@ function money(value: number | string | null | undefined, currency = "USD") {
 }
 
 export default function DealsPage() {
-  const [q, setQ] = useState("");
-  const [debouncedQ, setDebouncedQ] = useState("");
-  const [stageId, setStageId] = useState("");
-  const [tagId, setTagId] = useState("");
+  const stored = useMemo(() => readRememberedFilters("deals"), []);
+  const [q, setQ] = useState(() => (stored.q as string | undefined) ?? "");
+  const [debouncedQ, setDebouncedQ] = useState(() => (stored.q as string | undefined) ?? "");
+  const [stageId, setStageId] = useState(() => (stored.stageId as string | undefined) ?? "");
+  const [tagId, setTagId] = useState(() => (stored.tagId as string | undefined) ?? "");
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(25);
-  const [sort, setSort] = useState<SortKey>("");
-  const [direction, setDirection] = useState<SortDir>("asc");
+  const [perPage, setPerPage] = useState(() => {
+    const n = stored.perPage as number | undefined;
+    return [10, 25, 50].includes(n ?? 0) ? (n as number) : 25;
+  });
+  const [sort, setSort] = useState<SortKey>(() => ((stored.sort as SortKey | undefined) ?? ""));
+  const [direction, setDirection] = useState<SortDir>(() => ((stored.direction as SortDir | undefined) ?? "asc"));
   const [addOpen, setAddOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -60,6 +65,10 @@ export default function DealsPage() {
     }, 300);
     return () => clearTimeout(t);
   }, [q]);
+
+  useEffect(() => {
+    persistFilters("deals", { q, stageId, tagId, perPage, sort, direction });
+  }, [q, stageId, tagId, perPage, sort, direction]);
 
   const { data, isLoading } = useDeals({
     q: debouncedQ || undefined,

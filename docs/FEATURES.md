@@ -36,9 +36,11 @@
 - List with search, stage/tag filters, sortable columns, pagination
 - Add/edit via modal dialogs (server 422 displayed inline)
 - Detail page: details card (amount, close date, probability, source,
-  linked company/contact), status card, collapsible overdue-tasks card
-  (collapsed by default), rule-based summary, email composer, tags,
-  custom fields, notes
+  linked company/contact), status card, overdue-tasks card (always
+  visible, with an all-clear empty state), rule-based summary, email
+  composer, tags, custom fields, notes
+- Overdue-tasks card opens itself when tasks exist, completes inline
+  with 8-second undo, and expands in place past 10 rows
 
 ### Activities
 - Activity records: calls, meetings, tasks, emails
@@ -49,7 +51,9 @@
 - Detail page with complete/reopen toggle, edit modal, delete,
   linked records
 - List with search, kind/status/deal filters (incl. overdue), sortable
-  columns, pagination
+  columns, pagination; filter sets are remembered per page
+- Bulk select with select-all; Mark complete finishes up to 100 at once
+  (per-record authorization, partial success reported)
 
 ### Notes
 - Polymorphic notes on any record
@@ -112,9 +116,9 @@
 ### Deal summary (rule-based, no AI)
 - Stage, value (+ probability-weighted), close date, last touch
   (recency only, e.g. "2 days ago"); `GET /deals/:id/summary`
-- Overdue tasks live in their own collapsible card above the summary
-  (collapsed by default), each linking to its activity; `GET /activities`
-  supports `?deal_id=&kind=task&overdue=true`
+- Overdue tasks live in their own card above the summary (always
+  visible, all-clear empty state when none), each completable inline
+  with undo; `GET /activities` supports `?deal_id=&kind=task&overdue=true`
 - Stale flag (no touch in 14+ days)
 
 ### Local Mode

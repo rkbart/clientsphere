@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useCompanies, useCreateCompany } from "@/hooks/use-companies";
+import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-filters";
 import type { Tag } from "@/hooks/use-tags";
 import { TagsCell } from "@/components/shared/tags-cell";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
@@ -29,12 +30,16 @@ interface CompaniesResponse {
 }
 
 export default function CompaniesPage() {
-  const [q, setQ] = useState("");
-  const [debouncedQ, setDebouncedQ] = useState("");
+  const stored = useMemo(() => readRememberedFilters("companies"), []);
+  const [q, setQ] = useState(() => (stored.q as string | undefined) ?? "");
+  const [debouncedQ, setDebouncedQ] = useState(() => (stored.q as string | undefined) ?? "");
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(25);
-  const [sort, setSort] = useState<SortKey>("name");
-  const [direction, setDirection] = useState<SortDir>("asc");
+  const [perPage, setPerPage] = useState(() => {
+    const n = stored.perPage as number | undefined;
+    return [10, 25, 50].includes(n ?? 0) ? (n as number) : 25;
+  });
+  const [sort, setSort] = useState<SortKey>(() => ((stored.sort as SortKey | undefined) ?? "name"));
+  const [direction, setDirection] = useState<SortDir>(() => ((stored.direction as SortDir | undefined) ?? "asc"));
   const [addOpen, setAddOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
@@ -45,6 +50,10 @@ export default function CompaniesPage() {
     }, 300);
     return () => clearTimeout(t);
   }, [q]);
+
+  useEffect(() => {
+    persistFilters("companies", { q, perPage, sort, direction });
+  }, [q, perPage, sort, direction]);
 
   const { data, isLoading } = useCompanies({
     q: debouncedQ || undefined,

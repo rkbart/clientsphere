@@ -40,7 +40,9 @@ activity in 10 days is your first call, not your tenth email. The widgets:
 - **Deals by source** — pie chart showing where deals come from
 - All three charts sit side by side in one row on desktop, stacking on smaller
   screens
-- **Tasks due** — open activities sorted by due date; click through to detail
+- **Tasks due** — open activities sorted by due date, each with its deal
+  named; tick the circle to complete inline (Undo appears for 8 seconds),
+  click through to detail
 - **Needs attention** — top of the page, impossible to miss: the open deal
   scoring highest on overdue close date, staleness, and overdue tasks,
   with the reasons listed ("Close date passed 3 days ago", "2 overdue
@@ -168,8 +170,11 @@ all read this timeline.
 Go to **Activities** to see all calls, meetings, tasks, and emails:
 - Search subject and description
 - Filter by kind (call, meeting, task, email, other)
-- Filter by status (open, completed, overdue)
+- Filter by status (open, completed, overdue), and scope to one deal
+- Your filter set is remembered when you come back
 - Sort by subject, type, or due date; paginated
+- Tick checkboxes to select rows, then **Mark complete** to finish them
+  all at once
 - Click a row to open its detail page: complete/reopen, edit, delete,
   linked contact/company/deal
 

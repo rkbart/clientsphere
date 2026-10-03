@@ -15,6 +15,10 @@ class ActivityPolicy < ApplicationPolicy
     member_or_above?
   end
 
+  def bulk_complete?
+    member_or_above?
+  end
+
   def destroy?
     owner_or_admin?
   end

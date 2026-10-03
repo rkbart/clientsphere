@@ -114,8 +114,9 @@ DELETE /pipelines/:pipeline_id/stages/:id
 ## Activities
 
 ```
-GET    /activities          # List (q, kind, deal_id, assignee_id, completed, overdue, due_from, due_to, sort, direction, page, per_page)
+GET    /activities          # List (q, kind, deal_id, assignee_id, completed, overdue, due_from, due_to, sort, direction, page, per_page; each row includes deal {id, title})
 POST   /activities
+POST   /activities/bulk_complete  # Body: activity_ids[] (max 100); per-record auth, partial success {completed, failed}
 GET    /activities/:id
 PATCH  /activities/:id
 DELETE /activities/:id

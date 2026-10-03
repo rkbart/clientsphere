@@ -27,6 +27,7 @@ function daysOverdue(dueAt: string): number {
 
 export function DealOverdueTasks({ dealId }: { dealId: string }) {
   const [collapsed, setCollapsed] = useState<boolean | null>(null);
+  const [showAll, setShowAll] = useState(false);
   const { complete, undo, completingId, recentlyCompleted, failed, dismissFailure, announcement, isPending } =
     useCompleteTaskWithUndo([
       ["activities"],
@@ -40,7 +41,7 @@ export function DealOverdueTasks({ dealId }: { dealId: string }) {
     overdue: "true",
     sort: "due_at",
     direction: "asc",
-    per_page: 10,
+    per_page: showAll ? 100 : 10,
   });
 
   const resp = data as unknown as ActivitiesResponse | undefined;
@@ -200,6 +201,15 @@ export function DealOverdueTasks({ dealId }: { dealId: string }) {
                 );
               })}
             </ul>
+          )}
+          {total > 10 && (
+            <button
+              type="button"
+              onClick={() => setShowAll((s) => !s)}
+              className="mt-3 text-sm font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors"
+            >
+              {showAll ? "Show less" : `Show all ${total}`}
+            </button>
           )}
           </>
           )}
