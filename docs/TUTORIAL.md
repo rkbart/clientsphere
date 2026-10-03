@@ -9,6 +9,8 @@ A complete guide to using your CRM — from first login to advanced automation.
 1. Go to `/signup`
 2. Enter your name, email, password (min 8 characters), and workspace name
 3. You're logged in immediately — your workspace is ready
+4. If your workspace has Google OAuth configured, you can also use
+   **Continue with Google** on the signup and login pages
 
 ### Explore the demo data
 
@@ -19,11 +21,12 @@ Email: sarah@beanandbrew.com
 Password: password123
 ```
 
-The demo workspace (Bean & Brew Coffee Supplies) includes:
-- 11 contacts across 8 companies
+The demo workspace (Bean & Brew) includes:
+- 12 contacts across 8 companies
 - 9 deals in various stages (including won/lost)
-- Tags, notes, activities, and email history
-- A default sales pipeline with 6 stages
+- 6 tags, plus notes, activities (calls, meetings, tasks, emails), and email history
+- A default "Sales Pipeline" with 6 stages
+- Demo custom fields: a `Plan` select on contacts and a `Renewal date` on companies
 
 ---
 
@@ -35,11 +38,13 @@ day here: clear what's overdue in **Tasks due**, then work the deal in
 activity in 10 days is your first call, not your tenth email. The widgets:
 
 - **Stats** — total contacts, deals, and activities
-- **Pipeline by stage** — visual bar chart of deal value per stage
+- **Pipeline by stage** — visual bar chart of deal value per stage, computed
+  for your default pipeline (or the first pipeline if none is default)
 - **Outcomes & win rate** — donut chart of open/won/lost deals
 - **Deals by source** — pie chart showing where deals come from
 - All three charts sit side by side in one row on desktop, stacking on smaller
-  screens
+  screens. They are rendered by the same `DealCharts` component and reflect
+  the deals loaded for the default pipeline (up to 100).
 - **Tasks due** — open activities sorted by due date, each with its deal
   named; tick the circle to complete inline (Undo appears for 8 seconds),
   click through to detail
@@ -64,23 +69,34 @@ reacts to it.
 
 - **Search** — debounced search across name and email
 - **Filter by status** — lead, customer, or churned
-- **Filter by tag** — click a tag to filter
+- **Filter by tag** — pick a tag from the dropdown
+- **Clear filters** button resets search/tag/status at once
+- Sortable columns (name, email, company), page-size picker (10/25/50), and
+  pagination; your filter set is remembered when you come back
 
 ### Detail page
 
 Click any contact to see:
-- Contact info (email, phone, status, lead score)
-- Lead score reasons (click **Re-score** to recalculate)
-- Custom fields (if defined)
-- Tags — add/remove with the tag chips
+- Contact info (email, phone, status, company, job title, city, added-on date,
+  social links)
+- Tags — add/remove with the tag editor
+- Custom fields (if defined), e.g. the demo `Plan` select
 - Notes — add notes with ⌘/Ctrl + Enter to save
+
+> Lead scoring (`POST /api/v1/contacts/:id/score`, with `lead_score` and
+> score reasons in the API) is API-only right now: the contact detail page has
+> no score display and no **Re-score** button, even though the `useScoreContact`
+> hook exists in the frontend code.
 
 ### Create / edit
 
-Click **Add Contact** or the **Edit** button on any detail page. The form includes:
-- Standard fields (name, email, phone, status, company)
+Click **Add Contact** (opens a modal) or the **Edit** button on any detail page.
+The form includes:
+- Standard fields (name, email, phone, status, company, job title, city,
+  social links)
 - Custom fields (automatically appear if defined)
-- Validation errors show inline
+- Validation errors show inline. Contacts support soft delete (discard) plus a
+  hard **Delete** with confirmation on the detail page.
 
 ---
 
@@ -110,27 +126,29 @@ into **Won** (thank-you email and `customer` tag can fire automatically) or
 Go to **Deals** for the table view:
 - Search by title
 - Filter by stage (e.g. everything sitting in Negotiation) and by tag
-- Sort by title, amount, or close date; paginated
+- Sort by title, amount, or close date (no default sort); paginated with a
+  page-size picker; your filter set is remembered when you come back
 - Click a row to open the detail page
 
 ### Pipeline board
 
 Go to **Pipeline** to see a Kanban board:
-- Switch pipelines with the dropdown (e.g. Sales vs Catering & Events)
+- Switch pipelines with the dropdown (defaults to your default pipeline)
 - Drag cards between stages (mouse or touch)
 - Click a card to open the deal
 - Visual stage colors and probability indicators
 - **Show closed** toggle — Won/Lost columns hide by default so finished
-  deals don't clutter the board (preference is remembered)
+  deals don't clutter the board (preference is remembered in localStorage
+  under `pipeline-hide-closed`)
 
 ### Manage pipelines
 
 Go to **Settings → Pipelines**:
-- Create pipelines (Sales, Catering & Events, Partnerships…) — each starts
-  with the default 6 stages
+- Create pipelines — each starts with the default 6 stages
+  (New 10%, Contacted 25%, Proposal 50%, Negotiation 75%, Won 100%, Lost 0%)
 - Rename, set default, delete (pipelines holding deals can't be deleted)
 - Edit stages: rename, change kind (open/won/lost), probability, color;
-  add new ones (appended at the end)
+  add new ones (appended at the end, position = max + 1)
 
 ### Deal detail
 
@@ -139,8 +157,11 @@ Go to **Settings → Pipelines**:
 - Pipeline and stage
 - Linked contact and company
 - Expected close date and probability
+- Overdue-tasks card (always visible, with an all-clear empty state; tasks
+  complete inline with 8-second undo and the card expands in place past 10 rows)
 - Custom fields, notes, tags
-- Compose email from templates, rule-based deal summary
+- Compose email from templates (only when the deal has a linked contact),
+  rule-based deal summary (`GET /api/v1/deals/:id/summary`)
 
 ### Create a deal
 
@@ -222,23 +243,29 @@ On any contact, company, or deal detail page:
 
 ### What you can do
 
-- **Compose Email** — on the deal page, pick a template, edit, and send
+- **Compose Email** — on the deal page (shown whenever the deal has a linked
+  contact), pick a template, edit, and send
 - **Outbox** — every outbound email with status filter; edit drafts inline,
-  retry failures (retry saves your edits first)
+  retry failures (retry saves your edits first). Drafts pile up here
+  automatically when no provider is configured.
 - **Delivery tracking** — Settings → Email holds the Resend key and the
   webhook URL to paste into Resend; Outbox rows flip sent → delivered →
   opened as events arrive (tunnel needed for local testing)
-- **Re-score** — recalculate rule-based lead scores
 - **Deal Summary** — rule-based status (stage, value, close date, activity, staleness)
+
+> There is no **Re-score** button in the contact UI — lead scoring is API-only
+> (see Contacts above).
 
 ---
 
 ## Custom Fields
 
-Go to **Settings → Custom Fields** to define extra fields per record type:
+Go to **Settings → Custom Fields** to define extra fields per record type.
+Only Contact, Company, and Deal are supported entity types:
 
 1. Select entity type (Contact, Company, or Deal)
-2. Click **New Field**
+2. Click **New Field** (owner/admin only — members and viewers see the list
+   read-only)
 3. Choose label, key (snake_case), and type:
    - Text, text area, number, currency, percentage
    - Boolean (checkbox), date, datetime
@@ -254,12 +281,22 @@ Custom fields automatically appear on create/edit forms and detail pages. List e
 
 ## Custom Objects
 
-Custom objects are defined via the API (`POST /api/v1/custom_objects`) —
-there is no settings UI for them. Each object type has a name, an icon
-(emoji) and fields (same types as custom fields).
+Custom objects live at **Settings → Custom Objects** (`/settings/custom-objects`),
+which is reachable by direct URL — it currently has no card on the Settings
+overview page. Owners and admins get full create/edit/delete controls; members
+and viewers can read definitions but see no add/edit/delete buttons.
+
+1. Click **New Object**, give it a name and an icon (emoji, defaults to 📦)
+2. Add fields: each field has a name, a type
+   (`text`, `number`, `boolean`, `date`, `select`), and an optional
+   **required** flag. Blank-named fields are ignored on save.
+3. Records are stored as JSON with full CRUD API support
+   (`/api/v1/custom_object_definitions` and nested `/records`).
 
 Custom objects let you track anything — projects, invoices, tickets, etc.
-Records are stored as JSON with full CRUD API support.
+There is one API detail worth knowing: the tutorial previously pointed at
+`POST /api/v1/custom_objects`, but the real route is
+`POST /api/v1/custom_object_definitions`.
 
 ---
 
@@ -320,20 +357,28 @@ e.g. a 3-touch onboarding series (day 0 welcome, day 3 tips, day 7 check-in)
 for every new customer, instead of remembering to follow up by hand. For a
 single send, use **Compose Email** on the deal page instead.
 
-Go to **Sequences** to create multi-step email drips:
+Go to **Sequences** (`/sequences` — reachable by direct URL or the topbar
+title; there is currently no sidebar link, so bookmark it or type the URL) to
+create multi-step email drips:
 
-1. Click **New Sequence**
-2. Add steps with:
+1. Click **New Sequence** — give it a name, then add steps. Each step has its
+   own edit/delete controls:
    - Subject and body (supports `{{first_name}}`, `{{last_name}}`, `{{email}}`, `{{company}}`)
-   - Delay before sending (days)
-3. Enroll contacts manually or via automation
-4. Each email includes an unsubscribe link (signed, per-enrollment)
+   - Delay before sending (days; `0` sends immediately)
+2. The detail page has an **Active/Paused** toggle (a checkbox bound to
+   `is_active`).
+3. Enroll contacts from the detail page with the **Contact to enroll** picker
+   (you must add at least one step first). Enrollments are listed with a
+   status badge (`active`, `paused`, `completed`, `unsubscribed`); active ones
+   can be unsubscribed inline.
+4. Each email includes an unsubscribe link (signed, per-enrollment). There is
+   also a public unsubscribe page at `/unsubscribe/[token]` that needs no login.
 
 ---
 
 ## Outbox
 
-Go to **Outbox** (sidebar) to see every outbound email in one place:
+Go to **Outbox** (sidebar, `/emails`) to see every outbound email in one place:
 - Filter by status: **draft** (waiting on a provider), **sent**, **delivered**,
   **opened**, **failed**
 - Click a row to read it; drafts open editable — fix the address, subject,
@@ -351,8 +396,9 @@ Go to **Outbox** (sidebar) to see every outbound email in one place:
 Go to **Settings → Webhooks**:
 1. Click **New Webhook**
 2. Enter a URL
-3. Select events to subscribe to (or leave empty for all)
-4. Save
+3. Enter events as a comma-separated list (defaults to `automation.executed`;
+   the form requires at least one event)
+4. Save (the **Active** checkbox is on by default)
 
 Deliveries are signed with HMAC-SHA256 and logged. Failed deliveries retry 3 times with exponential backoff.
 
@@ -361,8 +407,9 @@ Deliveries are signed with HMAC-SHA256 and logged. Failed deliveries retry 3 tim
 Go to **Settings → Plugins**:
 1. Click **New Plugin**
 2. Enter a name and webhook URL
-3. Select trigger events
-4. Save
+3. Tick trigger events
+4. Save (the **Active** checkbox is on by default; the list shows an
+   Active/Inactive badge per plugin)
 
 Plugins fire on matching events and deliver JSON payloads to your webhook URL.
 
@@ -375,7 +422,8 @@ Go to **Settings → Team**:
 ### Invite members
 
 1. Enter their email
-2. Choose a role (admin, member, viewer)
+2. Choose a role (owners see admin/member/viewer; admins can only invite
+   member/viewer — only an owner can invite someone as admin)
 3. Click **Send invite**
 4. They receive an email with an accept link (or copy the link directly)
 
@@ -431,15 +479,21 @@ Go to **Settings → Import/Export**:
 
 ### Import contacts
 
-1. Upload a CSV file
-2. Map columns to fields (auto-matches common headers like "First Name")
-3. Choose **Skip** or **Update** for existing emails
+1. Upload a CSV file (a 5-row preview is shown before you commit)
+2. Map columns to fields (auto-matches common headers like "First Name";
+   only `first_name`, `last_name`, `email`, `phone` are supported —
+   unknown headers default to unmapped)
+3. Choose **Skip** or **Update** for existing emails (blanks never overwrite
+   on update)
 4. Click **Import contacts**
 5. Review the per-row error report
 
 ### Export data
 
 Click **Export Contacts**, **Export Companies**, or **Export Deals** to download CSV files.
+
+> Import/Export is owner/admin only — members and viewers see a locked notice
+> instead of the form.
 
 ---
 
@@ -451,9 +505,14 @@ Go to **Settings → API Tokens**:
 1. Click **New Token**
 2. Name it and optionally set an expiry
 3. Copy the token (shown once)
-4. Use as `Authorization: Bearer csk_…`
+4. Use as `Authorization: Bearer csk_…` against the versioned API
+   (e.g. `GET /api/v1/contacts`)
 
 ### GraphQL
+
+> The `/graphql` endpoint exists in the Rails routes, but there is no tutorial
+> coverage for it and no corresponding frontend UI — treat it as out of scope
+> until it is documented in [API.md](API.md).
 
 Send POST requests to `/graphql` with a JSON body:
 
@@ -481,7 +540,9 @@ Click the sun/moon icon in the top bar. Follows your OS setting by default; your
 
 ### Profile
 
-Go to **Settings → Profile** to update your name and email.
+Go to **Settings → Profile** to view your account info (name, email,
+workspace, member-since date with avatar). The page is currently read-only —
+there is no edit form, despite what older versions of this tutorial said.
 
 ### Who can change settings
 
@@ -495,6 +556,15 @@ Personal settings (**Profile**), viewing the **Team** list, and viewing
 custom fields and custom objects but get no add/edit/delete controls there —
 those definitions are owner/admin only, matching what the API allows. Changing
 roles, inviting, and removing members remain owner/admin actions.
+
+> **Custom Objects** (`/settings/custom-objects`) works the same way — readable
+> by everyone, editable by owners/admins only — but it has no card on the
+> Settings overview, so navigate to the URL directly.
+
+### About
+
+The sidebar also links to **About** (`/about`): stack credits, the GitHub repo
+link, and a Buy-Me-a-Coffee button. Read-only, same for every role.
 
 ---
 
