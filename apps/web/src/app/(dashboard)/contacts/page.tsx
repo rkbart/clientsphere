@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useContacts, useCreateContact } from "@/hooks/use-contacts";
 import { useTags } from "@/hooks/use-tags";
 import { TagsCell } from "@/components/shared/tags-cell";
@@ -47,7 +47,6 @@ interface ContactsResponse {
 }
 
 export default function ContactsPage() {
-  const router = useRouter();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [tagId, setTagId] = useState("");
@@ -102,9 +101,12 @@ export default function ContactsPage() {
       sortable: true,
       minWidth: "w-[240px]",
       render: (c) => (
-        <span className="font-medium text-[var(--text-primary)]">
+        <Link
+          href={`/contacts/${c.id}`}
+          className="font-medium text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+        >
           {c.first_name} {c.last_name}
-        </span>
+        </Link>
       ),
     },
     {
@@ -216,7 +218,6 @@ export default function ContactsPage() {
         columns={columns}
         rows={typed?.data}
         isLoading={isLoading}
-        onRowClick={(c) => router.push(`/contacts/${c.id}`)}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

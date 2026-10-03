@@ -15,7 +15,6 @@ import {
   Mail,
   Settings,
   Info,
-  ChevronRight,
   X,
   Zap,
 } from "lucide-react";
@@ -69,10 +68,10 @@ export function Sidebar({
           onClick={onClose}
           className="flex items-center gap-2.5"
         >
-          <div className="w-7 h-7 rounded-[var(--radius-md)] bg-white/10 flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">C</span>
+          <div className="w-7 h-7 rounded-[var(--radius-md)] bg-[var(--accent-on-dark)] flex items-center justify-center">
+            <span className="font-display italic text-white text-base leading-none pb-0.5">C</span>
           </div>
-          <span className="text-white font-semibold text-sm tracking-tight">
+          <span className="font-display text-white text-[17px] tracking-tight">
             ClientSphere
           </span>
         </Link>
@@ -96,12 +95,18 @@ export function Sidebar({
               href={item.href}
               onClick={onClose}
               aria-current={isActive ? "page" : undefined}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm group ${
+              className={`relative flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm group ${
                 isActive
-                  ? "bg-[var(--bg-sidebar-active)] text-white"
+                  ? "bg-white/[0.07] text-white"
                   : "text-[var(--text-sidebar)] hover:bg-[var(--bg-sidebar-hover)] hover:text-white"
               }`}
             >
+              {isActive && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-[var(--accent-on-dark)]"
+                />
+              )}
               <Icon
                 className={`h-4 w-4 ${
                   isActive
@@ -110,9 +115,6 @@ export function Sidebar({
                 }`}
               />
               <span className="flex-1">{item.name}</span>
-              {isActive && (
-                <ChevronRight className="h-3.5 w-3.5 text-white/40" />
-              )}
             </Link>
           );
         })}
@@ -129,12 +131,18 @@ export function Sidebar({
               href={item.href}
               onClick={onClose}
               aria-current={isActive ? "page" : undefined}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm ${
+              className={`relative flex items-center gap-2.5 px-3 py-2 rounded-[var(--radius-md)] text-sm ${
                 isActive
-                  ? "bg-[var(--bg-sidebar-active)] text-white"
+                  ? "bg-white/[0.07] text-white"
                   : "text-[var(--text-sidebar)] hover:bg-[var(--bg-sidebar-hover)] hover:text-white"
               }`}
             >
+              {isActive && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-[var(--accent-on-dark)]"
+                />
+              )}
               <Icon
                 className={`h-4 w-4 ${
                   isActive ? "text-white" : "text-[var(--text-tertiary)]"
@@ -148,8 +156,8 @@ export function Sidebar({
 
       <div className="px-3 py-3 border-t border-white/5">
         <div className="flex items-center gap-2.5 px-3 py-2">
-          <div className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center" aria-hidden="true">
-            <span className="text-white text-xs font-medium">{initial}</span>
+          <div className="w-7 h-7 rounded-[var(--radius-md)] bg-white/10 flex items-center justify-center" aria-hidden="true">
+            <span className="font-display italic text-white text-sm leading-none pb-px">{initial}</span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white text-sm font-medium truncate">{user?.name ?? "…"}</p>

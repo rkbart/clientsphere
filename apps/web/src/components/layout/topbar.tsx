@@ -42,7 +42,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="lg:hidden text-sm font-semibold truncate">
+        <span className="font-display text-[17px] tracking-tight truncate">
           {title}
         </span>
       </div>

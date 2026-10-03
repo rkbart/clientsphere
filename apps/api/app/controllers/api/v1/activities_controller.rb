@@ -29,7 +29,7 @@ class Api::V1::ActivitiesController < Api::V1::BaseController
                    activities.order(due_at: sort_direction, id: sort_direction)
                  end
 
-    paginate(activities)
+    paginate(activities, include_associations: [{ deal: [:id, :title] }])
   end
 
   def show

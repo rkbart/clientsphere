@@ -20,14 +20,22 @@
   --border: #e7e5e4;
   --border-subtle: #f5f5f4;
 
-  --accent: #292524;
-  --accent-hover: #44403c;
+  --accent: #b64920;
+  --accent-hover: #993a17;
   --accent-soft: #f5f5f4;
+  /* Vivid accent tuned for always-dark surfaces (sidebar, brand mark) */
+  --accent-on-dark: #e0653a;
 
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
   --info: #3b82f6;
+
+  /* Strong (text-safe) counterparts for tinted surfaces */
+  --success-ink: #15803d;
+  --warning-ink: #b45309;
+  --danger-ink: #b91c1c;
+  --info-ink: #1d4ed8;
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -51,6 +59,7 @@
   --duration-slow: 300ms;    /* staggered group items */
 
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-display: "Newsreader", "Source Serif 4", Georgia, "Times New Roman", serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
 
   --sidebar-width: 240px;
@@ -77,8 +86,8 @@
   --border: #332e2a;
   --border-subtle: #242120;
 
-  --accent: #fafaf9;
-  --accent-hover: #e7e5e4;
+  --accent: #e0653a;
+  --accent-hover: #ec8055;
   --accent-soft: #292524;
 
   --success: #4ade80;
@@ -86,32 +95,16 @@
   --danger: #f87171;
   --info: #60a5fa;
 
+  --success-ink: #4ade80;
+  --warning-ink: #fbbf24;
+  --danger-ink: #f87171;
+  --info-ink: #60a5fa;
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5);
 
   color-scheme: dark;
-}
-
-/* Pastel badges and error boxes assume a light surface — retune for dark */
-[data-theme="dark"] .badge-success {
-  background: rgba(74, 222, 128, 0.14);
-  color: #4ade80;
-}
-
-[data-theme="dark"] .badge-warning {
-  background: rgba(251, 191, 36, 0.14);
-  color: #fbbf24;
-}
-
-[data-theme="dark"] .badge-danger {
-  background: rgba(248, 113, 113, 0.14);
-  color: #f87171;
-}
-
-[data-theme="dark"] .badge-info {
-  background: rgba(96, 165, 250, 0.14);
-  color: #60a5fa;
 }
 
 /* Hardcoded light error surfaces (login, forms) */
@@ -143,6 +136,16 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+/* Page and record titles — editorial serif everywhere */
+h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  text-wrap: balance;
 }
 
 body {
@@ -265,6 +268,26 @@ a:active,
   animation: scaleIn var(--duration-normal) var(--ease-out) both;
 }
 
+/* Editorial display type — serif headers, tight tracking, balanced wrap */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.display-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+
+.display-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
 /* Stagger children — 50ms increments (30–80ms band), never blocks interaction */
 .stagger > * {
   animation: fadeIn var(--duration-slow) var(--ease-out) both;
@@ -276,6 +299,29 @@ a:active,
 .stagger > *:nth-child(4) { animation-delay: 150ms; }
 .stagger > *:nth-child(5) { animation-delay: 200ms; }
 .stagger > *:nth-child(6) { animation-delay: 250ms; }
+
+/* Animated collapse — grid-rows trick (GPU-friendly, no height math) */
+.collapse-grid {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows var(--duration-normal) var(--ease-out),
+    opacity var(--duration-fast) var(--ease),
+    margin-top var(--duration-normal) var(--ease-out);
+  margin-top: 0;
+}
+
+.collapse-grid.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 1rem;
+}
+
+.collapse-inner {
+  overflow: hidden;
+  min-height: 0;
+}
 
 /* Table styles */
 @layer components {
@@ -296,14 +342,29 @@ a:active,
     @apply text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider;
   }
 
-  /* Card */
+  /* Card — quiet by default; elevation only signals interactivity */
   .card {
     @apply bg-[var(--bg-card)] border border-[var(--border)] rounded-[var(--radius-lg)];
-    transition: box-shadow var(--duration-normal) var(--ease);
+    transition:
+      transform var(--duration-normal) var(--ease-out),
+      box-shadow var(--duration-normal) var(--ease-out),
+      border-color var(--duration-fast) var(--ease);
   }
 
-  .card:hover {
+  /* Borderless grouping surface — sections, not objects */
+  .card-flat {
+    @apply rounded-[var(--radius-lg)] bg-[var(--bg-elevated)];
+  }
+
+  /* Clickable cards lift on hover */
+  .card-interactive:hover {
+    transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  }
+
+  .card-interactive:active {
+    transform: translateY(0) scale(0.99);
   }
 
   /* Button — transitions come from the unlayered interactive block above */
@@ -344,7 +405,7 @@ a:active,
   .input:focus {
     outline: none;
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(41, 37, 36, 0.08);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
   }
 
   /* Select — custom chevron so the native arrow never hugs the border */
@@ -361,34 +422,44 @@ a:active,
     opacity: 0.6;
   }
 
-  /* Badge */
+  /* Badge — token-driven translucent tints; readable in both themes */
   .badge {
-    @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-[var(--radius-sm)];
+    @apply inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-[var(--radius-sm)];
+    border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
   }
 
   .badge-success {
-    @apply badge bg-emerald-50 text-emerald-700;
+    background: color-mix(in srgb, var(--success) 12%, transparent);
+    color: var(--success-ink);
   }
 
   .badge-warning {
-    @apply badge bg-amber-50 text-amber-700;
+    background: color-mix(in srgb, var(--warning) 14%, transparent);
+    color: var(--warning-ink);
   }
 
   .badge-danger {
-    @apply badge bg-red-50 text-red-700;
+    background: color-mix(in srgb, var(--danger) 12%, transparent);
+    color: var(--danger-ink);
   }
 
   .badge-info {
-    @apply badge bg-blue-50 text-blue-700;
+    background: color-mix(in srgb, var(--info) 12%, transparent);
+    color: var(--info-ink);
   }
 
   .badge-neutral {
     @apply badge bg-[var(--accent-soft)] text-[var(--text-secondary)];
+    border-color: var(--border);
   }
 }
 
 /* Reduced motion — fewer and gentler, not zero: keep fades, drop movement */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   .animate-fade-in,
   .animate-slide-in,
   .animate-scale-in,
@@ -407,6 +478,10 @@ a:active,
 /* Drawer: drop the slide under reduced motion, keep the show/hide */
 @media (prefers-reduced-motion: reduce) {
   [data-nav-drawer] {
+    transition-duration: 0.01ms;
+  }
+
+  .collapse-grid {
     transition-duration: 0.01ms;
   }
 }

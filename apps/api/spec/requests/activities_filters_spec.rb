@@ -70,6 +70,19 @@ RSpec.describe "Activities date filters", type: :request do
     expect(subjects).to contain_exactly("Deal overdue")
   end
 
+  it "includes the linked deal id and title" do
+    pipeline = account.pipelines.create!(name: "P")
+    stage = pipeline.stages.create!(name: "S", position: 1)
+    deal = account.deals.create!(title: "Harborview", pipeline: pipeline, stage: stage)
+    account.activities.create!(creator: owner, kind: :task, subject: "Deal task", deal: deal)
+
+    get "/api/v1/activities", params: { per_page: 100 }, headers: headers
+
+    rows = JSON.parse(response.body)["data"]
+    expect(rows.find { |a| a["subject"] == "Deal task" }["deal"]).to eq({ "id" => deal.id, "title" => "Harborview" })
+    expect(rows.find { |a| a["subject"] == "Undated" }["deal"]).to be_nil
+  end
+
   it "sorts by allow-listed columns and ignores the rest" do
     get "/api/v1/activities", params: { sort: "subject", direction: "asc", per_page: 100 }, headers: headers
     subjects = JSON.parse(response.body)["data"].map { |a| a["subject"] }

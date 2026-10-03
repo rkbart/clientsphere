@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useDeals, useCreateDeal } from "@/hooks/use-deals";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useTags } from "@/hooks/use-tags";
@@ -42,7 +42,6 @@ function money(value: number | string | null | undefined, currency = "USD") {
 }
 
 export default function DealsPage() {
-  const router = useRouter();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [stageId, setStageId] = useState("");
@@ -98,12 +97,15 @@ export default function DealsPage() {
       sortable: true,
       minWidth: "w-[260px]",
       render: (d) => (
-        <span className="font-medium text-[var(--text-primary)]">
+        <Link
+          href={`/deals/${d.id}`}
+          className="font-medium text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+        >
           {d.title}
           {d.company?.name && (
             <span className="text-[var(--text-tertiary)] font-normal"> · {d.company.name}</span>
           )}
-        </span>
+        </Link>
       ),
     },
     {
@@ -223,7 +225,6 @@ export default function DealsPage() {
         columns={columns}
         rows={typed?.data}
         isLoading={isLoading}
-        onRowClick={(d) => router.push(`/deals/${d.id}`)}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

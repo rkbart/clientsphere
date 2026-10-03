@@ -15,6 +15,12 @@ export interface DataTableColumn<T> {
 
 // Card + table + skeleton + empty state + pagination footer shared by every
 // entity list page (contacts, companies, deals).
+// Row clicks must never hijack inner controls: ignore events originating
+// from interactive descendants (e.g. the Outbox Retry button).
+function fromInteractiveDescendant(e: { target: EventTarget | null }): boolean {
+  const el = e.target as HTMLElement | null;
+  return !!el?.closest?.("button, a, input, select, textarea");
+}
 export function DataTable<T extends { id: string }>({
   columns,
   rows,
@@ -35,7 +41,7 @@ export function DataTable<T extends { id: string }>({
   columns: DataTableColumn<T>[];
   rows?: T[];
   isLoading: boolean;
-  onRowClick: (row: T) => void;
+  onRowClick?: (row: T) => void;
   sortKey?: string;
   direction?: SortDir;
   onSort?: (key: string) => void;
@@ -93,12 +99,27 @@ export function DataTable<T extends { id: string }>({
               rows?.map((row) => (
                 <tr
                   key={row.id}
-                  onClick={() => onRowClick(row)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") onRowClick(row);
-                  }}
-                  tabIndex={0}
-                  className="table-row cursor-pointer"
+                  onClick={
+                    onRowClick
+                      ? (e) => {
+                          if (fromInteractiveDescendant(e)) return;
+                          onRowClick(row);
+                        }
+                      : undefined
+                  }
+                  onKeyDown={
+                    onRowClick
+                      ? (e) => {
+                          if (fromInteractiveDescendant(e)) return;
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            onRowClick(row);
+                          }
+                        }
+                      : undefined
+                  }
+                  tabIndex={onRowClick ? 0 : undefined}
+                  className={`table-row ${onRowClick ? "cursor-pointer" : ""}`}
                 >
                   {columns.map((col) => (
                     <td

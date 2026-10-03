@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useCompanies, useCreateCompany } from "@/hooks/use-companies";
 import type { Tag } from "@/hooks/use-tags";
 import { TagsCell } from "@/components/shared/tags-cell";
@@ -29,7 +29,6 @@ interface CompaniesResponse {
 }
 
 export default function CompaniesPage() {
-  const router = useRouter();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
   const [page, setPage] = useState(1);
@@ -77,7 +76,14 @@ export default function CompaniesPage() {
       label: "Name",
       sortable: true,
       minWidth: "w-[260px]",
-      render: (c) => <span className="font-medium text-[var(--text-primary)]">{c.name}</span>,
+      render: (c) => (
+        <Link
+          href={`/companies/${c.id}`}
+          className="font-medium text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
+        >
+          {c.name}
+        </Link>
+      ),
     },
     { key: "domain", label: "Domain", sortable: true, render: (c) => <span className="text-[var(--text-secondary)]">{c.domain || "—"}</span> },
     { key: "industry", label: "Industry", sortable: true, render: (c) => <span className="text-[var(--text-secondary)]">{c.industry || "—"}</span> },
@@ -125,7 +131,6 @@ export default function CompaniesPage() {
         columns={columns}
         rows={typed?.data}
         isLoading={isLoading}
-        onRowClick={(c) => router.push(`/companies/${c.id}`)}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

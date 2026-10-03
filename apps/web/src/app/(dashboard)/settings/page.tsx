@@ -97,7 +97,7 @@ export default function SettingsPage() {
             <a
               key={card.href}
               href={card.href}
-              className="card p-6 hover:shadow-md transition-shadow"
+              className="card card-interactive p-6"
             >
               <h2 className="text-lg font-semibold">{card.title}</h2>
               <p className="text-[var(--text-secondary)] mt-2">{card.description}</p>

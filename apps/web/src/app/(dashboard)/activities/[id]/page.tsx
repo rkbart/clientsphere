@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useActivity, useDeleteActivity, useUpdateActivity } from "@/hooks/use-activities";
+import { useQueryClient } from "@tanstack/react-query";
 import { useContact } from "@/hooks/use-contacts";
 import { useCompany } from "@/hooks/use-companies";
 import { useDeal } from "@/hooks/use-deals";
@@ -33,6 +34,7 @@ export default function ActivityDetailPage() {
   const { data, isLoading } = useActivity(id);
   const remove = useDeleteActivity();
   const update = useUpdateActivity();
+  const queryClient = useQueryClient();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
@@ -65,6 +67,13 @@ export default function ActivityDetailPage() {
         id: activity.id,
         completed_at: completed ? null : new Date().toISOString(),
       });
+      // Keep deal-scoped surfaces truthful (summary count, attention card,
+      // dashboard widget) — the hook only refreshes the activities cache.
+      queryClient.invalidateQueries({ queryKey: ["due-tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["deals", "attention"] });
+      if (activity.deal_id) {
+        queryClient.invalidateQueries({ queryKey: ["deals", activity.deal_id, "summary"] });
+      }
     } catch (e) {
       setEditError(errMessage(e, "Could not update the activity."));
     }

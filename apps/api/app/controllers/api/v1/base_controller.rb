@@ -62,10 +62,14 @@ class Api::V1::BaseController < ActionController::API
     per_page = [params[:per_page]&.to_i || 25, 100].min
 
     paginated = collection.page(page).per(per_page)
-    records = include_associations.any? ? paginated.includes(*include_associations) : paginated
+    includes = include_associations.to_h do |entry|
+      assoc, only = entry.is_a?(Hash) ? entry.first : [entry, nil]
+      [assoc, { only: only || [:id, :name, :color] }]
+    end
+    records = includes.any? ? paginated.includes(*includes.keys) : paginated
 
     render json: {
-      data: records.as_json(include: include_associations.to_h { |a| [a, { only: [:id, :name, :color] }] }),
+      data: records.as_json(include: includes),
       meta: {
         current_page: paginated.current_page,
         total_pages: paginated.total_pages,

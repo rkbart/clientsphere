@@ -6,8 +6,9 @@ import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useDeals, useAttentionDeal } from "@/hooks/use-deals";
+import { useCompleteTaskWithUndo } from "@/hooks/use-complete-task";
 import { DealCharts } from "@/components/dashboard/deal-charts";
-import { TrendingUp, Users, Activity, AlertTriangle, ChevronRight, CheckCircle2, Circle } from "lucide-react";
+import { TrendingUp, Users, Activity, AlertTriangle, ChevronRight, CheckCircle2, Check, Undo2, X } from "lucide-react";
 
 const headers = () => getAuthHeadersForApi();
 
@@ -18,6 +19,7 @@ interface ActivityItem {
   due_at: string | null;
   completed_at: string | null;
   created_at: string;
+  deal?: { id: string; title: string } | null;
 }
 
 interface DealRow {
@@ -93,6 +95,9 @@ export default function DashboardPage() {
   const { data: attention } = useAttentionDeal(pipeline?.id);
   const attentionDeal = attention?.deal ?? null;
 
+  const { complete, undo, completingId, recentlyCompleted, failed, dismissFailure, announcement, isPending } =
+    useCompleteTaskWithUndo([["due-tasks"], ["activities"], ["deals"]]);
+
   const statCards = [
     { label: "Contacts", value: stats?.contacts ?? 0, icon: Users, color: "text-[var(--text-primary)]" },
     { label: "Deals", value: stats?.deals ?? 0, icon: TrendingUp, color: "text-[var(--text-primary)]" },
@@ -118,10 +123,10 @@ export default function DashboardPage() {
 
       {/* Needs attention */}
       {attentionDeal && (
-        <div className="rounded-[var(--radius-lg)] border-l-4 border-l-[var(--warning)] border border-[var(--border)] bg-[var(--bg-card)] p-5">
+        <div className="card p-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="p-2.5 rounded-[var(--radius-lg)] bg-[var(--warning)]/10 shrink-0 self-start">
-              <AlertTriangle className="h-5 w-5 text-[var(--warning)]" />
+            <div className="p-2.5 rounded-[var(--radius-lg)] bg-[var(--accent)]/10 shrink-0 self-start">
+              <AlertTriangle className="h-5 w-5 text-[var(--accent)]" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wider text-[var(--warning)]">
@@ -130,7 +135,7 @@ export default function DashboardPage() {
               </p>
               <Link
                 href={`/deals/${attentionDeal.id}`}
-                className="text-lg font-semibold tracking-tight hover:text-[var(--accent-hover)] transition-colors block truncate mt-0.5"
+                className="font-display text-xl tracking-tight hover:text-[var(--accent)] transition-colors block truncate mt-0.5"
               >
                 {attentionDeal.title}
               </Link>
@@ -217,6 +222,9 @@ export default function DashboardPage() {
 
         {/* Tasks due */}
         <div className="card">
+          <span aria-live="polite" role="status" className="sr-only">
+            {announcement}
+          </span>
           <div className="px-5 py-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
             <h2 className="text-sm font-semibold">Tasks due</h2>
             <Link
@@ -229,16 +237,87 @@ export default function DashboardPage() {
           <div className="divide-y divide-[var(--border-subtle)]">
             {dueTasks?.map((task) => {
               const due = dueLabel(task.due_at);
+              const completing = completingId === task.id;
+              const failedHere = failed?.id === task.id && failed.action === "complete";
               return (
-                <Link
+                <div
                   key={task.id}
-                  href={`/activities/${task.id}`}
-                  className="px-5 py-3 flex items-center gap-3 hover:bg-[var(--bg-elevated)] transition-colors duration-150"
+                  className="px-5 py-2"
                 >
-                  <Circle className="h-4 w-4 text-[var(--text-tertiary)] shrink-0" />
-                  <span className="text-sm flex-1 truncate">{task.subject}</span>
-                  <span className={`text-xs shrink-0 ${due.className}`}>{due.text}</span>
-                </Link>
+                  <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => complete(task)}
+                    disabled={completing || isPending}
+                    aria-label={`Mark ${task.subject} complete`}
+                    className="h-5 w-5 shrink-0 rounded-full border border-[var(--border)] flex items-center justify-center text-transparent hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                  </button>
+                  <Link
+                    href={`/activities/${task.id}`}
+                    className="flex-1 min-w-0 block rounded-md px-2 -mx-2 py-1 hover:bg-[var(--bg-elevated)] transition-colors"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="text-sm flex-1 truncate">{task.subject}</span>
+                      <span className={`text-xs shrink-0 ${due.className}`}>{due.text}</span>
+                    </span>
+                    {task.deal && (
+                      <span className="mt-0.5 block text-xs text-[var(--text-tertiary)] truncate">
+                        {task.deal.title}
+                      </span>
+                    )}
+                  </Link>
+                  </div>
+                  {failedHere && (
+                    <p className="mt-1 pl-7 text-xs text-[var(--danger-ink)]">
+                      Could not mark complete — try again.
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+            {recentlyCompleted.map((task) => {
+              const undoing = completingId === task.id;
+              const failedHere = failed?.id === task.id && failed.action === "undo";
+              return (
+                <div key={task.id} className="px-5 py-2">
+                  <div className="flex items-center gap-2">
+                  <span
+                    aria-hidden="true"
+                    className="h-5 w-5 shrink-0 rounded-full bg-[var(--success)] flex items-center justify-center text-white"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="flex-1 min-w-0 text-sm text-[var(--text-secondary)] line-through truncate">
+                    {task.subject}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => undo(task.id)}
+                    disabled={undoing || isPending}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-[var(--accent)] hover:text-[var(--accent-hover)] transition-colors shrink-0 disabled:opacity-50"
+                  >
+                    <Undo2 className="h-3.5 w-3.5" />
+                    Undo
+                  </button>
+                  {failedHere && (
+                    <button
+                      type="button"
+                      onClick={() => dismissFailure(task.id)}
+                      aria-label={`Dismiss failed undo for ${task.subject}`}
+                      className="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors shrink-0"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                  </div>
+                  {failedHere && (
+                    <p className="mt-1 pl-7 text-xs text-[var(--danger-ink)]">
+                      Could not reopen — try again.
+                    </p>
+                  )}
+                </div>
               );
             })}
             {dueTasks?.length === 0 && (

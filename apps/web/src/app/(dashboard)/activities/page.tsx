@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { useDeal } from "@/hooks/use-deals";
@@ -62,7 +62,6 @@ export default function ActivitiesPage() {
 }
 
 function ActivitiesPageInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
@@ -275,7 +274,6 @@ function ActivitiesPageInner() {
         columns={columns}
         rows={data?.data}
         isLoading={isLoading}
-        onRowClick={(a) => router.push(`/activities/${a.id}`)}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

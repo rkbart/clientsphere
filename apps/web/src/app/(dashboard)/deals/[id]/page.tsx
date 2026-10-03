@@ -194,7 +194,7 @@ export default function DealDetailPage() {
       </div>
 
       <div className="space-y-6">
-        <DealOverdueTasks dealId={deal.id} />
+        <DealOverdueTasks key={deal.id} dealId={deal.id} />
         <DealSummary dealId={deal.id} />
         {deal.contact_id && <EmailComposer contactId={deal.contact_id} dealId={deal.id} />}
       </div>
