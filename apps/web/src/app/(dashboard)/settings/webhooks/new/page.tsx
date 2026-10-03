@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Field, FormError } from "@/components/forms/fields";
 import { useCreateWebhook } from "@/hooks/use-webhooks";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
 
 export default function NewWebhookPage() {

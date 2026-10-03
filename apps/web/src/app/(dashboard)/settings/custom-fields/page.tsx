@@ -10,7 +10,7 @@ import {
   type CustomFieldDefinitionRecord,
 } from "@/hooks/use-custom-fields";
 import { Field, FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft, Lock, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 

@@ -9,7 +9,7 @@ import {
   type CustomObjectDefinitionRecord,
 } from "@/hooks/use-custom-objects";
 import { Field, FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft, Lock, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 import Link from "next/link";

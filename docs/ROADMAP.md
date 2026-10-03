@@ -13,13 +13,13 @@
 
 ## Phase 2: Intelligence (Weeks 5–8)
 
-- [x] AI settings (server-side encrypted keys, presets, test connection, privacy toggle)
-- [x] AI chat (scoped-context assistant)
-- [x] Email drafting (draft from contact/deal context)
+- [ ] AI settings (provider presets, encrypted keys, test connection)
+- [ ] AI chat (scoped-context assistant)
+- [ ] Email drafting (draft from contact/deal context)
 - [x] Lead scoring (rules-based with reasons)
-- [x] Suggestions (next-best-action on dashboard and deal page)
-- [x] Enrichment (company info from domain, user-confirmed)
-- [x] Local mode (browser-direct for Ollama / LM Studio)
+- [ ] Suggestions (next-best-action on dashboard and deal page)
+- [ ] Enrichment (company info from domain, user-confirmed)
+- [ ] Local mode (browser-direct for local models)
 
 ## Phase 3: Automation (Weeks 9–12)
 

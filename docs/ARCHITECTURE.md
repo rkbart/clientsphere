@@ -7,13 +7,11 @@ Browser
   │  Bearer token: /api/v1/*   (Authorization header)
   ▼
 Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
-                                              │  Session tokens (digest-stored)
-                                              │  Pundit + account scoping
-                                              │  rack-attack (AI rate limit)
-                                              │  Ai services (server-side) ──► provider
-                                              │  Ai::Prompts /ai/prompts ──► browser ──► local model
-                                              ▼
-                                           PostgreSQL
+                                               │  Session tokens (digest-stored)
+                                               │  Pundit + account scoping
+                                               │  rack-attack (auth/import throttling)
+                                               ▼
+                                            PostgreSQL
 ```
 
 ## Layers
@@ -44,12 +42,9 @@ Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
 - **Pundit** — authorization policies (incl. cross-tenant guard)
 - **Kaminari** — pagination (`page`/`per_page`, cap 100)
 - **Discard** — soft delete (`discarded_at`)
-- **rack-attack** — AI endpoint throttling
+- **rack-attack** — throttling on auth and import endpoints
 - **ActiveJob (async adapter)** — in-process delayed jobs (webhook retries,
   sequence steps); no external worker
-- **Ai services** — `Ai::Client` (provider adapters), `Ai::Context`
-  (scoped record retrieval), `Ai::Prompts` (prompt assembly), `AiLog`
-  (metadata-only usage log)
 - **Services** — `Leads::Scorer`, `Automations::Engine`, `Webhooks::Deliverer`,
   `Imports::CsvImporter`, `Exports::CsvExporter`
 

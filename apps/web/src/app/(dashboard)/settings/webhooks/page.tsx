@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useWebhooks, useDeleteWebhook } from "@/hooks/use-webhooks";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Plus, Trash2, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { useCanManageSettings } from "@/hooks/use-current-role";

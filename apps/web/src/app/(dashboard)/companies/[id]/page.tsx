@@ -11,7 +11,7 @@ import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { CompanyForm, type CompanyFormValues } from "@/components/companies/company-form";
 import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
 import { FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft, Pencil, Trash2 } from "lucide-react";
 
 interface CompanyData {

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_083035) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_03_123623) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,53 +44,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_083035) do
     t.index ["contact_id"], name: "index_activities_on_contact_id"
     t.index ["creator_id"], name: "index_activities_on_creator_id"
     t.index ["deal_id"], name: "index_activities_on_deal_id"
-  end
-
-  create_table "ai_conversations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.uuid "user_id", null: false
-    t.string "title", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_ai_conversations_on_account_id"
-    t.index ["user_id"], name: "index_ai_conversations_on_user_id"
-  end
-
-  create_table "ai_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.string "action", null: false
-    t.string "provider"
-    t.string "model"
-    t.boolean "success", default: true, null: false
-    t.string "error"
-    t.integer "duration_ms"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id", "action"], name: "index_ai_logs_on_account_id_and_action"
-    t.index ["account_id"], name: "index_ai_logs_on_account_id"
-  end
-
-  create_table "ai_messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.uuid "conversation_id", null: false
-    t.integer "role", null: false
-    t.text "content", null: false
-    t.datetime "created_at", null: false
-    t.index ["account_id"], name: "index_ai_messages_on_account_id"
-    t.index ["conversation_id"], name: "index_ai_messages_on_conversation_id"
-  end
-
-  create_table "ai_settings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "account_id", null: false
-    t.string "provider", null: false
-    t.string "model", null: false
-    t.string "base_url"
-    t.text "api_key"
-    t.boolean "enabled", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "redact_pii", default: false, null: false
-    t.index ["account_id"], name: "index_ai_settings_on_account_id"
   end
 
   create_table "api_tokens", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -657,11 +610,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_083035) do
   add_foreign_key "activities", "deals"
   add_foreign_key "activities", "users", column: "assignee_id"
   add_foreign_key "activities", "users", column: "creator_id"
-  add_foreign_key "ai_conversations", "accounts"
-  add_foreign_key "ai_conversations", "users"
-  add_foreign_key "ai_messages", "accounts"
-  add_foreign_key "ai_messages", "ai_conversations", column: "conversation_id"
-  add_foreign_key "ai_settings", "accounts"
   add_foreign_key "api_tokens", "accounts"
   add_foreign_key "api_tokens", "users"
   add_foreign_key "automation_runs", "accounts"

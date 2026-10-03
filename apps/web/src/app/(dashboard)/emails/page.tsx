@@ -5,7 +5,7 @@ import { useEmails, useRedeliverEmail, useUpdateEmail } from "@/hooks/use-emails
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { Field, FormError } from "@/components/forms/fields";
 import { Modal } from "@/components/ui/modal";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Mail, RotateCcw } from "lucide-react";
 
 interface OutboxEmail {

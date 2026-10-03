@@ -36,12 +36,6 @@ Vercel (web)  ──►  Render free web service (Rails)  ──►  Neon free P
 - Build (Render, root dir `apps/api`): `bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && bin/rails db:migrate`; start: `bundle exec puma -C config/puma.rb`, plus a background worker running `bin/jobs start`
 - Web (Vercel, root dir `apps/web`): framework auto-detected; set `API_INTERNAL_URL` to the Render URL
 
-### AI on free tier
-
-Local providers (Ollama / LM Studio) are reached **browser-direct** from the
-user's machine, so they work even when your server is hosted elsewhere.
-Remote providers are called server-side as usual.
-
 ## Scaling path
 
 | Limit hit | Move to |

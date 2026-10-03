@@ -218,21 +218,7 @@ On any contact, company, or deal detail page:
 
 ---
 
-## AI Features
-
-### Setup
-
-Go to **Settings → AI**:
-1. Pick a provider (Groq for free API key, or Ollama for local)
-2. Enter your API key (if required)
-3. Choose a model
-4. Click **Test connection** to verify
-5. Click **Save**
-6. Toggle **Enable AI** on
-
-### Privacy modes
-
-- **Server** — AI calls go through your server (API key stored encrypted)
+## Email
 
 ### What you can do
 
@@ -242,7 +228,7 @@ Go to **Settings → AI**:
 - **Delivery tracking** — Settings → Email holds the Resend key and the
   webhook URL to paste into Resend; Outbox rows flip sent → delivered →
   opened as events arrive (tunnel needed for local testing)
-- **Re-score** — recalculate lead scores with AI
+- **Re-score** — recalculate rule-based lead scores
 - **Deal Summary** — rule-based status (stage, value, close date, activity, staleness)
 
 ---
@@ -497,14 +483,10 @@ Click the sun/moon icon in the top bar. Follows your OS setting by default; your
 
 Go to **Settings → Profile** to update your name and email.
 
-### AI provider
-
-Go to **Settings → AI** to configure or change your AI provider.
-
 ### Who can change settings
 
 Every settings page links back here. Settings that affect the whole workspace —
-**AI provider, Email, Plugins, Pipelines, Webhooks, API Tokens and
+**Email, Plugins, Pipelines, Webhooks, API Tokens and
 Import/Export** — can only be changed by an **owner or admin**. For members and
 viewers those cards are shown locked, and opening the page directly explains why.
 

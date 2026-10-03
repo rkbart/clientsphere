@@ -24,7 +24,6 @@ cd apps/web && pnpm install && pnpm dev
 - [Tutorial](docs/TUTORIAL.md)
 - [Features](docs/FEATURES.md)
 - [Design System](docs/DESIGN-SYSTEM.md)
-- [AI Features](docs/AI-FEATURES.md)
 - [API](docs/API.md)
 - [Database](docs/DATABASE.md)
 - [Deployment](docs/DEPLOYMENT.md)

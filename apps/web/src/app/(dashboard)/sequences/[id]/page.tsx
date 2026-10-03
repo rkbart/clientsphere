@@ -16,7 +16,7 @@ import {
   useUnsubscribeEnrollment,
 } from "@/hooks/use-sequences";
 import { useContacts } from "@/hooks/use-contacts";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft, Pencil, Trash2, Plus } from "lucide-react";
 
 interface Step {

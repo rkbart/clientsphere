@@ -183,32 +183,3 @@ export interface Webhook {
   created_at: string;
   updated_at: string;
 }
-
-export interface AiSetting {
-  id: string;
-  account_id: string;
-  provider: string;
-  model: string;
-  base_url: string;
-  enabled: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface AiConversation {
-  id: string;
-  account_id: string;
-  user_id: string;
-  title: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface AiMessage {
-  id: string;
-  account_id: string;
-  conversation_id: string;
-  role: "user" | "assistant" | "system";
-  content: string;
-  created_at: string;
-}

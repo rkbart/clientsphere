@@ -13,7 +13,7 @@ import type { SortDir } from "@/components/shared/sort-header";
 import { Modal } from "@/components/ui/modal";
 import { DealForm, EMPTY_DEAL } from "@/components/deals/deal-form";
 import { FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Plus, Search, X } from "lucide-react";
 
 interface Deal {

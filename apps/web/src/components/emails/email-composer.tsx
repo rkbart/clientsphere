@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCreateEmail, useDeliverEmail, useEmailTemplates } from "@/hooks/use-emails";
 import { useContact } from "@/hooks/use-contacts";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Check, Copy, Mail, Save, Send } from "lucide-react";
 
 const splitAddrs = (s: string) =>

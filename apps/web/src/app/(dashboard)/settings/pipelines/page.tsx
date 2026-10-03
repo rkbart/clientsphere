@@ -16,7 +16,7 @@ import {
 } from "@/hooks/use-pipelines";
 import { FormError } from "@/components/forms/fields";
 import { ConfirmDialog } from "@/components/ui/modal";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft, Pencil, Plus, Star, Trash2 } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";

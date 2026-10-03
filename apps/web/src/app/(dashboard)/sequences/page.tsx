@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSequences, useDeleteSequence } from "@/hooks/use-sequences";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 

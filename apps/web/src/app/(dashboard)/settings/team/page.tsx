@@ -13,7 +13,7 @@ import {
 import { useAuthStore } from "@/store/auth-store";
 import { Avatar } from "@/components/shared/avatar";
 import { Field, FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Check, ChevronLeft, Copy, Trash2 } from "lucide-react";
 
 const ROLES = ["owner", "admin", "member", "viewer"];

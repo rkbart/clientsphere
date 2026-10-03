@@ -16,7 +16,7 @@ import { EmailComposer } from "@/components/emails/email-composer";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { DealForm, type DealFormValues } from "@/components/deals/deal-form";
 import { FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft, Pencil, Trash2 } from "lucide-react";
 
 interface DealData {

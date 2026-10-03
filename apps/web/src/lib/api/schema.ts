@@ -25,16 +25,6 @@ export interface paths {
     /** Update activity */
     patch: operations["update_api_v1_activities"];
   };
-  "/ai/settings": {
-    /** Settings ai */
-    get: operations["settings_api_v1_ai"];
-    /** Update settings ai */
-    patch: operations["update_settings_api_v1_ai"];
-  };
-  "/ai/test_connection": {
-    /** Test connection ai */
-    post: operations["test_connection_api_v1_ai"];
-  };
   "/api_tokens": {
     /** Index api token */
     get: operations["index_api_v1_api_tokens"];
@@ -628,65 +618,6 @@ export interface operations {
     parameters: {
       path: {
         id: string;
-      };
-    };
-    responses: {
-      /** @description Success */
-      200: {
-        content: {
-          "application/json": Record<string, never>;
-        };
-      };
-      /** @description Missing or invalid token */
-      401: {
-        content: never;
-      };
-    };
-  };
-  /** Settings ai */
-  settings_api_v1_ai: {
-    responses: {
-      /** @description Success */
-      200: {
-        content: {
-          "application/json": Record<string, never>;
-        };
-      };
-      /** @description Missing or invalid token */
-      401: {
-        content: never;
-      };
-    };
-  };
-  /** Update settings ai */
-  update_settings_api_v1_ai: {
-    requestBody?: {
-      content: {
-        "application/json": {
-          [key: string]: unknown;
-        };
-      };
-    };
-    responses: {
-      /** @description Success */
-      200: {
-        content: {
-          "application/json": Record<string, never>;
-        };
-      };
-      /** @description Missing or invalid token */
-      401: {
-        content: never;
-      };
-    };
-  };
-  /** Test connection ai */
-  test_connection_api_v1_ai: {
-    requestBody?: {
-      content: {
-        "application/json": {
-          [key: string]: unknown;
-        };
       };
     };
     responses: {

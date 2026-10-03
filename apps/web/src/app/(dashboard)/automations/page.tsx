@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useAutomations, useToggleAutomation, useDeleteAutomation } from "@/hooks/use-automations";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Plus, Pencil, Trash2, Play, Pause } from "lucide-react";
 import { useState } from "react";
 

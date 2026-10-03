@@ -15,12 +15,6 @@ const CARDS: SettingsCard[] = [
   { href: "/settings/profile", title: "Profile", description: "Manage your account settings" },
   { href: "/settings/team", title: "Team", description: "Manage team members and roles" },
   {
-    href: "/settings/ai",
-    title: "AI Provider",
-    description: "Configure AI settings",
-    managerOnly: true,
-  },
-  {
     href: "/settings/email",
     title: "Email",
     description: "Resend API key, sender and tracking",

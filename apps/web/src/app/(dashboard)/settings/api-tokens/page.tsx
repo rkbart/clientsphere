@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useApiTokens, useCreateApiToken, useRevokeApiToken } from "@/hooks/use-api-tokens";
 import { Field, FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Check, ChevronLeft, Copy, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useCanManageSettings } from "@/hooks/use-current-role";

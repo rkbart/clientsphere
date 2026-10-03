@@ -146,11 +146,6 @@ Rails.application.routes.draw do
         end
       end
 
-      # AI
-      get "ai/settings", to: "ai#settings"
-      patch "ai/settings", to: "ai#update_settings"
-      post "ai/test_connection", to: "ai#test_connection"
-
       # Import/Export
       post "import/csv", to: "import#create"
       get "export/csv/:type", to: "export#show"

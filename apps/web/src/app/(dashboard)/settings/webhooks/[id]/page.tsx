@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Field, FormError } from "@/components/forms/fields";
 import { useWebhook, useUpdateWebhook, useWebhookDeliveries } from "@/hooks/use-webhooks";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
 
 interface Delivery {

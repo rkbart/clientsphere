@@ -20,7 +20,6 @@ class Account < ApplicationRecord
   has_many :sequence_enrollments, dependent: :destroy
   has_many :webhooks, dependent: :destroy
   has_many :api_tokens, dependent: :destroy
-  has_one :ai_setting, dependent: :destroy
   has_one :email_setting, dependent: :destroy
 
   validates :name, presence: true

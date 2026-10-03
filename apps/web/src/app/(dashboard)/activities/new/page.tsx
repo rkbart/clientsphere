@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ActivityForm, EMPTY_ACTIVITY } from "@/components/activities/activity-form";
 import { useCreateActivity } from "@/hooks/use-activities";
 import { FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
 
 export default function NewActivityPage() {

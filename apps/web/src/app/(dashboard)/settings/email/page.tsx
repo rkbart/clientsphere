@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useEmailSettings, useUpdateEmailSettings } from "@/hooks/use-emails";
 import { FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Check, ChevronLeft, Copy } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";

@@ -64,15 +64,8 @@
 
 - Honest and explainable
 - No "ML" black box
-- LLM only explains/suggests, doesn't score
+- No LLM involved — the stored reasons are the explanation
 - Faster, cheaper, more predictable
-
-## Why browser-direct for local AI
-
-- Local models (Ollama / LM Studio) should never require a server hop
-- Context assembly still happens server-side (`/ai/prompts`), so "what gets
-  sent" stays in one audited place
-- Works with a hosted backend + local models (the free-tier scenario)
 
 ## Why no Redis / Solid Queue (for now)
 
@@ -88,4 +81,3 @@
 - Render sleeps after ~15min idle — delayed jobs pause with it
 - No real-time WebSocket layer
 - Single database may become bottleneck at scale
-- Local AI inference speed is bound to the user's hardware

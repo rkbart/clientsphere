@@ -36,10 +36,6 @@ gem "rack-attack"
 # SSRF Protection
 gem "ssrf_filter"
 
-# AI Clients
-gem "openai"
-gem "anthropic"
-
 # Email
 gem "resend"
 

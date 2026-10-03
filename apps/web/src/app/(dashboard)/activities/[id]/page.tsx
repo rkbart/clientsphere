@@ -11,7 +11,7 @@ import { useDeal } from "@/hooks/use-deals";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { ActivityForm, type ActivityFormValues } from "@/components/activities/activity-form";
 import { FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { CheckCircle2, ChevronLeft, Circle, Pencil, Trash2 } from "lucide-react";
 
 interface ActivityData {

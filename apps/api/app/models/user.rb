@@ -9,7 +9,6 @@ class User < ApplicationRecord
   has_many :created_contacts, class_name: "Contact", foreign_key: :owner_id
   has_many :assigned_activities, class_name: "Activity", foreign_key: :assignee_id
   has_many :authored_notes, class_name: "Note", foreign_key: :author_id
-  has_many :ai_conversations, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true
   validates :name, presence: true

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Field, FormError } from "@/components/forms/fields";
 import { getAuthHeadersForApi } from "@/lib/api/client";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft, Download, Upload } from "lucide-react";
 import Link from "next/link";
 import { useCanManageSettings } from "@/hooks/use-current-role";

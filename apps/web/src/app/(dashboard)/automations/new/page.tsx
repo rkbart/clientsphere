@@ -6,7 +6,7 @@ import Link from "next/link";
 import { WorkflowBuilder, type WorkflowValues } from "@/components/automations/workflow-builder";
 import { useAutomationTemplates, useCreateAutomation, type AutomationTemplate } from "@/hooks/use-automations";
 import { FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Check, ChevronDown, ChevronLeft, LayoutTemplate, Zap } from "lucide-react";
 
 const EMPTY_WORKFLOW: WorkflowValues = {

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { WorkflowBuilder, type WorkflowValues } from "@/components/automations/workflow-builder";
 import { useAutomation, useUpdateAutomation, useAutomationRuns } from "@/hooks/use-automations";
 import { FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
 
 interface AutomationRecord {

@@ -56,11 +56,6 @@ PostgreSQL (Neon free tier for demo, self-hosted for production)
 - `solid_cache_entries` — Rails cache store (production)
 - `solid_cable_messages` — Action Cable adapter (production)
 
-### AI
-- `ai_settings` — per-account AI config (encrypted `api_key`, `enabled`, `redact_pii`)
-- `ai_logs` — metadata-only usage log (action, provider, model, success, duration)
-- `ai_conversations` + `ai_messages` — reserved for future chat persistence (not used yet)
-
 ### Audit
 - `versions` — paper_trail on contact, company, deal, activity, note, email, automation
 

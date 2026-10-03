@@ -110,8 +110,8 @@ localhost — use a tunnel for local testing (dev already allows
    configured. Google users link by email (invited users keep their workspace)
    or get a personal workspace on first sign-in.
 
-The `ACTIVE_RECORD_ENCRYPTION_*` keys encrypt AI provider keys and webhook
-secrets. Development falls back to built-in defaults; set real values in
+The `ACTIVE_RECORD_ENCRYPTION_*` keys encrypt webhook secrets.
+Development falls back to built-in defaults; set real values in
 production.
 
 ### Web

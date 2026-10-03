@@ -81,13 +81,7 @@
 - Drag-drop deal cards between stages (mouse and touch)
 - Visual pipeline overview
 
-## AI Features
-
-### AI Settings
-- Provider presets (Ollama, LM Studio, OpenRouter, Groq, Gemini, DeepSeek,
-  OpenAI, Anthropic, custom endpoint)
-- Write-only API key (encrypted server-side, never returned by the API)
-- Test connection, Enable toggle, Redact-PII toggle, Server/Local mode badge
+## Communication & Scoring
 
 ### Email Composer
 - Template gallery (follow-up, introduction, proposal, check-in,
@@ -113,17 +107,13 @@
 - Rules-based scoring with reasons
 - Explainable results; Re-score button on contact detail
 
-### Deal summary (rule-based, no AI)
+### Deal summary (rule-based)
 - Stage, value (+ probability-weighted), close date, last touch
   (recency only, e.g. "2 days ago"); `GET /deals/:id/summary`
 - Overdue tasks live in their own card above the summary (always
   visible, all-clear empty state when none), each completable inline
   with undo; `GET /activities` supports `?deal_id=&kind=task&overdue=true`
 - Stale flag (no touch in 14+ days)
-
-### Local Mode
-- Browser-direct for Ollama/LM Studio (chat)
-- Data never leaves the device
 
 ## Automation (Phase 3 — complete)
 
@@ -187,7 +177,7 @@
   table disables the owner option once the cap is reached
 - Only owners may grant or revoke the admin role, and only owners may invite
   someone as admin — admins manage member/viewer only
-- Workspace-wide settings (AI provider, email, plugins, webhooks, pipelines,
+- Workspace-wide settings (email, plugins, webhooks, pipelines,
   API tokens, import/export) are owner/admin only; the API returns 403 and the
   UI shows a locked card plus a notice if opened directly by URL
 - Bulk import/export authorize as workspace operations, not record edits, so
@@ -268,6 +258,6 @@
 - Token-based sessions (server-side token digests, revoked on logout)
 - Tenant isolation: `account_id` scoping + Pundit policies with a
   cross-tenant guard (`ApplicationPolicy` rejects other accounts' records)
-- Rate limiting on AI endpoints (30 requests / IP / 5 min)
-- Encrypted secrets (AI keys, webhook secrets via ActiveRecord encryption)
+- Rate limiting on auth and import endpoints
+- Encrypted secrets (webhook secrets via ActiveRecord encryption)
 - Passwords hashed with bcrypt

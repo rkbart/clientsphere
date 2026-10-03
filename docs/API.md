@@ -90,7 +90,7 @@ GET    /deals/:id             # Show (includes stage, company, tags)
 PATCH  /deals/:id
 DELETE /deals/:id             # Soft delete
 PATCH  /deals/:id/move        # Stage change
-GET    /deals/:id/summary      # Rule-based summary + facts (no AI)
+GET    /deals/:id/summary      # Rule-based summary + facts
 GET    /deals/attention         # Highest-scoring open deal (?pipeline_id=)
 ```
 
@@ -210,17 +210,6 @@ PATCH  /webhooks/:id
 DELETE /webhooks/:id
 GET    /webhooks/:id/deliveries
 ```
-
-## AI
-
-```
-GET    /ai/settings             # Read config (api_key never returned; api_key_set flag instead)
-PATCH  /ai/settings             # Write config (blank api_key keeps the stored key)
-POST   /ai/test_connection      # { success, message }
-```
-
-Usage endpoints return `422 { error }` when AI is unconfigured or disabled.
-Errors from the provider come back as `422 { error: "AI request failed (…)" }`.
 
 ## Import/Export
 

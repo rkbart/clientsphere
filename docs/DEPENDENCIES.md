@@ -10,9 +10,7 @@
 | `pundit` | Authorization |
 | `kaminari` | Pagination |
 | `discard` | Soft delete |
-| `rack-attack` | AI endpoint rate limiting |
-| `openai` | OpenAI-compatible provider client |
-| `anthropic` | Anthropic provider client |
+| `rack-attack` | Rate limiting |
 | `http` | Webhook HTTP delivery |
 | `rack-cors` | CORS headers |
 | `rails-i18n` | Locale data |

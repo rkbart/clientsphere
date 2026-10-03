@@ -9,7 +9,7 @@ import {
   type PluginRecord,
 } from "@/hooks/use-plugins";
 import { Field, FormError } from "@/components/forms/fields";
-import { errMessage } from "@/lib/ai/error";
+import { errMessage } from "@/lib/error";
 import { Pencil, Plus, Trash2, X, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useCanManageSettings } from "@/hooks/use-current-role";
