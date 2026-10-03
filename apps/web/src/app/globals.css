@@ -29,6 +29,7 @@
   --success: #22c55e;
   --warning: #f59e0b;
   --danger: #ef4444;
+  --danger-hover: #dc2626;
   --info: #3b82f6;
 
   /* Strong (text-safe) counterparts for tinted surfaces */
@@ -93,6 +94,7 @@
   --success: #4ade80;
   --warning: #fbbf24;
   --danger: #f87171;
+  --danger-hover: #ef4444;
   --info: #60a5fa;
 
   --success-ink: #4ade80;
@@ -323,6 +325,18 @@ a:active,
   min-height: 0;
 }
 
+/* Undo countdown — 8s linear fuse; must match UNDO_WINDOW_MS in
+   use-complete-task.ts. Decorative only (expiry is also announced). */
+@keyframes undoCountdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+.undo-countdown {
+  transform-origin: left center;
+  animation: undoCountdown 8s linear both;
+}
+
 /* Table styles */
 @layer components {
   .table-row {
@@ -378,6 +392,16 @@ a:active,
 
   .btn-primary:hover {
     background: var(--accent-hover);
+  }
+
+  .btn-danger {
+    @apply btn px-4 py-2 text-sm;
+    background: var(--danger-ink);
+    color: var(--text-inverse);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: var(--danger-hover);
   }
 
   .btn-secondary {
@@ -483,5 +507,9 @@ a:active,
 
   .collapse-grid {
     transition-duration: 0.01ms;
+  }
+
+  .undo-countdown {
+    display: none;
   }
 }

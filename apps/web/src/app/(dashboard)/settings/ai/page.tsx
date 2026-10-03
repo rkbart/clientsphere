@@ -186,7 +186,7 @@ export default function AISettingsPage() {
               </p>
             )}
             {!hasSavedKey && !form.api_key && (
-              <p className="text-xs text-[var(--warning)] mt-1.5">No key saved yet.</p>
+              <p className="text-xs text-[var(--warning-ink)] mt-1.5">No key saved yet.</p>
             )}
           </div>
         )}

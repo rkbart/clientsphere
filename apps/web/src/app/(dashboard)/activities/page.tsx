@@ -204,7 +204,7 @@ function ActivitiesPageInner() {
                 {deal.title}
               </Link>
             ) : (
-              <span className="font-mono text-xs">{dealId.slice(0, 8)}…</span>
+              <span className="text-[var(--text-tertiary)]">Loading deal…</span>
             )}
           </span>
           <button

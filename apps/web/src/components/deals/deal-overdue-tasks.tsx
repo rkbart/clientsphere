@@ -21,7 +21,8 @@ interface ActivitiesResponse {
 
 function daysOverdue(dueAt: string): number {
   const ms = Date.now() - new Date(dueAt).getTime();
-  return Math.max(0, Math.floor(ms / (1000 * 60 * 60 * 24)));
+  // Round up: anything past due reads as at least "1d late", never "0d late".
+  return Math.max(0, Math.ceil(ms / (1000 * 60 * 60 * 24)));
 }
 
 export function DealOverdueTasks({ dealId }: { dealId: string }) {
@@ -119,9 +120,9 @@ export function DealOverdueTasks({ dealId }: { dealId: string }) {
                     onClick={() => complete(t)}
                     disabled={completing || isPending}
                     aria-label={`Mark ${t.subject} complete`}
-                    className="h-5 w-5 shrink-0 rounded-full border border-[var(--border)] flex items-center justify-center text-transparent hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+                    className="h-6 w-6 shrink-0 rounded-full border border-[var(--border)] flex items-center justify-center text-transparent hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
                   >
-                    <Check className="h-3.5 w-3.5" />
+                    <Check className="h-4 w-4" />
                   </button>
                   <Link
                     href={`/activities/${t.id}`}
@@ -191,6 +192,9 @@ export function DealOverdueTasks({ dealId }: { dealId: string }) {
                       <p className="mt-1 pl-7 text-xs text-[var(--danger-ink)]">
                         Could not reopen — try again.
                       </p>
+                    )}
+                    {!failedHere && (
+                      <span aria-hidden="true" className="undo-countdown mt-2 ml-7 block h-0.5 rounded-full bg-[var(--success)]/50" />
                     )}
                   </li>
                 );

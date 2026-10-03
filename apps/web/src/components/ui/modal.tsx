@@ -50,10 +50,10 @@ export function Modal({
       aria-modal="true"
       aria-label={title}
     >
-      <button
-        aria-label="Close dialog"
+      <div
+        aria-hidden="true"
         onClick={onClose}
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in cursor-default"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
       />
       <div
         ref={panelRef}
@@ -104,7 +104,7 @@ export function ConfirmDialog({
   return (
     <Modal open={open} onClose={onClose} title={title} maxWidth="max-w-sm">
       <p className="text-sm text-[var(--text-secondary)]">{message}</p>
-      {error && <p className="text-sm text-[var(--danger)] mt-3">{error}</p>}
+      {error && <p className="text-sm text-[var(--danger-ink)] mt-3">{error}</p>}
       <div className="flex justify-end gap-2 mt-6">
         <button onClick={onClose} className="btn-secondary" disabled={confirming}>
           Cancel
@@ -112,7 +112,7 @@ export function ConfirmDialog({
         <button
           onClick={onConfirm}
           disabled={confirming}
-          className="btn-primary !bg-[var(--danger)] hover:opacity-90"
+          className="btn-danger"
         >
           {confirming ? "Deleting…" : confirmLabel}
         </button>

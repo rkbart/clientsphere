@@ -33,7 +33,7 @@ interface DealRow {
 }
 
 export default function DashboardPage() {
-  const { data: stats } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
     queryFn: async () => {
       const [contacts, deals, activities] = await Promise.all([
@@ -105,12 +105,25 @@ export default function DashboardPage() {
   ];
 
   const now = Date.now();
+
+  // Compare UTC calendar days so a UTC-stored due_at never flips at local
+  // midnight for far-flung timezones.
+  const isTodayUtc = (dueAt: string) => {
+    const d = new Date(dueAt);
+    const n = new Date();
+    return (
+      d.getUTCFullYear() === n.getUTCFullYear() &&
+      d.getUTCMonth() === n.getUTCMonth() &&
+      d.getUTCDate() === n.getUTCDate()
+    );
+  };
+
   const dueLabel = (dueAt: string | null) => {
     if (!dueAt) return { text: "No due date", className: "text-[var(--text-tertiary)]" };
     const t = new Date(dueAt).getTime();
-    if (t < now) return { text: `Overdue · ${new Date(dueAt).toLocaleDateString()}`, className: "text-[var(--danger)]" };
-    if (new Date(dueAt).toDateString() === new Date().toDateString())
-      return { text: "Due today", className: "text-[var(--warning)]" };
+    if (t < now) return { text: `Overdue · ${new Date(dueAt).toLocaleDateString()}`, className: "text-[var(--danger-ink)]" };
+    if (isTodayUtc(dueAt))
+      return { text: "Due today", className: "text-[var(--warning-ink)]" };
     return { text: new Date(dueAt).toLocaleDateString(), className: "text-[var(--text-tertiary)]" };
   };
 
@@ -129,7 +142,7 @@ export default function DashboardPage() {
               <AlertTriangle className="h-5 w-5 text-[var(--accent)]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--warning)]">
+              <p className="text-xs font-semibold uppercase tracking-wider text-[var(--warning-ink)]">
                 Needs attention
                 {attention?.stale && <span className="badge badge-warning text-xs ml-2">Stale</span>}
               </p>
@@ -168,7 +181,11 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">{stat.label}</p>
-                  <p className="text-3xl font-semibold tracking-tight mt-2 tabular-nums">{stat.value}</p>
+                  {statsLoading ? (
+                    <div className="h-9 w-16 bg-[var(--bg-elevated)] rounded animate-pulse mt-2" />
+                  ) : (
+                    <p className="text-3xl font-semibold tracking-tight mt-2 tabular-nums">{stat.value}</p>
+                  )}
                 </div>
                 <div className="p-2.5 rounded-[var(--radius-lg)] bg-[var(--bg-elevated)]">
                   <Icon className={`h-5 w-5 ${stat.color}`} />
@@ -250,9 +267,9 @@ export default function DashboardPage() {
                     onClick={() => complete(task)}
                     disabled={completing || isPending}
                     aria-label={`Mark ${task.subject} complete`}
-                    className="h-5 w-5 shrink-0 rounded-full border border-[var(--border)] flex items-center justify-center text-transparent hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
+                    className="h-6 w-6 shrink-0 rounded-full border border-[var(--border)] flex items-center justify-center text-transparent hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors disabled:opacity-50"
                   >
-                    <Check className="h-3.5 w-3.5" />
+                    <Check className="h-4 w-4" />
                   </button>
                   <Link
                     href={`/activities/${task.id}`}
@@ -316,6 +333,9 @@ export default function DashboardPage() {
                     <p className="mt-1 pl-7 text-xs text-[var(--danger-ink)]">
                       Could not reopen — try again.
                     </p>
+                  )}
+                  {!failedHere && (
+                    <span aria-hidden="true" className="undo-countdown mt-1 ml-7 block h-0.5 rounded-full bg-[var(--success)]/50" />
                   )}
                 </div>
               );

@@ -277,7 +277,7 @@ export default function PipelinesSettingsPage() {
                     />
                   ) : (
                     <span className="flex items-center gap-1.5">
-                      {p.is_default && <Star className="h-3.5 w-3.5 text-[var(--warning)]" aria-label="Default pipeline" />}
+                      {p.is_default && <Star className="h-3.5 w-3.5 text-[var(--warning-ink)]" aria-label="Default pipeline" />}
                       {p.name}
                     </span>
                   )}

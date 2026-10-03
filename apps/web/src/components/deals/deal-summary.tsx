@@ -22,8 +22,8 @@ interface SummaryData {
 }
 
 const TONE_TEXT: Record<string, string> = {
-  bad: "text-[var(--danger)]",
-  warn: "text-[var(--warning)]",
+  bad: "text-[var(--danger-ink)]",
+  warn: "text-[var(--warning-ink)]",
   ok: "text-[var(--text-primary)]",
   muted: "text-[var(--text-secondary)]",
 };
@@ -56,7 +56,7 @@ export function DealSummary({ dealId }: { dealId: string }) {
 
   return (
     <div className="card p-6">
-      <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
+      <h2 className="text-sm font-semibold flex items-center gap-2 mb-4">
         <FileText className="h-4 w-4 text-[var(--text-tertiary)]" />
         Deal Summary
         {summary.stale && <span className="badge badge-warning text-xs">Stale</span>}
