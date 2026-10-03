@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSequences, useDeleteSequence } from "@/hooks/use-sequences";
 import { errMessage } from "@/lib/error";
 import { Plus, Trash2 } from "lucide-react";
@@ -13,6 +14,7 @@ interface Sequence {
 }
 
 export default function SequencesPage() {
+  const router = useRouter();
   const { data, isLoading } = useSequences();
   const remove = useDeleteSequence();
   const [error, setError] = useState<string | null>(null);
@@ -47,11 +49,26 @@ export default function SequencesPage() {
             </thead>
             <tbody className="divide-y divide-[var(--border-subtle)]">
               {list.map((s) => (
-                <tr key={s.id} className="table-row">
+                <tr
+                  key={s.id}
+                  onClick={(e) => {
+                    const el = e.target as HTMLElement | null;
+                    if (el?.closest?.("button, a, input, select, textarea")) return;
+                    router.push(`/sequences/${s.id}`);
+                  }}
+                  onKeyDown={(e) => {
+                    const el = e.target as HTMLElement | null;
+                    if (el?.closest?.("button, a, input, select, textarea")) return;
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(`/sequences/${s.id}`);
+                    }
+                  }}
+                  tabIndex={0}
+                  className="table-row cursor-pointer"
+                >
                   <td className="table-cell font-medium">
-                    <Link href={`/sequences/${s.id}`} className="hover:text-[var(--text-secondary)] transition-colors">
-                      {s.name}
-                    </Link>
+                    <span>{s.name}</span>
                   </td>
                   <td className="table-cell">
                     <span className={`badge ${s.is_active ? "badge-success" : "badge-neutral"}`}>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Newsreader } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { ThemeEffect } from "@/components/layout/theme-effect";
 import "./globals.css";
@@ -7,12 +7,6 @@ import "./globals.css";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
-});
-
-const newsreader = Newsreader({
-  subsets: ["latin"],
-  variable: "--font-display",
-  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -26,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <html lang="en" className={`${inter.variable} ${newsreader.variable}`}>
+      <html lang="en" className={inter.variable}>
       <body className="antialiased">
         <ThemeEffect />
         <Providers>{children}</Providers>

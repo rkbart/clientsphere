@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAutomations, useToggleAutomation, useDeleteAutomation } from "@/hooks/use-automations";
 import { errMessage } from "@/lib/error";
 import { Plus, Pencil, Trash2, Play, Pause } from "lucide-react";
@@ -14,6 +15,7 @@ interface Automation {
 }
 
 export default function AutomationsPage() {
+  const router = useRouter();
   const { data, isLoading } = useAutomations();
   const toggle = useToggleAutomation();
   const remove = useDeleteAutomation();
@@ -50,11 +52,26 @@ export default function AutomationsPage() {
             </thead>
             <tbody className="divide-y divide-[var(--border-subtle)]">
               {list.map((a) => (
-                <tr key={a.id} className="table-row">
+                <tr
+                  key={a.id}
+                  onClick={(e) => {
+                    const el = e.target as HTMLElement | null;
+                    if (el?.closest?.("button, a, input, select, textarea")) return;
+                    router.push(`/automations/${a.id}/edit`);
+                  }}
+                  onKeyDown={(e) => {
+                    const el = e.target as HTMLElement | null;
+                    if (el?.closest?.("button, a, input, select, textarea")) return;
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(`/automations/${a.id}/edit`);
+                    }
+                  }}
+                  tabIndex={0}
+                  className="table-row cursor-pointer"
+                >
                   <td className="table-cell font-medium">
-                    <Link href={`/automations/${a.id}/edit`} className="hover:text-[var(--text-secondary)] transition-colors">
-                      {a.name}
-                    </Link>
+                    <span>{a.name}</span>
                   </td>
                   <td className="table-cell text-[var(--text-secondary)]">{a.trigger_type.replace(/_/g, " ")}</td>
                   <td className="table-cell">

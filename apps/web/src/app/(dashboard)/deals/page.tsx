@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useDeals, useCreateDeal } from "@/hooks/use-deals";
 import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-filters";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
@@ -43,6 +43,7 @@ function money(value: number | string | null | undefined, currency = "USD") {
 }
 
 export default function DealsPage() {
+  const router = useRouter();
   const stored = useMemo(() => readRememberedFilters("deals"), []);
   const [q, setQ] = useState(() => (stored.q as string | undefined) ?? "");
   const [debouncedQ, setDebouncedQ] = useState(() => (stored.q as string | undefined) ?? "");
@@ -106,15 +107,12 @@ export default function DealsPage() {
       sortable: true,
       minWidth: "w-[260px]",
       render: (d) => (
-        <Link
-          href={`/deals/${d.id}`}
-          className="font-medium text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
-        >
+        <span className="font-medium text-[var(--text-primary)]">
           {d.title}
           {d.company?.name && (
             <span className="text-[var(--text-tertiary)] font-normal"> · {d.company.name}</span>
           )}
-        </Link>
+        </span>
       ),
     },
     {
@@ -234,6 +232,7 @@ export default function DealsPage() {
         columns={columns}
         rows={typed?.data}
         isLoading={isLoading}
+        onRowClick={(d) => router.push(`/deals/${d.id}`)}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

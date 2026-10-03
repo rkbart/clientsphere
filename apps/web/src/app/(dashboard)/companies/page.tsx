@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCompanies, useCreateCompany } from "@/hooks/use-companies";
 import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-filters";
 import type { Tag } from "@/hooks/use-tags";
@@ -30,6 +30,7 @@ interface CompaniesResponse {
 }
 
 export default function CompaniesPage() {
+  const router = useRouter();
   const stored = useMemo(() => readRememberedFilters("companies"), []);
   const [q, setQ] = useState(() => (stored.q as string | undefined) ?? "");
   const [debouncedQ, setDebouncedQ] = useState(() => (stored.q as string | undefined) ?? "");
@@ -86,12 +87,7 @@ export default function CompaniesPage() {
       sortable: true,
       minWidth: "w-[260px]",
       render: (c) => (
-        <Link
-          href={`/companies/${c.id}`}
-          className="font-medium text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
-        >
-          {c.name}
-        </Link>
+        <span className="font-medium text-[var(--text-primary)]">{c.name}</span>
       ),
     },
     { key: "domain", label: "Domain", sortable: true, render: (c) => <span className="text-[var(--text-secondary)]">{c.domain || "—"}</span> },
@@ -140,6 +136,7 @@ export default function CompaniesPage() {
         columns={columns}
         rows={typed?.data}
         isLoading={isLoading}
+        onRowClick={(c) => router.push(`/companies/${c.id}`)}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

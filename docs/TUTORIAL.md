@@ -73,6 +73,8 @@ reacts to it.
 - **Clear filters** button resets search/tag/status at once
 - Sortable columns (name, email, company), page-size picker (10/25/50), and
   pagination; your filter set is remembered when you come back
+- **Whole-row click** — click anywhere on a row (or focus it and press
+  Enter/Space) to open the detail page; checkboxes and tag chips are exempt
 
 ### Detail page
 
@@ -108,6 +110,7 @@ service deal, in one place. Set a **main contact** (your primary buyer) so
 anyone opening the record knows who to call first. Same pattern as contacts
 otherwise:
 - List with search and filters
+- Whole-row click to open the detail page
 - Detail page with notes, tags, social links, main contact, and custom fields
 
 ---
@@ -128,7 +131,7 @@ Go to **Deals** for the table view:
 - Filter by stage (e.g. everything sitting in Negotiation) and by tag
 - Sort by title, amount, or close date (no default sort); paginated with a
   page-size picker; your filter set is remembered when you come back
-- Click a row to open the detail page
+- Click anywhere on a row to open the detail page
 
 ### Pipeline board
 
@@ -196,8 +199,8 @@ Go to **Activities** to see all calls, meetings, tasks, and emails:
 - Sort by subject, type, or due date; paginated
 - Tick checkboxes to select rows, then **Mark complete** to finish them
   all at once
-- Click a row to open its detail page: complete/reopen, edit, delete,
-  linked contact/company/deal
+- Click anywhere on a row to open its detail page: complete/reopen, edit,
+  delete, linked contact/company/deal (checkboxes are exempt from navigation)
 
 ### Calendar view
 
@@ -321,7 +324,9 @@ swap the form, or **Start blank** to clear it. Rename, tweak, then save.
 
 ### Visual workflow builder
 
-Go to **Automations** and click **New Automation** (or start from a template):
+Go to **Automations** and click **New Automation** (or start from a template).
+Click anywhere on an automation row to edit it (pause/delete buttons are
+exempt):
 
 1. **Name** your workflow
 2. **Trigger** — choose when it fires:
@@ -361,7 +366,8 @@ Go to **Sequences** (`/sequences` — reachable by direct URL or the topbar
 title; there is currently no sidebar link, so bookmark it or type the URL) to
 create multi-step email drips:
 
-1. Click **New Sequence** — give it a name, then add steps. Each step has its
+1. Click **New Sequence** — give it a name, then add steps. The sequences
+   table is whole-row clickable (delete button exempt). Each step has its
    own edit/delete controls:
    - Subject and body (supports `{{first_name}}`, `{{last_name}}`, `{{email}}`, `{{company}}`)
    - Delay before sending (days; `0` sends immediately)
@@ -381,8 +387,9 @@ create multi-step email drips:
 Go to **Outbox** (sidebar, `/emails`) to see every outbound email in one place:
 - Filter by status: **draft** (waiting on a provider), **sent**, **delivered**,
   **opened**, **failed**
-- Click a row to read it; drafts open editable — fix the address, subject,
-  or body, save, and retry
+- Click anywhere on a row to read it; drafts open editable — fix the address,
+  subject, or body, save, and retry (the **Retry** button is exempt from
+  row navigation)
 - **Retry** on a draft or failure re-sends through your provider
 - Delivery tracking (`delivered`/`opened`) needs the Resend webhook
   configured in **Settings → Email**

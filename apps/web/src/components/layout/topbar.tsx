@@ -1,31 +1,12 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
 import { LogOut, Menu, Moon, Sun } from "lucide-react";
 
-const titles: Record<string, string> = {
-  dashboard: "Dashboard",
-  contacts: "Contacts",
-  companies: "Companies",
-  deals: "Deals",
-  pipeline: "Pipeline",
-  activities: "Activities",
-  calendar: "Calendar",
-  automations: "Automations",
-  emails: "Outbox",
-  sequences: "Sequences",
-  settings: "Settings",
-  about: "About",
-};
-
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
-  const pathname = usePathname();
   const { user, clearAuth } = useAuthStore();
   const { theme, setTheme } = useUIStore();
-  const segment = pathname.split("/")[1] || "dashboard";
-  const title = titles[segment] ?? "ClientSphere";
 
   const handleLogout = () => {
     clearAuth();
@@ -42,9 +23,6 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         >
           <Menu className="h-5 w-5" />
         </button>
-        <span className="font-display text-[17px] tracking-tight truncate">
-          {title}
-        </span>
       </div>
 
       <div className="flex items-center gap-1.5">

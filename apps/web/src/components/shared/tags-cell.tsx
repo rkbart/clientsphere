@@ -3,10 +3,12 @@
 import type { Tag } from "@/hooks/use-tags";
 
 // Compact tag badges for table cells: first three, then a "+N" overflow chip.
+// data-no-row-click keeps tag hovers/clicks from triggering row navigation
+// when the table row itself is clickable.
 export function TagsCell({ tags, max = 3 }: { tags?: Tag[]; max?: number }) {
   if (!tags || tags.length === 0) return <span className="text-[var(--text-tertiary)]">—</span>;
   return (
-    <span className="flex flex-wrap gap-1 max-w-[16rem]">
+    <span className="flex flex-wrap gap-1 max-w-[16rem]" data-no-row-click>
       {tags.slice(0, max).map((tag) => (
         <span
           key={tag.id}

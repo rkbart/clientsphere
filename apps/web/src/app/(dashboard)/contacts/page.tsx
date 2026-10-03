@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useContacts, useCreateContact } from "@/hooks/use-contacts";
 import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-filters";
 import { useTags } from "@/hooks/use-tags";
@@ -48,6 +48,7 @@ interface ContactsResponse {
 }
 
 export default function ContactsPage() {
+  const router = useRouter();
   const stored = useMemo(() => readRememberedFilters("contacts"), []);
   const [q, setQ] = useState(() => (stored.q as string | undefined) ?? "");
   const [debouncedQ, setDebouncedQ] = useState(() => (stored.q as string | undefined) ?? "");
@@ -110,12 +111,9 @@ export default function ContactsPage() {
       sortable: true,
       minWidth: "w-[240px]",
       render: (c) => (
-        <Link
-          href={`/contacts/${c.id}`}
-          className="font-medium text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
-        >
+        <span className="font-medium text-[var(--text-primary)]">
           {c.first_name} {c.last_name}
-        </Link>
+        </span>
       ),
     },
     {
@@ -227,6 +225,7 @@ export default function ContactsPage() {
         columns={columns}
         rows={typed?.data}
         isLoading={isLoading}
+        onRowClick={(c) => router.push(`/contacts/${c.id}`)}
         sortKey={sort}
         direction={direction}
         onSort={handleSort}

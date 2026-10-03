@@ -16,10 +16,14 @@ export interface DataTableColumn<T> {
 // Card + table + skeleton + empty state + pagination footer shared by every
 // entity list page (contacts, companies, deals).
 // Row clicks must never hijack inner controls: ignore events originating
-// from interactive descendants (e.g. the Outbox Retry button).
+// from interactive descendants (checkboxes, buttons, links, selects, tag
+// chips). Plain spans/badges inside cells are NOT interactive, so clicks on
+// them still bubble up to the row handler.
 function fromInteractiveDescendant(e: { target: EventTarget | null }): boolean {
   const el = e.target as HTMLElement | null;
-  return !!el?.closest?.("button, a, input, select, textarea");
+  return !!el?.closest?.(
+    "button, a, input, select, textarea, [data-no-row-click]"
+  );
 }
 export function DataTable<T extends { id: string }>({
   columns,

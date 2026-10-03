@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { useDeal } from "@/hooks/use-deals";
@@ -64,6 +64,7 @@ export default function ActivitiesPage() {
 }
 
 function ActivitiesPageInner() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   // Deep-link params win; otherwise restore the last-used filter set.
   const stored = useMemo(() => readRememberedFilters("activities"), []);
@@ -203,12 +204,7 @@ function ActivitiesPageInner() {
       sortable: true,
       minWidth: "w-[240px]",
       render: (a) => (
-        <Link
-          href={`/activities/${a.id}`}
-          className="font-medium text-[var(--text-primary)] hover:text-[var(--text-secondary)] transition-colors"
-        >
-          {a.subject}
-        </Link>
+        <span className="font-medium text-[var(--text-primary)]">{a.subject}</span>
       ),
     },
     {
@@ -363,6 +359,7 @@ function ActivitiesPageInner() {
         columns={columns}
         rows={data?.data}
         isLoading={isLoading}
+        onRowClick={(a) => router.push(`/activities/${a.id}`)}
         selectable
         selectedIds={selectedIds}
         onToggleSelect={toggleSelect}

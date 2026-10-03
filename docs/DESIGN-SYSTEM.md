@@ -6,16 +6,24 @@ purposeful motion. This doc is the source of truth for tokens, components,
 motion rules, and responsive behavior.
 
 Styling lives in `apps/web/src/app/globals.css`. All values below are the
-actual CSS custom properties defined there.
+actual CSS custom properties defined there. `DESIGN.md` (repo root, installed
+via `npx getdesign@latest add notion`) is kept as reference for the warm-paper
+direction (warm canvas, whisper borders, Notion-style shadow stacks), but the
+brand accent stays the original burnt orange — buttons were restored after a
+brief blue experiment.
 
 ## Design language
 
-- **Warm monochrome** — stone-based neutrals (`#fafaf9` bg, `#1c1917` ink),
-  no cold grays, one accent (`#292524`) instead of a brand color
-- **Flat surfaces** — cards rely on 1px borders; shadows appear only on hover
+- **Warm paper canvas** (Notion-inspired) — warm-white page (`#f6f5f4`),
+  white cards/fields for figure/ground, warm grays (never blue-gray),
+  and the original burnt-orange accent (`#b64920`)
+- **Flat surfaces** — cards rely on whisper borders (`#e6e6e6`); shadows are
+  many near-transparent layers (Level 1–3 stacks), appearing mostly on hover
 - **Editorial typography** — Inter with tight tracking on headings, uppercase
-  micro-labels with `tracking-wider` for table/stat headers
-- **No decoration** — no gradients, glassmorphism, emojis, or stock art
+  micro-labels with `tracking-wider` for table/stat headers; body stays 400,
+  700 belongs to headlines
+- **No decoration** — no gradients, glassmorphism, emojis, or stock art;
+  pill radii belong to CTAs/badges, inputs stay tight
 
 ## Tokens
 
@@ -23,32 +31,37 @@ actual CSS custom properties defined there.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--bg` | `#fafaf9` | App background |
+| `--bg` | `#f6f5f4` | App background (warm canvas-soft) |
 | `--bg-card` | `#ffffff` | Cards, topbar |
-| `--bg-elevated` | `#f5f5f4` | Content area, row hover |
-| `--bg-sidebar` | `#1c1917` | Sidebar |
-| `--text-primary` | `#1c1917` | Body text |
-| `--text-secondary` | `#78716c` | Secondary text |
-| `--text-tertiary` | `#6e6a66` | Placeholders, metadata (5.4:1 on white) |
-| `--border` / `--border-subtle` | `#e7e5e4` / `#f5f5f4` | Borders / dividers |
-| `--accent` / `--accent-hover` | `#292524` / `#44403c` | Primary buttons, focus |
+| `--bg-elevated` | `#efefed` | Content area, row hover |
+| `--bg-sidebar` | `#1c1917` | Sidebar (kept dark — Notion kit is light-only) |
+| `--text-primary` | `#191817` | Body text |
+| `--text-secondary` | `#615d59` | Secondary text |
+| `--text-tertiary` | `#78716c` | Placeholders, metadata (4.6:1 on white) |
+| `--border` / `--border-subtle` | `#e6e6e6` / `#f1efe9` | Whisper borders / dividers |
+| `--accent` / `--accent-hover` | `#b64920` / `#993a17` | Primary buttons, links, focus |
+| `--accent-on-dark` | `#e0653a` | Sidebar/brand accent on dark surfaces |
 
-Status colors (`--success`, `--warning`, `--danger`, `--info`) back the
-badge variants.
+Status colors (`--success #22c55e`, `--warning #f59e0b`, `--danger #ef4444`,
+`--info #3b82f6`) back the badge variants.
 
 ### Dark mode (`<html data-theme="dark">`)
 
 Same token names, stone-inverted values (`--bg #0c0a09`, `--bg-card
-#1c1917`, `--accent #fafaf9`, brightened status colors); badges and
+#1c1917`, `--accent #e0653a`, brightened status colors); badges and
 hardcoded red-50 error surfaces get translucent retunes in
 `globals.css`. Toggle in the topbar, persisted in `clientsphere-ui`,
 OS setting as default. Charts read the tokens via CSS vars.
 
 ### Radii, shadows, fonts
 
-- Radius scale: `--radius-sm` 6px → `--radius-xl` 16px
-- Shadows: `--shadow-sm/md/lg` — subtle, hover-only (`--shadow-md` on cards)
-- Fonts: `--font-sans` (Inter, via `next/font`), `--font-mono`
+- Radius scale: `--radius-sm` 5px → `--radius-xl` 16px (Notion: inputs stay
+  tight at 4–5px, pills at 9999px for CTAs/badges)
+- Shadows: `--shadow-sm/md/lg` — Notion whisper stacks (4–5 near-transparent
+  layers each, none above 0.05 in light mode), hover-only (`--shadow-md` on cards)
+- Fonts: `--font-sans`/`--font-display` (single Notion-style sans stack —
+  `NotionInter` first, Inter fallback — via `next/font`), `--font-mono`
+  (`Berkeley Mono` first, JetBrains Mono fallback)
 
 ### Motion
 
@@ -93,7 +106,7 @@ one-off utility combinations:
 | `.btn` | `.btn-primary`, `.btn-secondary`, `.btn-ghost` | Transitions come from the unlayered interactive block |
 | `.input` | — | Focus ring via `box-shadow` |
 | `.badge` | `-success`, `-warning`, `-danger`, `-info`, `-neutral` | |
-| `.table-row` / `.table-cell` / `.table-header` | — | Row hover = background color only |
+| `.table-row` / `.table-cell` / `.table-header` | — | Row hover = background color only; rows navigate on click (Enter/Space too) except from controls (checkboxes, buttons, links, selects, tag chips) |
 | `.animate-fade-in` / `-slide-in` / `-scale-in`, `.stagger` | | Entrance helpers (200ms / 300ms staggered) |
 
 ## Responsive behavior
@@ -106,7 +119,8 @@ window — the mobile layout applies:
   Escape-to-close, body scroll lock, and `visibility`-based focus handling
   (closed links leave the tab order only after the exit animation).
   Implemented in `src/components/layout/sidebar.tsx`.
-- **Topbar** becomes sticky and shows the current page title on mobile.
+- **Topbar** is sticky and utility-only (mobile hamburger, user, theme,
+  logout) — page titles live on the page `<h1>`, not in the header.
 - **Page headers** stack (`flex-col` below `sm`), action buttons align
   start.
 - **Tables** scroll horizontally (`overflow-x-auto`, `min-w` 560–600px) so
