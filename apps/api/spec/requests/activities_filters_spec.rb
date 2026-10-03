@@ -55,6 +55,21 @@ RSpec.describe "Activities date filters", type: :request do
     expect(subjects).to contain_exactly("Past")
   end
 
+  it "filters by deal_id combined with overdue" do
+    pipeline = account.pipelines.create!(name: "P")
+    stage = pipeline.stages.create!(name: "S", position: 1)
+    deal = account.deals.create!(title: "Harborview", pipeline: pipeline, stage: stage)
+    account.activities.create!(creator: owner, kind: :task, subject: "Deal overdue",
+                               due_at: 2.days.ago, deal: deal)
+    account.activities.create!(creator: owner, kind: :task, subject: "Other overdue",
+                               due_at: 2.days.ago)
+
+    get "/api/v1/activities", params: { deal_id: deal.id, kind: "task", overdue: "true" }, headers: headers
+
+    subjects = JSON.parse(response.body)["data"].map { |a| a["subject"] }
+    expect(subjects).to contain_exactly("Deal overdue")
+  end
+
   it "sorts by allow-listed columns and ignores the rest" do
     get "/api/v1/activities", params: { sort: "subject", direction: "asc", per_page: 100 }, headers: headers
     subjects = JSON.parse(response.body)["data"].map { |a| a["subject"] }

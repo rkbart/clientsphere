@@ -68,7 +68,7 @@ module Deals
                else
                  "ok"
                end
-        { tone: tone, label: "#{recency} (#{last.kind}: #{last.subject})", overdue_tasks: overdue }
+        { tone: tone, label: recency, overdue_tasks: overdue }
       end
     end
 

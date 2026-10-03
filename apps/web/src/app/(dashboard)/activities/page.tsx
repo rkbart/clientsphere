@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
+import { useDeal } from "@/hooks/use-deals";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import type { SortDir } from "@/components/shared/sort-header";
 import Link from "next/link";
@@ -53,11 +54,21 @@ const STATUS_BADGE: Record<string, string> = {
 };
 
 export default function ActivitiesPage() {
+  return (
+    <Suspense fallback={<div className="text-center py-8 text-sm text-[var(--text-secondary)]">Loading...</div>}>
+      <ActivitiesPageInner />
+    </Suspense>
+  );
+}
+
+function ActivitiesPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [q, setQ] = useState("");
   const [debouncedQ, setDebouncedQ] = useState("");
-  const [kind, setKind] = useState("");
-  const [status, setStatus] = useState("");
+  const [kind, setKind] = useState(() => searchParams.get("kind") ?? "");
+  const [status, setStatus] = useState(() => searchParams.get("status") ?? "");
+  const [dealId, setDealId] = useState(() => searchParams.get("deal_id") ?? "");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(25);
   const [sort, setSort] = useState<SortKey>("due_at");
@@ -72,13 +83,14 @@ export default function ActivitiesPage() {
   }, [q]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["activities", debouncedQ, kind, status, page, perPage, sort, direction],
+    queryKey: ["activities", debouncedQ, kind, status, dealId, page, perPage, sort, direction],
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/activities", {
         params: {
           query: {
             q: debouncedQ || undefined,
             kind: kind || undefined,
+            deal_id: dealId || undefined,
             completed: status === "completed" ? "true" : status === "open" ? "false" : undefined,
             overdue: status === "overdue" ? "true" : undefined,
             page,
@@ -94,10 +106,13 @@ export default function ActivitiesPage() {
     },
   });
 
+  const { data: dealData } = useDeal(dealId, { enabled: !!dealId });
+  const deal = dealData as unknown as { id: string; title: string } | undefined;
+
   const total = data?.meta?.total_count ?? 0;
   const totalPages = data?.meta?.total_pages ?? 0;
   const currentPage = data?.meta?.current_page ?? page;
-  const isFiltered = !!debouncedQ || !!kind || !!status;
+  const isFiltered = !!debouncedQ || !!kind || !!status || !!dealId;
 
   const handleSort = (key: string) => {
     if (key === sort) {
@@ -114,6 +129,7 @@ export default function ActivitiesPage() {
     setDebouncedQ("");
     setKind("");
     setStatus("");
+    setDealId("");
     setPage(1);
   };
 
@@ -176,6 +192,35 @@ export default function ActivitiesPage() {
           Log Activity
         </Link>
       </div>
+
+      {dealId && (
+        <div className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-elevated)] px-4 py-2.5 text-sm">
+          <span className="text-[var(--text-secondary)]">
+            Filtered to deal:{" "}
+            {deal ? (
+              <Link
+                href={`/deals/${deal.id}`}
+                className="font-medium text-[var(--text-primary)] hover:underline"
+              >
+                {deal.title}
+              </Link>
+            ) : (
+              <span className="font-mono text-xs">{dealId.slice(0, 8)}…</span>
+            )}
+          </span>
+          <button
+            onClick={() => {
+              setDealId("");
+              setPage(1);
+            }}
+            className="btn-ghost text-sm"
+            aria-label="Clear deal filter"
+          >
+            <X className="h-4 w-4" />
+            Deal
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-sm">

@@ -22,6 +22,7 @@ namespace :openapi do
     extra_index_params = {
       "api/v1/activities" => {
         "kind" => { "type" => "string" },
+        "deal_id" => { "type" => "string" },
         "assignee_id" => { "type" => "string" },
         "completed" => { "type" => "string" },
         "overdue" => { "type" => "string" },

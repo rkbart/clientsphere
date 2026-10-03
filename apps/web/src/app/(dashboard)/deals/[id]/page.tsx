@@ -4,11 +4,14 @@ import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useDeal, useUpdateDeal, useDeleteDeal } from "@/hooks/use-deals";
+import { useContact } from "@/hooks/use-contacts";
+import { useCompany } from "@/hooks/use-companies";
 import { useStages, usePipelines } from "@/hooks/use-pipelines";
 import { NotesSection } from "@/components/shared/notes-section";
 import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { DealSummary } from "@/components/deals/deal-summary";
+import { DealOverdueTasks } from "@/components/deals/deal-overdue-tasks";
 import { EmailComposer } from "@/components/emails/email-composer";
 import { Modal, ConfirmDialog } from "@/components/ui/modal";
 import { DealForm, type DealFormValues } from "@/components/deals/deal-form";
@@ -52,6 +55,14 @@ export default function DealDetailPage() {
   const deal = data as unknown as DealData | undefined;
   const { data: pipelines } = usePipelines();
   const { data: stages } = useStages(deal?.pipeline_id);
+  const { data: contactData } = useContact(deal?.contact_id ?? "", {
+    enabled: !!deal?.contact_id,
+  });
+  const { data: companyData } = useCompany(deal?.company_id ?? "", {
+    enabled: !!deal?.company_id,
+  });
+  const contact = contactData as unknown as { id: string; first_name: string; last_name?: string | null } | undefined;
+  const company = companyData as unknown as { id: string; name: string } | undefined;
 
   const stageName = stages?.find((s) => s.id === deal?.stage_id)?.name;
   const pipelineName = pipelines?.find((p) => p.id === deal?.pipeline_id)?.name;
@@ -134,6 +145,36 @@ export default function DealDetailPage() {
               <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Source</dt>
               <dd className="mt-0.5 text-sm">{deal.source || "—"}</dd>
             </div>
+            <div>
+              <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Company</dt>
+              <dd className="mt-0.5 text-sm">
+                {deal.company_id ? (
+                  <Link
+                    href={`/companies/${deal.company_id}`}
+                    className="hover:text-[var(--accent-hover)] transition-colors"
+                  >
+                    {company ? company.name : "—"}
+                  </Link>
+                ) : (
+                  "—"
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Contact</dt>
+              <dd className="mt-0.5 text-sm">
+                {deal.contact_id ? (
+                  <Link
+                    href={`/contacts/${deal.contact_id}`}
+                    className="hover:text-[var(--accent-hover)] transition-colors"
+                  >
+                    {contact ? `${contact.first_name} ${contact.last_name ?? ""}`.trim() : "—"}
+                  </Link>
+                ) : (
+                  "—"
+                )}
+              </dd>
+            </div>
           </dl>
         </div>
 
@@ -153,6 +194,7 @@ export default function DealDetailPage() {
       </div>
 
       <div className="space-y-6">
+        <DealOverdueTasks dealId={deal.id} />
         <DealSummary dealId={deal.id} />
         {deal.contact_id && <EmailComposer contactId={deal.contact_id} dealId={deal.id} />}
       </div>

@@ -504,6 +504,7 @@ export interface operations {
         page?: number;
         per_page?: number;
         kind?: string;
+        deal_id?: string;
         assignee_id?: string;
         completed?: string;
         overdue?: string;

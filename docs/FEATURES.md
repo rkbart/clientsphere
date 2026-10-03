@@ -35,6 +35,10 @@
   manual overrides preserved, weighted forecast)
 - List with search, stage/tag filters, sortable columns, pagination
 - Add/edit via modal dialogs (server 422 displayed inline)
+- Detail page: details card (amount, close date, probability, source,
+  linked company/contact), status card, collapsible overdue-tasks card
+  (collapsed by default), rule-based summary, email composer, tags,
+  custom fields, notes
 
 ### Activities
 - Activity records: calls, meetings, tasks, emails
@@ -44,7 +48,7 @@
 - Logging UI on the Activities page (new + edit)
 - Detail page with complete/reopen toggle, edit modal, delete,
   linked records
-- List with search, kind/status filters (incl. overdue), sortable
+- List with search, kind/status/deal filters (incl. overdue), sortable
   columns, pagination
 
 ### Notes
@@ -106,8 +110,12 @@
 - Explainable results; Re-score button on contact detail
 
 ### Deal summary (rule-based, no AI)
-- Stage, value (+ probability-weighted), close date, last activity, overdue tasks
-- Stale flag (no touch in 14+ days); `GET /deals/:id/summary`
+- Stage, value (+ probability-weighted), close date, last touch
+  (recency only, e.g. "2 days ago"); `GET /deals/:id/summary`
+- Overdue tasks live in their own collapsible card above the summary
+  (collapsed by default), each linking to its activity; `GET /activities`
+  supports `?deal_id=&kind=task&overdue=true`
+- Stale flag (no touch in 14+ days)
 
 ### Local Mode
 - Browser-direct for Ollama/LM Studio (chat)

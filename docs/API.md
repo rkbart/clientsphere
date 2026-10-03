@@ -114,7 +114,7 @@ DELETE /pipelines/:pipeline_id/stages/:id
 ## Activities
 
 ```
-GET    /activities
+GET    /activities          # List (q, kind, deal_id, assignee_id, completed, overdue, due_from, due_to, sort, direction, page, per_page)
 POST   /activities
 GET    /activities/:id
 PATCH  /activities/:id

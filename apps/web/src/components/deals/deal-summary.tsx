@@ -94,13 +94,6 @@ export function DealSummary({ dealId }: { dealId: string }) {
             <span className={tone(activity.tone)}>{activity.label || "—"}</span>
           </FactRow>
         )}
-        {(activity?.overdue_tasks ?? 0) > 0 && (
-          <FactRow label="Overdue tasks">
-            <span className="text-[var(--danger)] tabular-nums">
-              {activity?.overdue_tasks} need{activity?.overdue_tasks === 1 ? "s" : ""} attention
-            </span>
-          </FactRow>
-        )}
       </dl>
     </div>
   );

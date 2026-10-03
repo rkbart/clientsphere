@@ -8,6 +8,7 @@ class Api::V1::ActivitiesController < Api::V1::BaseController
       activities = activities.where("subject ILIKE :t OR description ILIKE :t", t: term)
     end
     activities = activities.where(kind: params[:kind]) if params[:kind].present? && Activity.kinds.key?(params[:kind])
+    activities = activities.where(deal_id: params[:deal_id]) if params[:deal_id].present?
     activities = activities.where(assignee_id: params[:assignee_id]) if params[:assignee_id].present?
     activities = activities.where(completed_at: nil) if params[:completed] == "false"
     activities = activities.where.not(completed_at: nil) if params[:completed] == "true"

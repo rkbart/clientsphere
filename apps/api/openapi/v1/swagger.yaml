@@ -32,6 +32,10 @@ paths:
         in: query
         schema:
           type: string
+      - name: deal_id
+        in: query
+        schema:
+          type: string
       - name: assignee_id
         in: query
         schema:
