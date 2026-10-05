@@ -47,6 +47,20 @@ RSpec.describe "Emails outbox", type: :request do
     expect(email.reload.sent_at).to be_present
   end
 
+  it "refuses to redeliver an email with no recipient" do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
+    sender = class_double("Resend::Emails").as_stubbed_const
+    allow(sender).to receive(:send).and_return({ id: "x" })
+    email = create_email(to_addresses: [])
+
+    post "/api/v1/emails/#{email.id}/redeliver", headers: headers
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(JSON.parse(response.body)["error"]).to include("no recipient")
+    expect(sender).not_to have_received(:send)
+    expect(email.reload.status).to eq("draft")
+  end
+
   it "marks failed when redelivery raises" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
     sender = class_double("Resend::Emails").as_stubbed_const

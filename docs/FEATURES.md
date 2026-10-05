@@ -98,7 +98,9 @@
 - Every outbound email in one list with status filter
   (draft/sent/delivered/opened/failed)
 - Read full content; edit drafts inline (to/cc/bcc, subject, body)
-- Retry drafts and failures (`POST /emails/:id/redeliver`)
+- Retry drafts and failures (`POST /emails/:id/redeliver`); the Retry control is
+  disabled on rows with no `to` recipient, and the endpoint returns 422 rather
+  than asking the provider to reject the send
 - Drafts pile up here automatically when no provider is configured
 
 ### Email settings & tracking

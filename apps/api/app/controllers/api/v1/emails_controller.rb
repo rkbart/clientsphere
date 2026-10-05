@@ -40,6 +40,12 @@ class Api::V1::EmailsController < Api::V1::BaseController
     email = Current.account.emails.find(params[:id])
     authorize email, :update?
 
+    # Retrying hits the provider directly, which rejects a send with no "to".
+    if Array(email.to_addresses).empty?
+      message = "This email has no recipient. Add one before retrying."
+      return render json: { error: message }, status: :unprocessable_entity
+    end
+
     render json: EmailService.redeliver(email)
   end
 

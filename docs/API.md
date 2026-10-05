@@ -144,7 +144,7 @@ GET    /emails/templates      # ?contact_id= for per-contact personalization
 POST   /emails/deliver        # body: deal_id?, subject, body, to_addresses?
                               #   contact_id? — omit it and pass to_addresses
                               #   instead; 422 if neither is present
-POST   /emails/:id/redeliver  # retry delivery of a draft/failed email
+POST   /emails/:id/redeliver  # retry a draft/failed email; 422 if no recipient
 GET    /email_settings        # owner/admin; secrets never returned
 PATCH  /email_settings        # body: from_address, resend_api_key, webhook_secret
 POST   /webhooks/resend/:account_id  # Resend tracking events (Svix-signed)

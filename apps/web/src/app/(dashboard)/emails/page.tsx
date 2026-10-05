@@ -24,6 +24,9 @@ interface OutboxEmail {
 const splitAddrs = (s: string) =>
   s.split(",").map((x) => x.trim()).filter((x) => x !== "");
 
+// Retry goes straight to the provider, which rejects a send with no "to".
+const hasRecipient = (e: OutboxEmail) => (e.to_addresses ?? []).length > 0;
+
 function EmailDetailModal({
   email,
   onClose,
@@ -236,8 +239,23 @@ export default function OutboxPage() {
     {
       key: "actions",
       label: "",
-      render: (e) =>
-        e.status === "draft" || e.status === "failed" ? (
+      render: (e) => {
+        const retryable = e.status === "draft" || e.status === "failed";
+        if (!retryable) return <span />;
+        if (!hasRecipient(e)) {
+          return (
+            <button
+              disabled
+              className="btn-secondary text-sm"
+              title="Add a recipient before retrying"
+              aria-label="Retry unavailable — no recipient"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              Retry
+            </button>
+          );
+        }
+        return (
           <button
             onClick={(ev) => {
               ev.stopPropagation();
@@ -250,9 +268,8 @@ export default function OutboxPage() {
             <RotateCcw className="h-3.5 w-3.5" />
             {retryingId === e.id ? "Retrying…" : "Retry"}
           </button>
-        ) : (
-          <span />
-        ),
+        );
+      },
     },
   ];
 
