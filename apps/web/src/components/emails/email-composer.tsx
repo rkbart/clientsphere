@@ -3,16 +3,18 @@
 import { useEffect, useState } from "react";
 import { useCreateEmail, useDeliverEmail, useEmailTemplates } from "@/hooks/use-emails";
 import { useContact } from "@/hooks/use-contacts";
+import { Modal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Check, Copy, Mail, Save, Send } from "lucide-react";
 
 const splitAddrs = (s: string) =>
   s.split(",").map((x) => x.trim()).filter((x) => x !== "");
 
-export function EmailComposer({ contactId, dealId }: { contactId: string; dealId?: string }) {
+export function EmailComposer({ contactId, dealId }: { contactId?: string; dealId?: string }) {
   const { data: templates } = useEmailTemplates(contactId);
-  const { data: contactData } = useContact(contactId);
+  const { data: contactData } = useContact(contactId ?? "", { enabled: Boolean(contactId) });
   const contactEmail = (contactData as unknown as { email?: string } | undefined)?.email ?? "";
+  const hasContact = Boolean(contactId);
   const deliver = useDeliverEmail();
   const saveDraft = useCreateEmail();
   const [templateKey, setTemplateKey] = useState("");
@@ -22,12 +24,21 @@ export function EmailComposer({ contactId, dealId }: { contactId: string; dealId
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [copied, setCopied] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ title: string; message: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (contactEmail && !to) setTo(contactEmail);
   }, [contactEmail, to]);
+
+  const reset = () => {
+    setTemplateKey("");
+    setTo(contactEmail);
+    setCc("");
+    setBcc("");
+    setSubject("");
+    setBody("");
+  };
 
   const pick = (key: string) => {
     setTemplateKey(key);
@@ -36,13 +47,13 @@ export function EmailComposer({ contactId, dealId }: { contactId: string; dealId
       setSubject(t.subject);
       setBody(t.body);
     }
-    setResult(null);
+    setNotice(null);
     setError(null);
   };
 
   const send = async () => {
     setError(null);
-    setResult(null);
+    setNotice(null);
     try {
       const email = await deliver.mutateAsync({
         contact_id: contactId,
@@ -53,13 +64,17 @@ export function EmailComposer({ contactId, dealId }: { contactId: string; dealId
         cc_addresses: splitAddrs(cc),
         bcc_addresses: splitAddrs(bcc),
       });
-      setResult(
-        email.status === "sent"
-          ? `Sent to ${(email.to_addresses ?? []).join(", ") || "contact"}.`
-          : email.status === "draft"
-            ? "Saved as draft — connect an email provider to deliver."
-            : "Could not deliver — saved for review.",
-      );
+      const recipients = (email.to_addresses ?? []).join(", ");
+      reset();
+      setNotice({
+        title: "Email sent",
+        message:
+          email.status === "sent"
+            ? `Delivered to ${recipients || "the contact"}.`
+            : email.status === "draft"
+              ? "Saved as a draft — connect an email provider to deliver it."
+              : "Delivery failed, so it was saved in the Outbox for review.",
+      });
     } catch (e) {
       setError(errMessage(e, "Could not send the email."));
     }
@@ -67,7 +82,7 @@ export function EmailComposer({ contactId, dealId }: { contactId: string; dealId
 
   const draft = async () => {
     setError(null);
-    setResult(null);
+    setNotice(null);
     try {
       await saveDraft.mutateAsync({
         contact_id: contactId,
@@ -80,7 +95,8 @@ export function EmailComposer({ contactId, dealId }: { contactId: string; dealId
         cc_addresses: splitAddrs(cc),
         bcc_addresses: splitAddrs(bcc),
       });
-      setResult("Saved to Outbox drafts.");
+      reset();
+      setNotice({ title: "Draft saved", message: "The draft is waiting in your Outbox." });
     } catch (e) {
       setError(errMessage(e, "Could not save the draft."));
     }
@@ -102,8 +118,17 @@ export function EmailComposer({ contactId, dealId }: { contactId: string; dealId
 
       <div className="space-y-3">
         <p className="text-sm text-[var(--text-secondary)]">
-          Pick a template, edit it, then send it to this contact.
+          {hasContact
+            ? "Pick a template, edit it, then send it to this contact."
+            : "Pick a template, edit it, then enter the recipient address below."}
         </p>
+        {!hasContact && (
+          <p className="text-sm text-[var(--text-tertiary)]">
+            This deal has no linked contact, so template placeholders like{" "}
+            <code>{"{{first_name}}"}</code> stay unpersonalized and you need to fill in the
+            recipient yourself.
+          </p>
+        )}
         <select
           value={templateKey}
           onChange={(e) => pick(e.target.value)}
@@ -180,9 +205,22 @@ export function EmailComposer({ contactId, dealId }: { contactId: string; dealId
           </button>
         </div>
 
-        {result && <p className="text-sm text-[var(--text-secondary)]">{result}</p>}
         {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
       </div>
+
+      <Modal
+        open={!!notice}
+        onClose={() => setNotice(null)}
+        title={notice?.title ?? ""}
+        description={notice?.message}
+        maxWidth="max-w-sm"
+      >
+        <div className="flex justify-end">
+          <button onClick={() => setNotice(null)} className="btn-primary">
+            Done
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

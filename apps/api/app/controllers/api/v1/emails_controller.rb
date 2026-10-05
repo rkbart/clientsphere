@@ -57,11 +57,19 @@ class Api::V1::EmailsController < Api::V1::BaseController
     }
   end
 
+  # A contact is optional: deals can be composed to without one, in which case
+  # the caller supplies the recipient addresses directly.
   def deliver
-    contact = Current.account.contacts.kept.find(params[:contact_id])
+    contact = Current.account.contacts.kept.find(params[:contact_id]) if params[:contact_id].present?
     deal = Current.account.deals.find(params[:deal_id]) if params[:deal_id].present?
     authorize Email.new(account: Current.account), :create?
     recipients = params.permit(to_addresses: [], cc_addresses: [], bcc_addresses: [])
+    to_addresses = Array(recipients[:to_addresses]).compact_blank
+
+    if contact.nil? && to_addresses.empty?
+      message = "Provide a contact or at least one recipient address."
+      return render json: { error: message }, status: :unprocessable_entity
+    end
 
     email = EmailService.send_email(
       account: Current.account,
@@ -69,9 +77,9 @@ class Api::V1::EmailsController < Api::V1::BaseController
       deal: deal,
       subject: params[:subject].to_s,
       body: params[:body].to_s,
-      to_addresses: recipients[:to_addresses],
-      cc_addresses: recipients[:cc_addresses],
-      bcc_addresses: recipients[:bcc_addresses]
+      to_addresses: to_addresses,
+      cc_addresses: Array(recipients[:cc_addresses]),
+      bcc_addresses: Array(recipients[:bcc_addresses])
     )
     render json: email, status: :created
   end

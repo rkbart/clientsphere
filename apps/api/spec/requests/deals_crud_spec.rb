@@ -18,6 +18,18 @@ RSpec.describe "Deals CRUD", type: :request do
     )
   end
 
+  it "updates a deal through the web client's wrapped payload" do
+    deal = create_deal
+
+    patch "/api/v1/deals/#{deal.id}",
+          params: { deal: { title: "Renamed", contact_id: nil } },
+          headers: headers,
+          as: :json
+
+    expect(response).to have_http_status(:ok)
+    expect(deal.reload.title).to eq("Renamed")
+  end
+
   it "soft deletes a deal and hides it from the index" do
     deal = create_deal
 

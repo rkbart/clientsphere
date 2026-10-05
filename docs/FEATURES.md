@@ -84,9 +84,14 @@
 ## Communication & Scoring
 
 ### Email Composer
+- Available on every deal; a linked contact prefills To and personalizes
+  templates, otherwise you type the recipient yourself
 - Template gallery (follow-up, introduction, proposal, check-in,
   thank-you, win-back) with per-contact personalization
 - Editable subject/body, copyable, and sends via the email provider
+- Plain-text bodies are rendered as paragraphs on delivery (blank line →
+  paragraph, single newline → line break) and escaped before being sent as HTML
+- Confirmation dialog after send or draft; the form clears
 - `GET /emails/templates`, `POST /emails/deliver`
 
 ### Outbox

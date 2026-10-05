@@ -141,7 +141,9 @@ GET    /emails/:id
 PATCH  /emails/:id
 DELETE /emails/:id
 GET    /emails/templates      # ?contact_id= for per-contact personalization
-POST   /emails/deliver        # body: contact_id, deal_id?, subject, body
+POST   /emails/deliver        # body: deal_id?, subject, body, to_addresses?
+                              #   contact_id? — omit it and pass to_addresses
+                              #   instead; 422 if neither is present
 POST   /emails/:id/redeliver  # retry delivery of a draft/failed email
 GET    /email_settings        # owner/admin; secrets never returned
 PATCH  /email_settings        # body: from_address, resend_api_key, webhook_secret

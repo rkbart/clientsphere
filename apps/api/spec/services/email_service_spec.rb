@@ -20,7 +20,10 @@ RSpec.describe EmailService do
     email = described_class.send_email(account: account, contact: contact, subject: "Hi", body: "Hello")
 
     expect(sender).to have_received(:send).with(
-      hash_including(from: "me@example.com", to: ["john-es@example.com"], subject: "Hi", html: "Hello")
+      hash_including(
+        from: "me@example.com", to: ["john-es@example.com"], subject: "Hi",
+        html: "<p>Hello</p>", text: "Hello"
+      )
     )
     expect(email.reload.status).to eq("sent")
   end

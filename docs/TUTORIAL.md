@@ -163,7 +163,8 @@ Go to **Settings → Pipelines**:
 - Overdue-tasks card (always visible, with an all-clear empty state; tasks
   complete inline with 8-second undo and the card expands in place past 10 rows)
 - Custom fields, notes, tags
-- Compose email from templates (only when the deal has a linked contact),
+- Compose email from templates (templates are personalized only when the deal
+  has a linked contact; otherwise you type the recipient yourself),
   rule-based deal summary (`GET /api/v1/deals/:id/summary`)
 
 ### Create a deal
@@ -246,8 +247,11 @@ On any contact, company, or deal detail page:
 
 ### What you can do
 
-- **Compose Email** — on the deal page (shown whenever the deal has a linked
-  contact), pick a template, edit, and send
+- **Compose Email** — on every deal page, pick a template, edit, and send. When
+  the deal has a linked contact the To field prefills and the template is
+  personalized; otherwise you type the recipient yourself and placeholders like
+  `{{first_name}}` stay literal. A confirmation dialog reports the outcome and
+  clears the form.
 - **Outbox** — every outbound email with status filter; edit drafts inline,
   retry failures (retry saves your edits first). Drafts pile up here
   automatically when no provider is configured.

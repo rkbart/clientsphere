@@ -134,7 +134,7 @@ export function useDeliverEmail() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: {
-      contact_id: string;
+      contact_id?: string;
       deal_id?: string;
       subject: string;
       body: string;

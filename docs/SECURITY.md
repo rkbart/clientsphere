@@ -11,6 +11,7 @@
 | Rate limiting | rack-attack on auth and import endpoints, JSON 429 responder |
 | Webhooks | HMAC signature header (`X-Webhook-Signature`), retries with exponential backoff (3 attempts), delivery log with response status |
 | CSV export | Escape cells starting with `=`, `+`, `-`, `@` (formula injection) |
+| Outbound email | Composed bodies are HTML-escaped (`ERB::Util.html_escape`) before being sent as the provider's `html` part, so a message body can't inject markup into a sent email |
 | Passwords | bcrypt |
 | Password reset | Single-use token stored as a SHA-256 digest, 2-hour expiry, one live reset per user; request endpoint always returns 201 so it can't enumerate accounts; a successful reset destroys all active sessions for that user |
 | Invite tokens | Raw token returned once at creation, only the digest is stored; 7-day expiry; re-inviting revokes the previous token |

@@ -80,7 +80,8 @@ class EmailService
       from: email.from_address,
       to: email.to_addresses,
       subject: email.subject,
-      html: email.body.to_s
+      html: to_html(email.body),
+      text: to_text(email.body)
     }
     params[:cc] = email.cc_addresses if email.cc_addresses.present?
     params[:bcc] = email.bcc_addresses if email.bcc_addresses.present?
@@ -89,5 +90,25 @@ class EmailService
     email
   end
 
-  private_class_method :deliver, :from_address, :resend_configured?, :resend_api_key, :unsubscribe_footer
+  # Composed bodies are plain text with blank-line paragraph breaks. Sending
+  # that as raw HTML collapses every newline into a single run-on line, so
+  # blank lines become paragraphs and single newlines become <br>.
+  def self.to_html(body)
+    text = body.to_s
+    return "" if text.blank?
+
+    paragraphs = text.split(/\n{2,}/).map(&:strip).reject(&:empty?)
+    paragraphs.map do |p|
+      "<p>#{ERB::Util.html_escape(p).gsub("\n", "<br>\n")}</p>"
+    end.join("\n")
+  end
+
+  # Plain-text alternative for clients that prefer it. Existing markup is
+  # stripped so the text part does not read like a wall of tags.
+  def self.to_text(body)
+    body.to_s.gsub(%r{</p>}i, "\n\n").gsub(%r{<br\s*/?>}i, "\n").gsub(/<[^>]+>/, "").strip
+  end
+
+  private_class_method :deliver, :from_address, :resend_configured?, :resend_api_key,
+                       :unsubscribe_footer, :to_html, :to_text
 end

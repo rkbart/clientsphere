@@ -10,6 +10,11 @@ RSpec.describe "Email templates", type: :request do
   end
   let(:headers) { { "Authorization" => "Bearer #{Session.create!(user: owner).token}" } }
   let(:company) { account.companies.create!(name: "Acme Corp") }
+  let(:pipeline) { account.pipelines.create!(name: "Sales") }
+  let(:open_stage) { pipeline.stages.find_by(kind: :open) }
+  let(:contactless_deal) do
+    account.deals.create!(title: "Test Deal", pipeline: pipeline, stage: open_stage)
+  end
   let(:contact) do
     account.contacts.create!(first_name: "Ada", last_name: "Lovelace", email: "ada-et@example.com", company: company)
   end
@@ -66,6 +71,39 @@ RSpec.describe "Email templates", type: :request do
     expect(JSON.parse(response.body)["status"]).to eq("sent")
   end
 
+  it "renders a template body's blank lines as paragraphs" do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
+    sender = class_double("Resend::Emails").as_stubbed_const
+    allow(sender).to receive(:send).and_return({ id: "x" })
+
+    body = "Hi Test,\n\nJust checking in.\n\nBest regards,\nClientSphere"
+    post "/api/v1/emails/deliver",
+         params: { contact_id: contact.id, subject: "Hi", body: body },
+         headers: headers
+
+    expect(sender).to have_received(:send) do |params|
+      expect(params[:html]).to eq(
+        "<p>Hi Test,</p>\n<p>Just checking in.</p>\n<p>Best regards,<br>\nClientSphere</p>"
+      )
+      expect(params[:text]).to eq(body)
+    end
+  end
+
+  it "escapes html in the body rather than rendering it" do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
+    sender = class_double("Resend::Emails").as_stubbed_const
+    allow(sender).to receive(:send).and_return({ id: "x" })
+
+    post "/api/v1/emails/deliver",
+         params: { contact_id: contact.id, subject: "Hi", body: "<script>alert(1)</script>" },
+         headers: headers
+
+    expect(sender).to have_received(:send) do |params|
+      expect(params[:html]).not_to include("<script>")
+      expect(params[:html]).to include("&lt;script&gt;")
+    end
+  end
+
   it "rejects a contact from another account" do
     other = Account.create!(name: "Other")
     outsider = other.contacts.create!(first_name: "Eve", email: "eve-other@example.com")
@@ -83,5 +121,31 @@ RSpec.describe "Email templates", type: :request do
          headers: headers
 
     expect(response).to have_http_status(:unprocessable_entity)
+  end
+
+  it "delivers without a contact when recipient addresses are given" do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil))
+    deal = contactless_deal
+
+    post "/api/v1/emails/deliver",
+         params: { deal_id: deal.id, subject: "Hi", body: "Hello", to_addresses: ["new@example.com"] },
+         headers: headers
+
+    expect(response).to have_http_status(:created)
+    body = JSON.parse(response.body)
+    expect(body["contact_id"]).to be_nil
+    expect(body["deal_id"]).to eq(deal.id)
+    expect(body["to_addresses"]).to eq(["new@example.com"])
+  end
+
+  it "rejects a send with neither a contact nor recipients" do
+    deal = contactless_deal
+
+    post "/api/v1/emails/deliver",
+         params: { deal_id: deal.id, subject: "Hi", body: "Hello" },
+         headers: headers
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(JSON.parse(response.body)["error"]).to include("recipient")
   end
 end
