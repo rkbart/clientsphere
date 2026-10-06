@@ -5,6 +5,8 @@ import Link from "next/link";
 import { DragDropContext, Draggable, Droppable, type DropResult } from "@hello-pangea/dnd";
 import { usePipelines, useStages } from "@/hooks/use-pipelines";
 import { useDeals, useMoveDeal } from "@/hooks/use-deals";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { errMessage } from "@/lib/error";
 
 interface Deal {
   id: string;
@@ -46,6 +48,7 @@ export default function PipelinePage() {
     pipeline ? { pipeline_id: pipeline.id, per_page: 100 } : undefined
   );
   const moveDeal = useMoveDeal();
+  const { notice, notify, dismiss, undo, undoing } = useActionNotice();
 
   const toggleClosed = () => {
     setHideClosed((v) => {
@@ -74,11 +77,34 @@ export default function PipelinePage() {
     const { draggableId, destination, source } = result;
     if (!destination) return;
     if (destination.droppableId === source.droppableId && destination.index === source.index) return;
-    moveDeal.mutate({
-      id: draggableId,
-      stage_id: destination.droppableId,
-      position: destination.index,
-    });
+
+    const deal = deals.find((d) => d.id === draggableId);
+    const toStage = (stages ?? []).find((s) => s.id === destination.droppableId);
+    const fromStage = (stages ?? []).find((s) => s.id === source.droppableId);
+    const from = { stageId: source.droppableId, position: source.index };
+
+    moveDeal.mutate(
+      { id: draggableId, stage_id: destination.droppableId, position: destination.index },
+      {
+        onSuccess: () =>
+          notify({
+            tone: "success",
+            message:
+              source.droppableId === destination.droppableId
+                ? `Moved “${deal?.title ?? "deal"}” to position ${destination.index + 1} in ${toStage?.name ?? "stage"}.`
+                : `Moved “${deal?.title ?? "deal"}” to ${toStage?.name ?? "stage"}.`,
+            undo: async () => {
+              await moveDeal.mutateAsync({
+                id: draggableId,
+                stage_id: from.stageId,
+                position: from.position,
+              });
+            },
+          }),
+        onError: (e) =>
+          notify({ tone: "error", message: errMessage(e, "Could not move that deal.") }),
+      }
+    );
   };
 
   if (pipelinesLoading || stagesLoading || dealsLoading) {
@@ -129,6 +155,10 @@ export default function PipelinePage() {
           </label>
         </div>
       </div>
+
+      {notice && (
+        <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />
+      )}
 
       {visibleStages.length > 0 ? (
         <DragDropContext onDragEnd={handleDragEnd}>

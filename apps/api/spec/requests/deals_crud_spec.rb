@@ -111,6 +111,32 @@ RSpec.describe "Deals CRUD", type: :request do
     expect(manual.reload.probability).to eq(90)
   end
 
+  it "moves a deal back to its original stage and slot for undo" do
+    proposal = pipeline.stages.find_by!(name: "Proposal")
+    a = create_deal(title: "A")
+    b = create_deal(title: "B")
+    won = pipeline.stages.find_by!(kind: :won)
+
+    # Drag A from its stage to the Won column.
+    patch "/api/v1/deals/#{a.id}/move",
+          params: { stage_id: won.id, position: 0 },
+          headers: headers,
+          as: :json
+    expect(response).to have_http_status(:ok)
+    expect(a.reload.stage_id).to eq(won.id)
+    expect(b.reload.stage_id).to eq(stage.id)
+
+    # Undo: same request shape as the web banner's undo closure.
+    patch "/api/v1/deals/#{a.id}/move",
+          params: { stage_id: stage.id, position: 0 },
+          headers: headers,
+          as: :json
+
+    expect(response).to have_http_status(:ok)
+    expect(a.reload.stage_id).to eq(stage.id)
+    expect(a.reload.position).to eq(0)
+  end
+
   it "rejects probability outside 0-100" do
     post "/api/v1/deals",
          params: { deal: { title: "Bad", pipeline_id: pipeline.id, stage_id: stage.id, probability: 150 } },

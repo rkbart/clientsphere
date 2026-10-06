@@ -23,7 +23,10 @@
 - Multiple pipelines (Sales, Catering & Events, …) managed in Settings,
   each with its own stages; single default
 - Kanban board with drag-drop (mouse and touch), pipeline switcher,
-  hide-closed toggle
+  hide-closed toggle. Each drop reports in an inline banner — naming the deal
+  and destination stage — with Undo to send it back to the column and slot it
+  came from, and Dismiss. A rejected move (e.g. a stage from another pipeline)
+  shows the reason instead of failing silently
 - Guarded deletes (pipelines/stages holding deals refuse with 422)
 - Settings → Pipelines reports the last action in an inline banner with Undo
   and Dismiss. Undo is offered where the change is reversible — create pipeline
