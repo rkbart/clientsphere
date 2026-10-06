@@ -210,12 +210,20 @@
 - Only owners can promote to owner
 - Members cannot remove themselves (API returns 422) and the last owner can
   never be removed; the Team table hides the remove button on your own row
+- Removing a member revokes every session, API token and pending password
+  reset immediately and clears their pinned workspace; password login is
+  refused once they hold no memberships (same generic error, no enumeration)
+- Removed emails can be re-invited and rejoin through the normal accept flow
+- Re-accepting a previously onboarded email resets the setup modal, so the
+  returner picks a fresh name, phone and password
 - Email delivery via Resend when configured, invite link + copy button otherwise
 
 ### First login
 - Invitees arrive with a server-generated password, so acceptance pins them to
   the workspace and prompts a one-time setup modal: readonly invited email,
   display name, optional contact phone, and a new password
+- Saving shows a success dialog ("You're all set") reusing the shared
+  `ResultModal` before they enter the workspace
 - Email is identity (invitation + login key) and is never editable — not in
   onboarding, not in Profile settings
 - Phone stays editable later under Settings → Profile

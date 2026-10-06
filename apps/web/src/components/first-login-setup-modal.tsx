@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
+import { ResultModal } from "@/components/ui/modal";
 import type { User } from "@/types";
 
 const headers = () => getAuthHeadersForApi();
@@ -16,6 +17,7 @@ export function FirstLoginSetupModal() {
   const [confirmation, setConfirmation] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
 
   // The auth store hydrates async from localStorage — seed the fields once
   // the user record arrives so invitees see their placeholder name.
@@ -27,9 +29,12 @@ export function FirstLoginSetupModal() {
   }, [user]);
 
   // Hooks before the early return: invited users with no welcome_seen_at
-  // haven't completed onboarding yet.
+  // haven't completed onboarding yet. `done` keeps the success dialog mounted
+  // after saving flips welcome_seen_at on the fresh user record.
   const needsSetup = !!user && !user.welcome_seen_at;
-  if (!needsSetup || !user) return null;
+  if ((!needsSetup && !done) || !user) return null;
+
+  const showForm = needsSetup && !done;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +65,7 @@ export function FirstLoginSetupModal() {
       });
       if (apiError) throw new Error("Could not save your account.");
       setUser(data as unknown as User);
+      setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save your account.");
       setSaving(false);
@@ -70,6 +76,7 @@ export function FirstLoginSetupModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--bg-elevated)]/95 px-4">
+      {showForm ? (
       <div
         role="dialog"
         aria-modal="true"
@@ -173,6 +180,16 @@ export function FirstLoginSetupModal() {
           </button>
         </form>
       </div>
+      ) : null}
+
+      <ResultModal
+        open={done}
+        onClose={() => setDone(false)}
+        tone="success"
+        title="You're all set"
+        message={`Welcome to ${account?.name ?? "the workspace"}, ${name.trim()}! Your profile is saved — you can update it anytime under Settings → Profile.`}
+        confirmLabel="Start exploring"
+      />
     </div>
   );
 }

@@ -46,7 +46,21 @@ class Api::V1::MembershipsController < Api::V1::BaseController
       return render json: { error: "You cannot remove yourself from the workspace." },
                     status: :unprocessable_entity
     end
-    membership.destroy!
+    removed_user = membership.user
+    ActiveRecord::Base.transaction do
+      membership.destroy!
+      # Removal must lock the door immediately: kill every session so a removed
+      # member's token stops working, and clear their pinned workspace so any
+      # surviving client can't derive a tenant from it.
+      removed_user.sessions.destroy_all
+      removed_user.api_tokens.destroy_all
+      removed_user.password_resets.usable.update_all(used_at: Time.current)
+      if removed_user.memberships.exists?
+        removed_user.update!(current_account: removed_user.memberships.first.account)
+      else
+        removed_user.update!(current_account: nil)
+      end
+    end
     head :no_content
   end
 

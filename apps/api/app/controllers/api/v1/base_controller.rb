@@ -30,7 +30,9 @@ class Api::V1::BaseController < ActionController::API
     session = Session.authenticate(token) if token
     if session
       Current.user = session.user
-      Current.account = session.user.current_account
+      # Sessions die with removal, but a request already in flight (or a token
+      # issued before the fix) must not operate without a membership either.
+      Current.account = session.user.current_account if session.user.memberships.exists?
     end
   end
 

@@ -455,6 +455,12 @@ and has no remove button — you can't remove yourself, and an account must alwa
 keep at least one owner. To hand over ownership, promote someone else to owner
 first.
 
+Removing someone locks them out at once: their sessions, API tokens and
+pending password resets are revoked, and signing in with their password stops
+working (they get the same generic "invalid email or password" error). To let
+them back in — for example to re-test onboarding — just invite the same email
+again and share the fresh link.
+
 Two rules keep responsibility clear:
 
 - **At most 2 owners.** Once both slots are taken, the owner option greys out
@@ -477,7 +483,9 @@ never email a password, the first screen is a setup modal:
 
 It only appears once, and only for invited members. Anyone who signs up
 themselves picks a password already, so they're never asked — and using
-**Forgot password?** clears it too.
+**Forgot password?** clears it too. Saving the form pops a "You're all set"
+confirmation before they enter the workspace. If a removed member is
+re-invited with the same email, they onboard again from scratch.
 
 ### Forgotten password
 

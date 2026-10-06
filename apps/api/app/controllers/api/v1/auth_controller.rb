@@ -26,6 +26,14 @@ class Api::V1::AuthController < Api::V1::BaseController
   def login
     user = User.find_by(email: params[:email])
     if user&.authenticate(params[:password])
+      # A removed member keeps their user row (audit trail: created_by,
+      # invited_by, author refs) but holds no membership — don't hand them a
+      # session they can't use. They can rejoin via a fresh invitation for
+      # this or any other workspace.
+      if user.memberships.empty?
+        return render json: { error: "Invalid email or password" }, status: :unauthorized
+      end
+      user.update!(current_account: user.memberships.first.account) if user.current_account.nil?
       session = Session.create!(user: user, ip_address: request.remote_ip, user_agent: request.user_agent)
       render json: { token: session.token, user: user, account: user.current_account }
     else

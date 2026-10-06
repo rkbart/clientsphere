@@ -52,6 +52,11 @@ class Api::V1::InvitationsController < Api::V1::BaseController
       user.password = SecureRandom.hex(16)
       user.name = invitation.email.split("@").first
       user.save!
+    else
+      # Rejoining (e.g. removed then re-invited, or invited on a second
+      # workspace): run onboarding again so the returner sets a fresh name,
+      # contact phone and password for this workspace.
+      user.update!(welcome_seen_at: nil)
     end
 
     invitation.accept!(user)

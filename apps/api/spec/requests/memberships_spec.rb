@@ -187,6 +187,56 @@ RSpec.describe "Team memberships", type: :request do
     expect(Membership.exists?(target.id)).to be(false)
   end
 
+  describe "removing a member" do
+    let(:member_user) do
+      User.create!(name: "Gone", email: "gone-soon@example.com", password: "password123").tap do |u|
+        Membership.create!(account: account, user: u, role: :member)
+        u.update!(current_account: account)
+      end
+    end
+    let!(:member_session) { Session.create!(user: member_user) }
+    let(:target) { member_user.memberships.find_by(account: account) }
+
+    before do
+      stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
+      sender = class_double("Resend::Emails").as_stubbed_const
+      allow(sender).to receive(:send).and_return({ id: "msg_1" })
+    end
+
+    it "revokes sessions so the old token stops working immediately" do
+      delete "/api/v1/memberships/#{target.id}", headers: headers
+
+      expect(response).to have_http_status(:no_content)
+      get "/api/v1/contacts", headers: { "Authorization" => "Bearer #{member_session.token}" }
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "blocks password login once no memberships remain" do
+      delete "/api/v1/memberships/#{target.id}", headers: headers
+
+      post "/api/v1/auth/login",
+           params: { email: member_user.email, password: "password123" }, as: :json
+
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "lets the removed email rejoin via a fresh invite with onboarding reset" do
+      delete "/api/v1/memberships/#{target.id}", headers: headers
+      member_user.update!(welcome_seen_at: Time.current)
+
+      post "/api/v1/invitations",
+           params: { invitation: { email: member_user.email, role: "member" } },
+           headers: headers, as: :json
+      token = JSON.parse(response.body)["token"]
+
+      post "/api/v1/invitations/#{token}/accept", as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["user"]["welcome_seen_at"]).to be_nil
+      expect(member_user.reload.memberships.where(account: account)).to exist
+    end
+  end
+
   it "reports invite delivery status on create" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
     sender = class_double("Resend::Emails").as_stubbed_const
