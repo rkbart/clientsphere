@@ -15,8 +15,9 @@ your user, your workspace, and your owner membership:
 3. You're logged in immediately — no verification step, no wizard. The CRM
    starts empty and ready to shape
 4. If your deployment has Google OAuth configured, **Continue with Google**
-   works on the signup and login pages too (first Google sign-in creates a
-   personal "`<name>`'s workspace" with you as owner)
+   works on the signup and login pages too. First Google sign-in creates a
+   personal "`<name>`'s workspace" with you as owner — the setup modal then
+   asks you to rename it to your company, since Google picks the name for you
 
 Then make it yours, in a sensible order:
 

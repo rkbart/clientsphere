@@ -79,5 +79,44 @@ RSpec.describe "Current user", type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
       expect(user.reload.authenticate("supersecret1")).to be_falsey
     end
+
+    describe "workspace rename (fresh Google signups)" do
+      it "renames the auto-created solo workspace and echoes the new name" do
+        solo = Account.create!(name: "Old's workspace")
+        g_user = User.create!(name: "Old", email: "g-rename@example.com", password: "password123").tap do |u|
+          Membership.create!(account: solo, user: u, role: :owner)
+          u.update!(current_account: solo)
+        end
+        g_headers = { "Authorization" => "Bearer #{Session.create!(user: g_user).token}" }
+
+        patch "/api/v1/users/me", params: { account_name: "  Acme Inc  " }, headers: g_headers, as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)["account_name"]).to eq("Acme Inc")
+        expect(solo.reload.name).to eq("Acme Inc")
+      end
+
+      it "ignores the rename on a shared workspace (teammates must not rename)" do
+        teammate = User.create!(name: "Mate", email: "mate@example.com", password: "password123")
+        Membership.create!(account: account, user: teammate, role: :member)
+
+        patch "/api/v1/users/me", params: { account_name: "Hijacked" }, headers: headers, as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(account.reload.name).to eq("Acme")
+      end
+
+      it "ignores the rename for non-owners" do
+        member_user = User.create!(name: "Viewer", email: "viewer@example.com", password: "password123")
+        Membership.create!(account: account, user: member_user, role: :viewer)
+        member_user.update!(current_account: account)
+        member_headers = { "Authorization" => "Bearer #{Session.create!(user: member_user).token}" }
+
+        patch "/api/v1/users/me", params: { account_name: "Hijacked" }, headers: member_headers, as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(account.reload.name).to eq("Acme")
+      end
+    end
   end
 end

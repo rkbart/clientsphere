@@ -30,7 +30,7 @@ POST   /auth/login
 DELETE /auth/logout
 GET    /auth/me
 POST   /auth/switch_account
-PATCH  /users/me                 # name, phone, password, welcome_seen (email immutable)
+PATCH  /users/me                 # name, phone, password, welcome_seen, account_name (email immutable)
 ```
 
 ## Password Resets

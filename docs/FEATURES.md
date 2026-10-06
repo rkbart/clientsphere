@@ -224,6 +224,11 @@
   display name, optional contact phone, and a new password
 - Saving shows a success dialog ("You're all set") reusing the shared
   `ResultModal` before they enter the workspace
+- Fresh Google signups get an extra **Workspace name** field: Google
+  auto-creates a "<name>'s workspace" nobody chose, so onboarding offers a
+  rename. The backend only honors it for the solo owner of a workspace —
+  teammates on a shared workspace never see the field, and forged requests
+  are ignored
 - Email is identity (invitation + login key) and is never editable — not in
   onboarding, not in Profile settings
 - Phone stays editable later under Settings → Profile

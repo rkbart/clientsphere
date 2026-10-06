@@ -10,9 +10,10 @@ const headers = () => getAuthHeadersForApi();
 const MIN_PASSWORD_LENGTH = 8;
 
 export function FirstLoginSetupModal() {
-  const { user, account, setUser } = useAuthStore();
+  const { user, account, setUser, setAccount } = useAuthStore();
   const [name, setName] = useState(user?.name ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
+  const [workspaceName, setWorkspaceName] = useState(account?.name ?? "");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [saving, setSaving] = useState(false);
@@ -26,7 +27,10 @@ export function FirstLoginSetupModal() {
       setName((prev) => prev || user.name || "");
       setPhone((prev) => prev || user.phone || "");
     }
-  }, [user]);
+    if (account) {
+      setWorkspaceName((prev) => prev || account.name || "");
+    }
+  }, [user, account]);
 
   // Hooks before the early return: invited users with no welcome_seen_at
   // haven't completed onboarding yet. `done` keeps the success dialog mounted
@@ -36,10 +40,22 @@ export function FirstLoginSetupModal() {
 
   const showForm = needsSetup && !done;
 
+  // Fresh Google signups land on an auto-created "<name>'s workspace" they
+  // never chose — offer a rename. Invitees join an existing workspace, so
+  // the field stays hidden for them. The pristine auto-name is captured on
+  // first render; edits to the field must not hide it mid-typing.
+  const [pristineWorkspaceName] = useState(account?.name ?? "");
+  const showWorkspaceField =
+    !!account && pristineWorkspaceName.endsWith("'s workspace");
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError("Please tell your team your name.");
+      return;
+    }
+    if (showWorkspaceField && !workspaceName.trim()) {
+      setError("Please name your workspace.");
       return;
     }
     if (password.length < MIN_PASSWORD_LENGTH) {
@@ -53,18 +69,24 @@ export function FirstLoginSetupModal() {
     setSaving(true);
     setError(null);
     try {
+      const body: Record<string, string | boolean | null> = {
+        name: name.trim(),
+        phone: phone.trim() || null,
+        password,
+        password_confirmation: confirmation,
+        welcome_seen: true,
+      };
+      if (showWorkspaceField) body.account_name = workspaceName.trim();
       const { data, error: apiError } = await apiClient.PATCH("/users/me", {
-        body: {
-          name: name.trim(),
-          phone: phone.trim() || null,
-          password,
-          password_confirmation: confirmation,
-          welcome_seen: true,
-        },
+        body,
         headers: headers(),
       });
       if (apiError) throw new Error("Could not save your account.");
-      setUser(data as unknown as User);
+      const payload = data as unknown as User & { account_name?: string };
+      setUser(payload as User);
+      if (payload.account_name && account) {
+        setAccount({ ...account, name: payload.account_name });
+      }
       setDone(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not save your account.");
@@ -89,7 +111,12 @@ export function FirstLoginSetupModal() {
           </h2>
           <p className="text-[var(--text-secondary)] text-sm mt-1">
             You joined {account?.name ?? "this workspace"}. Confirm how your team
-            reaches you, then choose a password so you can sign in again.
+            reaches you
+            {showWorkspaceField ? (
+              <>, name your workspace, then choose a password so you can also sign in with email.</>
+            ) : (
+              <>, then choose a password so you can sign in again.</>
+            )}
           </p>
         </div>
 
@@ -110,6 +137,27 @@ export function FirstLoginSetupModal() {
               This is the address you were invited with — it can&apos;t be changed here.
             </p>
           </div>
+
+          {showWorkspaceField && (
+            <div className="space-y-1.5">
+              <label htmlFor="setup-workspace" className="block text-sm font-medium">
+                Workspace name
+              </label>
+              <input
+                id="setup-workspace"
+                className={inputClass}
+                value={workspaceName}
+                onChange={(e) => setWorkspaceName(e.target.value)}
+                placeholder="e.g. Acme Inc"
+                autoComplete="organization"
+                required
+              />
+              <p className="text-xs text-[var(--text-tertiary)]">
+                Google created “{pristineWorkspaceName}” for you — rename it to
+                your company or team.
+              </p>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <label htmlFor="setup-name" className="block text-sm font-medium">
