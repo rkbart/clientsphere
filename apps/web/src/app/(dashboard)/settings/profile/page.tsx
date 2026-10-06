@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useAuthStore } from "@/store/auth-store";
 import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { Avatar } from "@/components/shared/avatar";
-import { Field, FormError } from "@/components/forms/fields";
+import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
 import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
 import { ChevronLeft } from "lucide-react";
@@ -105,36 +105,45 @@ export default function ProfileSettingsPage() {
 
         {editing ? (
           <form onSubmit={submit} className="space-y-4">
-            <Field label="Name" htmlFor="profile-name" required>
+            <div className="space-y-1.5">
+              <label htmlFor="profile-name" className="block text-sm font-medium">
+                Name
+              </label>
               <input
                 id="profile-name"
-                className="input"
+                className="input w-full"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
-            </Field>
-            <Field label="New password" htmlFor="profile-password">
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="profile-password" className="block text-sm font-medium">
+                New password
+              </label>
               <input
                 id="profile-password"
                 type="password"
-                className="input"
+                className="input w-full"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={`Leave blank to keep current (min ${MIN_PASSWORD_LENGTH} characters)`}
                 autoComplete="new-password"
               />
-            </Field>
-            <Field label="Confirm new password" htmlFor="profile-password-confirm">
+            </div>
+            <div className="space-y-1.5">
+              <label htmlFor="profile-password-confirm" className="block text-sm font-medium">
+                Confirm new password
+              </label>
               <input
                 id="profile-password-confirm"
                 type="password"
-                className="input"
+                className="input w-full"
                 value={confirmation}
                 onChange={(e) => setConfirmation(e.target.value)}
                 autoComplete="new-password"
               />
-            </Field>
+            </div>
             {error && <FormError message={error} />}
             <div className="flex gap-2">
               <button type="submit" disabled={saving} className="btn-primary">
