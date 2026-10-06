@@ -12,15 +12,21 @@ class Api::V1::AuthController < Api::V1::BaseController
 
   def signup
     user = User.new(signup_params)
-    account = Account.create!(name: params[:account_name])
-    Membership.create!(user: user, account: account, role: :owner)
     # Signup users pick their own password, so no first-login setup needed.
-    user.current_account = account
     user.welcome_seen_at = Time.current
-    user.save!
+    User.transaction do
+      # The membership FK requires a persisted user: saving first is what
+      # keeps user_id non-null on the membership row.
+      user.save!
+      account = Account.create!(name: params[:account_name])
+      Membership.create!(user: user, account: account, role: :owner)
+      user.update!(current_account: account)
+    end
 
     session = Session.create!(user: user, ip_address: request.remote_ip, user_agent: request.user_agent)
-    render json: { token: session.token, user: user, account: account }, status: :created
+    render json: { token: session.token, user: user, account: user.current_account }, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages }, status: :unprocessable_entity
   end
 
   def login
