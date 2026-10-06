@@ -19,6 +19,10 @@ export function FirstLoginSetupModal() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  // Pristine auto-name captured on first render; edits to the field must not
+  // hide it mid-typing. Declared with the other hooks — anything below the
+  // early return would change the hook count between renders.
+  const [pristineWorkspaceName] = useState(account?.name ?? "");
 
   // The auth store hydrates async from localStorage — seed the fields once
   // the user record arrives so invitees see their placeholder name.
@@ -42,9 +46,7 @@ export function FirstLoginSetupModal() {
 
   // Fresh Google signups land on an auto-created "<name>'s workspace" they
   // never chose — offer a rename. Invitees join an existing workspace, so
-  // the field stays hidden for them. The pristine auto-name is captured on
-  // first render; edits to the field must not hide it mid-typing.
-  const [pristineWorkspaceName] = useState(account?.name ?? "");
+  // the field stays hidden for them.
   const showWorkspaceField =
     !!account && pristineWorkspaceName.endsWith("'s workspace");
 
