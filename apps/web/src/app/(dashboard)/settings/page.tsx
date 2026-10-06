@@ -13,6 +13,11 @@ interface SettingsCard {
 
 const CARDS: SettingsCard[] = [
   { href: "/settings/profile", title: "Profile", description: "Manage your account settings" },
+  {
+    href: "/settings/workspaces",
+    title: "Workspaces",
+    description: "Switch, create, or delete your workspaces",
+  },
   { href: "/settings/team", title: "Team", description: "Manage team members and roles" },
   {
     href: "/settings/email",

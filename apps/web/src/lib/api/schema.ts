@@ -5,6 +5,20 @@
 
 
 export interface paths {
+  "/accounts": {
+    /** Index account */
+    get: operations["index_api_v1_accounts"];
+    /** Create account */
+    post: operations["create_api_v1_accounts"];
+  };
+  "/accounts/{id}": {
+    /** Update account */
+    put: operations["update_api_v1_accounts"];
+    /** Destroy account */
+    delete: operations["destroy_api_v1_accounts"];
+    /** Update account */
+    patch: operations["update_api_v1_accounts"];
+  };
   "/activities": {
     /** Index activity */
     get: operations["index_api_v1_activities"];
@@ -490,6 +504,97 @@ export type external = Record<string, never>;
 
 export interface operations {
 
+  /** Index account */
+  index_api_v1_accounts: {
+    parameters: {
+      query?: {
+        q?: string;
+        page?: number;
+        per_page?: number;
+      };
+    };
+    responses: {
+      /** @description Success */
+      200: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Create account */
+  create_api_v1_accounts: {
+    requestBody?: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Success */
+      201: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Update account */
+  update_api_v1_accounts: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody?: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Success */
+      200: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Destroy account */
+  destroy_api_v1_accounts: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    responses: {
+      /** @description Success */
+      200: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
   /** Index activity */
   index_api_v1_activities: {
     parameters: {

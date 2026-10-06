@@ -55,6 +55,22 @@ company workspace to your account — switch between workspaces from the
 topbar. (Google sign-in with the same address you were invited with links
 to your existing user instead of making a duplicate.)
 
+### Managing your workspaces
+
+Open the workspace pill in the topbar to switch instantly, or go to
+**Settings → Workspaces** to:
+
+- **Switch** — jump to any workspace you belong to; all lists reload with
+  that workspace's data
+- **Create** — unlimited; you become the owner and land in it right away
+- **Delete** — owner-only, with a confirmation dialog. Everything inside is
+  destroyed and members lose access immediately. Your **last** workspace can
+  never be deleted, and deleting your current one drops you into your oldest
+  remaining one
+
+Leaving is not a thing — if someone should lose access, the workspace owner
+removes them from **Settings → Team**.
+
 ### Explore the demo data
 
 Sign in with the seed account to explore:

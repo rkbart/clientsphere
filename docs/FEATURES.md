@@ -203,6 +203,20 @@
   creating, editing and deleting them is owner/admin only, and the UI hides
   those controls for members and viewers
 
+### Workspaces
+- Unlimited creation: any signed-in user can create a workspace and becomes
+  its owner; the session switches into it immediately (Settings → Workspaces,
+  or the topbar switcher menu)
+- Switching from the topbar list invalidates all tenant-scoped caches so the
+  new workspace's data loads
+- Joining someone else's workspace remains invite-only — no self-serve join
+- Deletion is owner-only, confirmed via dialog, and never allowed on the last
+  workspace (a signed-in user must always have a tenant)
+- Deleting cascades every record under the workspace; members left behind are
+  locked out exactly like Team-removal (sessions/tokens revoked, login
+  refused), and everyone pinned to it is repointed to their oldest survivor
+- Settings → Workspaces lists your workspaces with switch/create/delete
+
 ### Invitations
 - Invitation records with expiring tokens (7-day default)
 - Role assignment on acceptance; pending list with revoke

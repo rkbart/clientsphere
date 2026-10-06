@@ -33,6 +33,19 @@ POST   /auth/switch_account
 PATCH  /users/me                 # name, phone, password, welcome_seen, account_name (email immutable)
 ```
 
+## Workspaces
+
+```
+GET    /accounts                 # your workspaces only (oldest first)
+POST   /accounts                 # body: account { name }; caller becomes owner + switches in
+PATCH  /accounts/:id             # rename (member)
+DELETE /accounts/:id             # owner only; cascades all records; 422 on last workspace
+```
+
+Creation is unlimited. Joining remains invite-only. Deleting a workspace
+revokes sessions/tokens of everyone left behind (same lockout as Team
+removal) and repoints users to their oldest remaining workspace.
+
 ## Password Resets
 
 Public endpoints (no session). `create` always returns 201 so it never reveals

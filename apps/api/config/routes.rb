@@ -23,6 +23,10 @@ Rails.application.routes.draw do
       get "auth/providers", to: "auth#providers"
       post "auth/switch_account", to: "auth#switch_account"
 
+      # Workspaces (any member may create/rename; delete is owner-only and
+      # never the last remaining one)
+      resources :accounts, only: [:index, :create, :update, :destroy]
+
       # Current user (name update, welcome banner dismissal)
       patch "users/me", to: "users#me"
 

@@ -9,6 +9,141 @@ info:
 servers:
 - url: "/api"
 paths:
+  "/api/v1/accounts":
+    get:
+      summary: Index account
+      operationId: index_api_v1_accounts
+      tags:
+      - accounts
+      parameters:
+      - name: q
+        in: query
+        schema:
+          type: string
+      - name: page
+        in: query
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+    post:
+      summary: Create account
+      operationId: create_api_v1_accounts
+      tags:
+      - accounts
+      parameters: []
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
+  "/api/v1/accounts/{id}":
+    patch:
+      summary: Update account
+      operationId: update_api_v1_accounts
+      tags:
+      - accounts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
+    put:
+      summary: Update account
+      operationId: update_api_v1_accounts
+      tags:
+      - accounts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
+    delete:
+      summary: Destroy account
+      operationId: destroy_api_v1_accounts
+      tags:
+      - accounts
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
   "/api/v1/activities":
     get:
       summary: Index activity
