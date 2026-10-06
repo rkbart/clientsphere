@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Field, FormError } from "@/components/forms/fields";
+import { ResultModal } from "@/components/ui/modal";
 import { getAuthHeadersForApi } from "@/lib/api/client";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Download, Upload } from "lucide-react";
@@ -94,6 +95,11 @@ export default function ImportExportSettingsPage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
+  const [feedback, setFeedback] = useState<{
+    tone: "success" | "error";
+    title: string;
+    message: string;
+  } | null>(null);
   const canManage = useCanManageSettings();
 
   const pickFile = async (f: File | null) => {
@@ -137,9 +143,19 @@ export default function ImportExportSettingsPage() {
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error || "Import failed");
-      setResult(body as ImportResult);
+      const imported = body as ImportResult;
+      setResult(imported);
+      setFeedback({
+        tone: "success",
+        title: "Import complete",
+        message: `Imported ${imported.imported} row${imported.imported === 1 ? "" : "s"}${
+          imported.skipped ? `, skipped ${imported.skipped}` : ""
+        }.`,
+      });
     } catch (err) {
-      setError(errMessage(err, "Could not import the file."));
+      const message = errMessage(err, "Could not import the file.");
+      setError(message);
+      setFeedback({ tone: "error", title: "Import failed", message });
     } finally {
       setUploading(false);
     }
@@ -147,6 +163,7 @@ export default function ImportExportSettingsPage() {
 
   const download = async (type: string) => {
     setError(null);
+    setFeedback(null);
     try {
       const response = await fetch(`/api/v1/export/csv/${type}`, {
         headers: { ...getAuthHeadersForApi() },
@@ -159,8 +176,17 @@ export default function ImportExportSettingsPage() {
       a.download = `${type}.csv`;
       a.click();
       URL.revokeObjectURL(url);
+      setFeedback({
+        tone: "success",
+        title: "Export ready",
+        message: `${type}.csv has been downloaded to your browser.`,
+      });
     } catch (err) {
-      setError(errMessage(err, "Could not export the file."));
+      setFeedback({
+        tone: "error",
+        title: "Export failed",
+        message: errMessage(err, "Could not export the file."),
+      });
     }
   };
 
@@ -295,6 +321,14 @@ export default function ImportExportSettingsPage() {
           </div>
         )}
       </div>
+
+      <ResultModal
+        open={!!feedback}
+        onClose={() => setFeedback(null)}
+        tone={feedback?.tone ?? "success"}
+        title={feedback?.title ?? ""}
+        message={feedback?.message ?? ""}
+      />
 
       <div className="card p-6">
         <h2 className="text-lg font-semibold mb-4">CSV Export</h2>

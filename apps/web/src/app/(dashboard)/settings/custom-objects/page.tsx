@@ -10,7 +10,7 @@ import {
 } from "@/hooks/use-custom-objects";
 import { Field, FormError } from "@/components/forms/fields";
 import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
-import { ConfirmDialog } from "@/components/ui/modal";
+import { ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Lock, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
@@ -37,6 +37,7 @@ export default function CustomObjectsSettingsPage() {
   const remove = useDeleteCustomObjectDefinition();
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<(typeof definitions)[number] | null>(null);
+  const [objectResult, setObjectResult] = useState<string | null>(null);
   const { notice, notify, dismiss } = useActionNotice();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<DefinitionFormState>(EMPTY_FORM);
@@ -87,10 +88,7 @@ export default function CustomObjectsSettingsPage() {
       setShowForm(false);
       setForm(EMPTY_FORM);
       setEditingId(null);
-      notify({
-        tone: "success",
-        message: wasEditing ? `Object “${label}” updated.` : `Object “${label}” created.`,
-      });
+      setObjectResult(wasEditing ? `Object “${label}” updated.` : `Object “${label}” created.`);
     } catch (err) {
       setError(errMessage(err, "Could not save the object."));
     }
@@ -227,6 +225,8 @@ export default function CustomObjectsSettingsPage() {
         </form>
       )}
 
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px]">
@@ -280,7 +280,13 @@ export default function CustomObjectsSettingsPage() {
         </div>
       </div>
 
-      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+      <ResultModal
+        open={!!objectResult}
+        onClose={() => setObjectResult(null)}
+        tone="success"
+        title="Object saved"
+        message={objectResult ?? ""}
+      />
 
       <ConfirmDialog
         open={!!confirmDelete}

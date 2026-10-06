@@ -14,7 +14,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { Avatar } from "@/components/shared/avatar";
 import { Field, FormError } from "@/components/forms/fields";
 import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
-import { ConfirmDialog } from "@/components/ui/modal";
+import { ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Check, ChevronLeft, Copy, Trash2 } from "lucide-react";
 
@@ -32,6 +32,8 @@ export default function TeamSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [confirmRemove, setConfirmRemove] = useState<(typeof memberships)[number] | null>(null);
   const [confirmRevokeInvite, setConfirmRevokeInvite] = useState<(typeof invitations)[number] | null>(null);
+  const [invited, setInvited] = useState<string | null>(null);
+  const [roleChanged, setRoleChanged] = useState<string | null>(null);
   const { notice, notify, dismiss, undo, undoing } = useActionNotice();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("member");
@@ -55,7 +57,7 @@ export default function TeamSettingsPage() {
     try {
       await revoke.mutateAsync(id);
       const target = invitations.find((i) => i.id === id);
-      notify({ tone: "success", message: `Invitation for ${target?.email ?? "member"} revoked.` });
+      setInvited(`Invitation for ${target?.email ?? "member"} revoked.`);
     } catch (e) {
       setError(errMessage(e, "Could not revoke the invitation."));
     }
@@ -74,12 +76,11 @@ export default function TeamSettingsPage() {
       }
       setInviteEmailed(!!result.invite_sent);
       setEmail("");
-      notify({
-        tone: "success",
-        message: result.invite_sent
+      setInvited(
+        result.invite_sent
           ? `Invitation sent to ${email.trim()}.`
-          : `Invitation created for ${email.trim()} — share the link below.`,
-      });
+          : `Invitation created for ${email.trim()} — share the link below.`
+      );
     } catch (err) {
       setError(errMessage(err, "Could not send the invitation."));
     }
@@ -144,17 +145,12 @@ export default function TeamSettingsPage() {
                           value={m.role}
                           onChange={async (e) => {
                             const nextRole = e.target.value;
-                            const previousRole = m.role;
                             setError(null);
                             try {
                               await updateRole.mutateAsync({ id: m.id, role: nextRole });
-                              notify({
-                                tone: "success",
-                                message: `${m.user?.name ?? m.user?.email ?? "Member"} is now ${nextRole}.`,
-                                undo: async () => {
-                                  await updateRole.mutateAsync({ id: m.id, role: previousRole });
-                                },
-                              });
+                              setRoleChanged(
+                                `${m.user?.name ?? m.user?.email ?? "Member"} is now ${nextRole}.`
+                              );
                             } catch (err) {
                               setError(errMessage(err, "Could not change the role."));
                             }
@@ -210,6 +206,10 @@ export default function TeamSettingsPage() {
           )}
         </div>
       </div>
+
+      {notice && (
+        <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />
+      )}
 
       {isManager && invitations.length > 0 && (
         <div className="card overflow-hidden">
@@ -290,7 +290,21 @@ onClick={() => setConfirmRevokeInvite(inv)}
         </form>
       )}
 
-      {notice && <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />}
+      <ResultModal
+        open={!!invited}
+        onClose={() => setInvited(null)}
+        tone="success"
+        title="Invitation ready"
+        message={invited ?? ""}
+      />
+
+      <ResultModal
+        open={!!roleChanged}
+        onClose={() => setRoleChanged(null)}
+        tone="success"
+        title="Role updated"
+        message={roleChanged ?? ""}
+      />
 
       <ConfirmDialog
         open={!!confirmRemove}

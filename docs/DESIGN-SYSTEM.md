@@ -127,13 +127,16 @@ Which one to use:
 
 | Situation | Component |
 | --- | --- |
-| Submitting a form or saving a record, where the user is waiting on a result | `ResultModal` |
-| A settings page the user works in place (lists, toggles, in-row edits) | `ActionBanner` |
-| Deleting something irreversible | `ConfirmDialog`, then a banner reporting the outcome |
+| Submitting a create/update form — invite, role change, new field/object/pipeline/stage/webhook/plugin/token, webhook save, email settings, import/export | `ResultModal` |
+| A settings page the user works in place — rename, toggle, in-row save, bulk complete | `ActionBanner` |
+| Deleting something | `ConfirmDialog`, then a banner reporting the outcome |
 
 Destructive actions always confirm with `ConfirmDialog` — never `window.confirm`.
-Undo is offered only where the change is genuinely reversible; deletes get the
-banner with Dismiss alone.
+The banner sits **above the card it describes**, so the Team delete notice falls
+between the members card and the invite form. Undo is offered only where the
+change is genuinely reversible (rename, toggle, role change, reorder,
+bulk-complete); deletes get the banner with Dismiss alone, because recreating a
+record issues a new id rather than restoring the original.
 
 ### Inline banners
 
@@ -146,8 +149,10 @@ previous one. Undo clears the banner when it succeeds and swaps in an error
 notice if the revert fails.
 
 Used on the Kanban board (drag-drop moves) and the in-place settings pages:
-Pipelines, Sequences, Webhooks, API Tokens, Team, Email, Custom Fields, Custom
-Objects, Plugins, Automations, plus the Activities bulk-complete bar.
+Pipelines, Sequences, Webhooks, API Tokens, Custom Fields, Custom Objects,
+Plugins, Automations, plus the Activities bulk-complete bar. Settings → Pipelines
+runs two independent banners — one above "All pipelines" for rename / set-default
+/ delete, another above the stages card for row saves and stage deletes.
 
 ## Responsive behavior
 

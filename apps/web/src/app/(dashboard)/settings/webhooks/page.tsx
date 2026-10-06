@@ -52,6 +52,8 @@ export default function WebhooksSettingsPage() {
 
       {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
 
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px]">
@@ -101,8 +103,6 @@ export default function WebhooksSettingsPage() {
           )}
         </div>
       </div>
-
-      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
 
       <ConfirmDialog
         open={!!confirmDelete}

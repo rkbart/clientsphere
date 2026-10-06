@@ -10,7 +10,7 @@ import {
 } from "@/hooks/use-plugins";
 import { Field, FormError } from "@/components/forms/fields";
 import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
-import { ConfirmDialog } from "@/components/ui/modal";
+import { ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Pencil, Plus, Trash2, X, ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -51,6 +51,7 @@ export default function PluginsSettingsPage() {
   const remove = useDeletePlugin();
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<(typeof plugins)[number] | null>(null);
+  const [pluginResult, setPluginResult] = useState<string | null>(null);
   const { notice, notify, dismiss } = useActionNotice();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<PluginFormState>(EMPTY_FORM);
@@ -101,10 +102,7 @@ export default function PluginsSettingsPage() {
       setShowForm(false);
       setForm(EMPTY_FORM);
       setEditingId(null);
-      notify({
-        tone: "success",
-        message: wasEditing ? `Plugin “${label}” updated.` : `Plugin “${label}” created.`,
-      });
+      setPluginResult(wasEditing ? `Plugin “${label}” updated.` : `Plugin “${label}” created.`);
     } catch (err) {
       setError(errMessage(err, "Could not save the plugin."));
     }
@@ -222,6 +220,8 @@ export default function PluginsSettingsPage() {
         </form>
       )}
 
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px]">
@@ -275,7 +275,13 @@ export default function PluginsSettingsPage() {
         </div>
       </div>
 
-      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+      <ResultModal
+        open={!!pluginResult}
+        onClose={() => setPluginResult(null)}
+        tone="success"
+        title="Plugin saved"
+        message={pluginResult ?? ""}
+      />
 
       <ConfirmDialog
         open={!!confirmDelete}

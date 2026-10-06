@@ -43,9 +43,11 @@ export default function AutomationsPage() {
 
       {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
 
+{notice && <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />}
+
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px]">
+          <table className="w-full min-w-[520px]">
             <thead>
               <tr className="border-b border-[var(--border)]">
                 <th className="table-cell table-header text-left">Name</th>
@@ -130,8 +132,6 @@ export default function AutomationsPage() {
           )}
         </div>
       </div>
-
-      {notice && <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />}
 
       <ConfirmDialog
         open={!!confirmDelete}

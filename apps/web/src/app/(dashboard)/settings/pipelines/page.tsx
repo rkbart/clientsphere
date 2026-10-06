@@ -15,7 +15,7 @@ import {
   type Stage,
 } from "@/hooks/use-pipelines";
 import { FormError } from "@/components/forms/fields";
-import { ConfirmDialog } from "@/components/ui/modal";
+import { ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Pencil, Plus, Star, Trash2 } from "lucide-react";
@@ -38,13 +38,14 @@ function StageRow({
   pipelineId,
   stage,
   onNotify,
+  onDeleteRequest,
 }: {
   pipelineId: string;
   stage: Stage;
   onNotify: ReturnType<typeof useActionNotice>["notify"];
+  onDeleteRequest: (stage: Stage) => void;
 }) {
   const update = useUpdateStage();
-  const remove = useDeleteStage();
   const [values, setValues] = useState({
     name: stage.name,
     kind: stage.kind,
@@ -52,7 +53,6 @@ function StageRow({
     probability: String(stage.probability ?? 0),
   });
   const [error, setError] = useState<string | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     setValues({
@@ -145,7 +145,7 @@ function StageRow({
             {update.isPending ? "…" : "Save"}
           </button>
           <button
-            onClick={() => setConfirmDelete(true)}
+            onClick={() => onDeleteRequest(stage)}
             className="btn-ghost p-2 text-[var(--danger)]"
             aria-label={`Delete stage ${stage.name}`}
           >
@@ -153,29 +153,6 @@ function StageRow({
           </button>
         </div>
       </div>
-      <ConfirmDialog
-        open={confirmDelete}
-        onClose={() => setConfirmDelete(false)}
-        onConfirm={() => {
-          setError(null);
-          remove.mutate(
-            { pipeline_id: pipelineId, id: stage.id },
-            {
-              onSuccess: () => {
-                setConfirmDelete(false);
-                onNotify({ tone: "success", message: `Stage "${stage.name}" deleted.` });
-              },
-              onError: (e) => {
-                setError(errMessage(e, "Could not delete the stage."));
-                setConfirmDelete(false);
-              },
-            },
-          );
-        }}
-        title="Delete stage?"
-        message={`"${stage.name}" will be removed. Stages holding deals cannot be deleted — move the deals first.`}
-        confirming={remove.isPending}
-      />
     </div>
   );
 }
@@ -187,8 +164,11 @@ export default function PipelinesSettingsPage() {
   const [editingName, setEditingName] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmDeleteStage, setConfirmDeleteStage] = useState<Stage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [newStage, setNewStage] = useState({ name: "", kind: "open" });
+  const [pipelineResult, setPipelineResult] = useState<string | null>(null);
+  const [stageResult, setStageResult] = useState<string | null>(null);
   const canManage = useCanManageSettings();
 
   const createPipeline = useCreatePipeline();
@@ -196,7 +176,11 @@ export default function PipelinesSettingsPage() {
   const deletePipeline = useDeletePipeline();
   const createStage = useCreateStage();
   const deleteStage = useDeleteStage();
-  const { notice, notify, dismiss, undo, undoing } = useActionNotice();
+  // Two independent banners: one sits above "All pipelines" and drives the
+  // rename/set-default notices, the other above the stages card for the row
+  // edits, which happen much closer together.
+  const pipelineBanner = useActionNotice();
+  const stageBanner = useActionNotice();
 
   const list = pipelines ?? [];
   const selected = list.find((p) => p.id === selectedId) ?? list.find((p) => p.is_default) ?? list[0] ?? null;
@@ -211,13 +195,7 @@ export default function PipelinesSettingsPage() {
       const created = (await createPipeline.mutateAsync({ name })) as unknown as Pipeline;
       setNewName("");
       setSelectedId(created.id);
-      notify({
-        tone: "success",
-        message: `Pipeline "${name}" created.`,
-        // Undo is a delete: it only works while the new pipeline is empty,
-        // which is exactly the window right after creating it.
-        undo: () => deletePipeline.mutateAsync(created.id),
-      });
+      setPipelineResult(`Pipeline "${name}" created.`);
     } catch (e) {
       setError(errMessage(e, "Could not create the pipeline."));
     }
@@ -233,7 +211,7 @@ export default function PipelinesSettingsPage() {
     try {
       await updatePipeline.mutateAsync({ id: pipeline.id, name });
       setEditingName(null);
-      notify({
+      pipelineBanner.notify({
         tone: "success",
         message: `Renamed to "${name}".`,
         undo: async () => {
@@ -250,20 +228,17 @@ export default function PipelinesSettingsPage() {
     setError(null);
     try {
       const position = stageList.length === 0 ? 0 : Math.max(...stageList.map((s) => s.position)) + 1;
-      const created = (await createStage.mutateAsync({
+      const name = newStage.name.trim();
+      await createStage.mutateAsync({
         pipeline_id: selected.id,
-        name: newStage.name.trim(),
+        name,
         kind: newStage.kind,
         position,
         color: KIND_DEFAULTS[newStage.kind]?.color ?? "#3B82F6",
         probability: KIND_DEFAULTS[newStage.kind]?.probability ?? 0,
-      })) as unknown as Stage;
-      setNewStage({ name: "", kind: "open" });
-      notify({
-        tone: "success",
-        message: `Stage "${created.name}" added to ${selected.name}.`,
-        undo: () => deleteStage.mutateAsync({ pipeline_id: selected.id, id: created.id }),
       });
+      setNewStage({ name: "", kind: "open" });
+      setStageResult(`Stage "${name}" added to ${selected.name}.`);
     } catch (e) {
       setError(errMessage(e, "Could not add the stage."));
     }
@@ -288,10 +263,6 @@ export default function PipelinesSettingsPage() {
       </div>
 
       <FormError message={error} />
-
-      {notice && (
-        <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />
-      )}
 
       <div className="card p-5">
         <h2 className="text-sm font-semibold mb-3">All pipelines</h2>
@@ -353,7 +324,7 @@ export default function PipelinesSettingsPage() {
                         { id: p.id, is_default: true },
                         {
                           onSuccess: () =>
-                            notify({
+                            pipelineBanner.notify({
                               tone: "success",
                               message: `"${p.name}" is now the default pipeline.`,
                               // Restoring means re-promoting whichever pipeline
@@ -409,6 +380,24 @@ export default function PipelinesSettingsPage() {
         </div>
       </div>
 
+      {pipelineBanner.notice && (
+        <ActionBanner
+          notice={pipelineBanner.notice}
+          onUndo={() => void pipelineBanner.undo()}
+          onDismiss={pipelineBanner.dismiss}
+          undoing={pipelineBanner.undoing}
+        />
+      )}
+
+      {stageBanner.notice && (
+        <ActionBanner
+          notice={stageBanner.notice}
+          onUndo={() => void stageBanner.undo()}
+          onDismiss={stageBanner.dismiss}
+          undoing={stageBanner.undoing}
+        />
+      )}
+
       {selected && (
         <div className="card p-5 space-y-3">
           <h2 className="text-sm font-semibold">Stages in {selected.name}</h2>
@@ -418,7 +407,13 @@ export default function PipelinesSettingsPage() {
             Position sets left-to-right order.
           </p>
           {stageList.map((s) => (
-            <StageRow key={s.id} pipelineId={selected.id} stage={s} onNotify={notify} />
+            <StageRow
+              key={s.id}
+              pipelineId={selected.id}
+              stage={s}
+              onNotify={stageBanner.notify}
+              onDeleteRequest={setConfirmDeleteStage}
+            />
           ))}
           <div className="flex flex-wrap gap-2 pt-1">
             <input
@@ -465,7 +460,7 @@ export default function PipelinesSettingsPage() {
               setConfirmDeleteId(null);
               // No undo: recreating would issue a new id and lose the stage
               // ids, which deals may reference.
-              notify({ tone: "success", message: `Pipeline "${removed?.name ?? "Untitled"}" deleted.` });
+              pipelineBanner.notify({ tone: "success", message: `Pipeline "${removed?.name ?? "Untitled"}" deleted.` });
             },
             onError: (e) => {
               setError(errMessage(e, "Could not delete the pipeline."));
@@ -476,6 +471,44 @@ export default function PipelinesSettingsPage() {
         title="Delete pipeline?"
         message="Its stages will be removed too. Pipelines holding deals cannot be deleted — move the deals first."
         confirming={deletePipeline.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!confirmDeleteStage}
+        onClose={() => setConfirmDeleteStage(null)}
+        onConfirm={() => {
+          const stage = confirmDeleteStage;
+          if (!stage || !selected) return;
+          setError(null);
+          setConfirmDeleteStage(null);
+          deleteStage.mutate(
+            { pipeline_id: selected.id, id: stage.id },
+            {
+              onSuccess: () =>
+                stageBanner.notify({ tone: "success", message: `Stage "${stage.name}" deleted.` }),
+              onError: (e) => setError(errMessage(e, "Could not delete the stage.")),
+            },
+          );
+        }}
+        title="Delete stage?"
+        message={`"${confirmDeleteStage?.name ?? ""}" will be removed. Stages holding deals cannot be deleted — move the deals first.`}
+        confirming={deleteStage.isPending}
+      />
+
+      <ResultModal
+        open={!!pipelineResult}
+        onClose={() => setPipelineResult(null)}
+        tone="success"
+        title="Pipeline created"
+        message={pipelineResult ?? ""}
+      />
+
+      <ResultModal
+        open={!!stageResult}
+        onClose={() => setStageResult(null)}
+        tone="success"
+        title="Stage added"
+        message={stageResult ?? ""}
       />
     </div>
   );

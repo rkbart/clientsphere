@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
-import { ConfirmDialog } from "@/components/ui/modal";
+import { ConfirmDialog, ResultModal } from "@/components/ui/modal";
 
 export default function ApiTokensSettingsPage() {
   const { data: tokens = [], isLoading } = useApiTokens();
@@ -21,6 +21,7 @@ export default function ApiTokensSettingsPage() {
   const [newToken, setNewToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [confirmRevoke, setConfirmRevoke] = useState<(typeof tokens)[number] | null>(null);
+  const [tokenResult, setTokenResult] = useState<string | null>(null);
   const { notice, notify, dismiss } = useActionNotice();
   const canManage = useCanManageSettings();
 
@@ -38,7 +39,7 @@ export default function ApiTokensSettingsPage() {
       setNewToken(created.token);
       setName("");
       setExpiresAt("");
-      notify({ tone: "success", message: `Token “${label}” created.` });
+      setTokenResult(`Token “${label}” created.`);
     } catch (err) {
       setError(errMessage(err, "Could not create the token."));
     }
@@ -115,6 +116,8 @@ export default function ApiTokensSettingsPage() {
         </button>
       </form>
 
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px]">
@@ -161,7 +164,13 @@ export default function ApiTokensSettingsPage() {
         </div>
       </div>
 
-      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+      <ResultModal
+        open={!!tokenResult}
+        onClose={() => setTokenResult(null)}
+        tone="success"
+        title="Token created"
+        message={`${tokenResult ?? ""} Copy it now — it won't be shown again.`}
+      />
 
       <ConfirmDialog
         open={!!confirmRevoke}

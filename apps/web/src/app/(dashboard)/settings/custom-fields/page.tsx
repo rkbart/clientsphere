@@ -11,7 +11,7 @@ import {
 } from "@/hooks/use-custom-fields";
 import { Field, FormError } from "@/components/forms/fields";
 import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
-import { ConfirmDialog } from "@/components/ui/modal";
+import { ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Lock, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
@@ -89,6 +89,7 @@ export default function CustomFieldsSettingsPage() {
   const remove = useDeleteCustomFieldDefinition();
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<(typeof definitions)[number] | null>(null);
+  const [fieldResult, setFieldResult] = useState<string | null>(null);
   const { notice, notify, dismiss } = useActionNotice();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<DefinitionFormState>(EMPTY_FORM);
@@ -140,10 +141,9 @@ export default function CustomFieldsSettingsPage() {
       setShowForm(false);
       setForm(EMPTY_FORM);
       setEditingId(null);
-      notify({
-        tone: "success",
-        message: wasEditing ? `Field “${label}” updated.` : `Field “${label}” added.`,
-      });
+      setFieldResult(
+        wasEditing ? `Field “${label}” updated.` : `Field “${label}” added.`
+      );
     } catch (err) {
       setError(errMessage(err, "Could not save the field."));
     }
@@ -301,6 +301,8 @@ export default function CustomFieldsSettingsPage() {
         </form>
       )}
 
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
       <div className="card overflow-hidden">
         <div className="px-5 py-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
           <h2 className="text-sm font-semibold">Existing fields — {tabLabel}</h2>
@@ -362,7 +364,13 @@ export default function CustomFieldsSettingsPage() {
         </div>
       </div>
 
-      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+      <ResultModal
+        open={!!fieldResult}
+        onClose={() => setFieldResult(null)}
+        tone="success"
+        title="Field saved"
+        message={fieldResult ?? ""}
+      />
 
       <ConfirmDialog
         open={!!confirmDelete}
