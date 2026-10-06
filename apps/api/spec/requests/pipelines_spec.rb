@@ -52,6 +52,33 @@ RSpec.describe "Pipelines", type: :request do
     expect(Pipeline.find_by(id: pipeline.id)).to be_present
   end
 
+  it "deletes a freshly created pipeline so the create-undo can revert" do
+    post "/api/v1/pipelines", params: { pipeline: { name: "Partner" } }, headers: headers
+    id = JSON.parse(response.body)["id"]
+
+    delete "/api/v1/pipelines/#{id}", headers: headers
+
+    expect(response).to have_http_status(:no_content)
+    expect(Pipeline.find_by(id: id)).to be_nil
+  end
+
+  it "restores the previous default when a new default is undone" do
+    first = account.pipelines.create!(name: "Sales", is_default: true)
+
+    post "/api/v1/pipelines",
+         params: { pipeline: { name: "Partner", is_default: true } },
+         headers: headers
+    second_id = JSON.parse(response.body)["id"]
+    expect(first.reload.is_default).to be(false)
+
+    # Undo path: re-promote the pipeline that held the flag before.
+    patch "/api/v1/pipelines/#{first.id}", params: { pipeline: { is_default: true } }, headers: headers
+
+    expect(response).to have_http_status(:ok)
+    expect(first.reload.is_default).to be(true)
+    expect(Pipeline.find(second_id).reload.is_default).to be(false)
+  end
+
   it "creates, updates and refuses to delete a stage with deals" do
     pipeline = account.pipelines.create!(name: "Sales")
 

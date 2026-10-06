@@ -16,6 +16,7 @@ import {
 } from "@/hooks/use-pipelines";
 import { FormError } from "@/components/forms/fields";
 import { ConfirmDialog } from "@/components/ui/modal";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Pencil, Plus, Star, Trash2 } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
@@ -36,9 +37,11 @@ const KIND_DEFAULTS: Record<string, { color: string; probability: number }> = {
 function StageRow({
   pipelineId,
   stage,
+  onNotify,
 }: {
   pipelineId: string;
   stage: Stage;
+  onNotify: ReturnType<typeof useActionNotice>["notify"];
 }) {
   const update = useUpdateStage();
   const remove = useDeleteStage();
@@ -62,14 +65,33 @@ function StageRow({
 
   const save = async () => {
     setError(null);
+    const previous = {
+      name: stage.name,
+      kind: stage.kind,
+      color: stage.color ?? "#3B82F6",
+      probability: stage.probability ?? 0,
+    };
+    const next = {
+      name: values.name.trim(),
+      kind: values.kind,
+      color: values.color,
+      probability: Number(values.probability) || 0,
+    };
+    const unchanged =
+      previous.name === next.name &&
+      previous.kind === next.kind &&
+      previous.color === next.color &&
+      previous.probability === next.probability;
+    if (unchanged) return;
+
     try {
-      await update.mutateAsync({
-        pipeline_id: pipelineId,
-        id: stage.id,
-        name: values.name.trim(),
-        kind: values.kind,
-        color: values.color,
-        probability: Number(values.probability) || 0,
+      await update.mutateAsync({ pipeline_id: pipelineId, id: stage.id, ...next });
+      onNotify({
+        tone: "success",
+        message: `Stage "${next.name}" saved.`,
+        undo: async () => {
+          await update.mutateAsync({ pipeline_id: pipelineId, id: stage.id, ...previous });
+        },
       });
     } catch (e) {
       setError(errMessage(e, "Could not save the stage."));
@@ -139,7 +161,10 @@ function StageRow({
           remove.mutate(
             { pipeline_id: pipelineId, id: stage.id },
             {
-              onSuccess: () => setConfirmDelete(false),
+              onSuccess: () => {
+                setConfirmDelete(false);
+                onNotify({ tone: "success", message: `Stage "${stage.name}" deleted.` });
+              },
               onError: (e) => {
                 setError(errMessage(e, "Could not delete the stage."));
                 setConfirmDelete(false);
@@ -170,6 +195,8 @@ export default function PipelinesSettingsPage() {
   const updatePipeline = useUpdatePipeline();
   const deletePipeline = useDeletePipeline();
   const createStage = useCreateStage();
+  const deleteStage = useDeleteStage();
+  const { notice, notify, dismiss, undo, undoing } = useActionNotice();
 
   const list = pipelines ?? [];
   const selected = list.find((p) => p.id === selectedId) ?? list.find((p) => p.is_default) ?? list[0] ?? null;
@@ -184,6 +211,13 @@ export default function PipelinesSettingsPage() {
       const created = (await createPipeline.mutateAsync({ name })) as unknown as Pipeline;
       setNewName("");
       setSelectedId(created.id);
+      notify({
+        tone: "success",
+        message: `Pipeline "${name}" created.`,
+        // Undo is a delete: it only works while the new pipeline is empty,
+        // which is exactly the window right after creating it.
+        undo: () => deletePipeline.mutateAsync(created.id),
+      });
     } catch (e) {
       setError(errMessage(e, "Could not create the pipeline."));
     }
@@ -199,6 +233,13 @@ export default function PipelinesSettingsPage() {
     try {
       await updatePipeline.mutateAsync({ id: pipeline.id, name });
       setEditingName(null);
+      notify({
+        tone: "success",
+        message: `Renamed to "${name}".`,
+        undo: async () => {
+          await updatePipeline.mutateAsync({ id: pipeline.id, name: pipeline.name });
+        },
+      });
     } catch (e) {
       setError(errMessage(e, "Could not rename the pipeline."));
     }
@@ -209,15 +250,20 @@ export default function PipelinesSettingsPage() {
     setError(null);
     try {
       const position = stageList.length === 0 ? 0 : Math.max(...stageList.map((s) => s.position)) + 1;
-      await createStage.mutateAsync({
+      const created = (await createStage.mutateAsync({
         pipeline_id: selected.id,
         name: newStage.name.trim(),
         kind: newStage.kind,
         position,
         color: KIND_DEFAULTS[newStage.kind]?.color ?? "#3B82F6",
         probability: KIND_DEFAULTS[newStage.kind]?.probability ?? 0,
-      });
+      })) as unknown as Stage;
       setNewStage({ name: "", kind: "open" });
+      notify({
+        tone: "success",
+        message: `Stage "${created.name}" added to ${selected.name}.`,
+        undo: () => deleteStage.mutateAsync({ pipeline_id: selected.id, id: created.id }),
+      });
     } catch (e) {
       setError(errMessage(e, "Could not add the stage."));
     }
@@ -242,6 +288,10 @@ export default function PipelinesSettingsPage() {
       </div>
 
       <FormError message={error} />
+
+      {notice && (
+        <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />
+      )}
 
       <div className="card p-5">
         <h2 className="text-sm font-semibold mb-3">All pipelines</h2>
@@ -298,9 +348,27 @@ export default function PipelinesSettingsPage() {
                   <button
                     onClick={() => {
                       setError(null);
+                      const previousDefault = list.find((x) => x.is_default);
                       updatePipeline.mutate(
                         { id: p.id, is_default: true },
-                        { onError: (e) => setError(errMessage(e, "Could not set default.")) },
+                        {
+                          onSuccess: () =>
+                            notify({
+                              tone: "success",
+                              message: `"${p.name}" is now the default pipeline.`,
+                              // Restoring means re-promoting whichever pipeline
+                              // held the flag; if there was none, leave it be.
+                              undo: async () => {
+                                if (previousDefault) {
+                                  await updatePipeline.mutateAsync({
+                                    id: previousDefault.id,
+                                    is_default: true,
+                                  });
+                                }
+                              },
+                            }),
+                          onError: (e) => setError(errMessage(e, "Could not set default.")),
+                        },
                       );
                     }}
                     className="btn-ghost text-xs"
@@ -350,7 +418,7 @@ export default function PipelinesSettingsPage() {
             Position sets left-to-right order.
           </p>
           {stageList.map((s) => (
-            <StageRow key={s.id} pipelineId={selected.id} stage={s} />
+            <StageRow key={s.id} pipelineId={selected.id} stage={s} onNotify={notify} />
           ))}
           <div className="flex flex-wrap gap-2 pt-1">
             <input
@@ -392,8 +460,12 @@ export default function PipelinesSettingsPage() {
           setError(null);
           deletePipeline.mutate(confirmDeleteId, {
             onSuccess: () => {
+              const removed = list.find((p) => p.id === confirmDeleteId);
               if (selectedId === confirmDeleteId) setSelectedId(null);
               setConfirmDeleteId(null);
+              // No undo: recreating would issue a new id and lose the stage
+              // ids, which deals may reference.
+              notify({ tone: "success", message: `Pipeline "${removed?.name ?? "Untitled"}" deleted.` });
             },
             onError: (e) => {
               setError(errMessage(e, "Could not delete the pipeline."));

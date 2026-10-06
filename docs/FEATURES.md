@@ -25,6 +25,12 @@
 - Kanban board with drag-drop (mouse and touch), pipeline switcher,
   hide-closed toggle
 - Guarded deletes (pipelines/stages holding deals refuse with 422)
+- Settings → Pipelines reports the last action in an inline banner with Undo
+  and Dismiss. Undo is offered where the change is reversible — create pipeline
+  (deletes it), rename, set default (restores the previous default), add stage
+  (deletes it), save stage (restores prior values). Deletes show the banner
+  without Undo, since recreating would issue new ids. The banner clears once an
+  undo completes or is dismissed
 - Won/lost tracking
 - Expected close dates
 - Source dropdown with canonical options (referral, website, cold outreach,

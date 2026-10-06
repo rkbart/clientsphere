@@ -123,6 +123,16 @@ Create and save flows confirm with `ResultModal` rather than a toast, so
 every save in the app reports the same way. Inline `FormError` stays for
 validation feedback shown before a save is attempted.
 
+### Inline banners
+
+`ActionBanner` + `useActionNotice` in `@/components/shared/action-banner`.
+Where a dialog would be too heavy — settings pages where the user is working
+in place — a single banner reports the last action inline, with **Undo** when
+the change is reversible and **Dismiss** always. It is an `aria-live="polite"`
+status region. Only one notice shows at a time; a new action replaces the
+previous one. Undo clears the banner when it succeeds and swaps in an error
+notice if the revert fails.
+
 ## Responsive behavior
 
 **Breakpoint: `lg` (1024px).** Below it — including a half-width browser
