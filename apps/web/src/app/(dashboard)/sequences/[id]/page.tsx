@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Field, FormError } from "@/components/forms/fields";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { ConfirmDialog } from "@/components/ui/modal";
 import {
   useSequence,
   useUpdateSequence,
@@ -45,9 +47,11 @@ const ENROLL_BADGE: Record<string, string> = {
 function StepRow({
   step,
   sequenceId,
+  onNotify,
 }: {
   step: Step;
   sequenceId: string;
+  onNotify: ReturnType<typeof useActionNotice>["notify"];
 }) {
   const update = useUpdateStep(sequenceId);
   const remove = useDeleteStep(sequenceId);
@@ -58,9 +62,26 @@ function StepRow({
     body: step.body,
   });
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   if (!editing) {
     return (
+      <>
+      <ConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={() => {
+          setError(null);
+          setConfirmDelete(false);
+          remove.mutate(step.id, {
+            onSuccess: () => onNotify({ tone: "success", message: `Step ${step.step_order} deleted.` }),
+            onError: (e) => setError(errMessage(e, "Could not delete the step.")),
+          });
+        }}
+        title={`Delete step ${step.step_order}?`}
+        message={`“${step.subject}” will be removed. Contacts already past this step keep going; the delay before this step is lost.`}
+        confirming={remove.isPending}
+      />
       <li className="flex items-start gap-3 px-5 py-4">
         <span className="w-6 h-6 rounded-full bg-[var(--bg-elevated)] text-xs font-medium flex items-center justify-center shrink-0 mt-0.5">
           {step.step_order}
@@ -76,15 +97,7 @@ function StepRow({
             <Pencil className="h-4 w-4" />
           </button>
           <button
-            onClick={async () => {
-              if (!confirm(`Delete step ${step.step_order}?`)) return;
-              setError(null);
-              try {
-                await remove.mutateAsync(step.id);
-              } catch (e) {
-                setError(errMessage(e, "Could not delete the step."));
-              }
-            }}
+            onClick={() => setConfirmDelete(true)}
             className="btn-ghost p-2"
             aria-label={`Delete step ${step.step_order}`}
           >
@@ -93,6 +106,7 @@ function StepRow({
         </div>
         {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
       </li>
+      </>
     );
   }
 
@@ -140,6 +154,7 @@ function StepRow({
                 body: form.body,
               });
               setEditing(false);
+              onNotify({ tone: "success", message: `Step ${step.step_order} saved.` });
             } catch (e) {
               setError(errMessage(e, "Could not save the step."));
             }
@@ -164,12 +179,14 @@ export default function SequenceDetailPage() {
   const update = useUpdateSequence();
   const { data: stepsRes } = useSequenceSteps(id);
   const createStep = useCreateStep(id);
+  const removeStep = useDeleteStep(id);
   const enroll = useEnrollContact(id);
   const { data: enrollmentsRes } = useEnrollments(id);
   const unsubscribe = useUnsubscribeEnrollment(id);
   const { data: contactsRes } = useContacts({ per_page: 100 });
   const [error, setError] = useState<string | null>(null);
   const [contactId, setContactId] = useState("");
+  const { notice, notify, dismiss, undo, undoing } = useActionNotice();
 
   const seq = sequence as unknown as { name?: string; is_active?: boolean } | undefined;
   const steps = ((stepsRes as unknown as Step[] | undefined) ?? []).slice().sort((a, b) => a.step_order - b.step_order);
@@ -199,9 +216,17 @@ export default function SequenceDetailPage() {
                 type="checkbox"
                 checked={seq.is_active ?? false}
                 onChange={async (e) => {
+                  const next = e.target.checked;
                   setError(null);
                   try {
-                    await update.mutateAsync({ id, is_active: e.target.checked });
+                    await update.mutateAsync({ id, is_active: next });
+                    notify({
+                      tone: "success",
+                      message: `“${seq?.name ?? "Sequence"}” ${next ? "resumed" : "paused"}.`,
+                      undo: async () => {
+                        await update.mutateAsync({ id, is_active: !next });
+                      },
+                    });
                   } catch (err) {
                     setError(errMessage(err, "Could not update the sequence."));
                   }
@@ -216,6 +241,10 @@ export default function SequenceDetailPage() {
 
       {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
 
+      {notice && (
+        <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />
+      )}
+
       <div className="card">
         <div className="px-5 py-4 border-b border-[var(--border-subtle)] flex items-center justify-between">
           <h2 className="text-sm font-semibold">Steps ({steps.length})</h2>
@@ -223,11 +252,18 @@ export default function SequenceDetailPage() {
             onClick={async () => {
               setError(null);
               try {
-                await createStep.mutateAsync({
+                const added = (await createStep.mutateAsync({
                   step_order: nextOrder,
                   delay_days: nextOrder === 1 ? 0 : 1,
                   subject: "New step",
                   body: "Hi {{first_name}},",
+                })) as unknown as Step;
+                notify({
+                  tone: "success",
+                  message: `Step ${nextOrder} added.`,
+                  undo: async () => {
+                    await removeStep.mutateAsync(added.id);
+                  },
                 });
               } catch (e) {
                 setError(errMessage(e, "Could not add a step."));
@@ -242,7 +278,7 @@ export default function SequenceDetailPage() {
         </div>
         <ul className="divide-y divide-[var(--border-subtle)]">
           {steps.map((s) => (
-            <StepRow key={s.id} step={s} sequenceId={id} />
+            <StepRow key={s.id} step={s} sequenceId={id} onNotify={notify} />
           ))}
           {steps.length === 0 && (
             <li className="px-5 py-6 text-sm text-[var(--text-tertiary)] text-center">
@@ -277,6 +313,10 @@ export default function SequenceDetailPage() {
               try {
                 await enroll.mutateAsync(contactId);
                 setContactId("");
+                notify({
+                  tone: "success",
+                  message: `${contactName(contactId)} enrolled in this sequence.`,
+                });
               } catch (e) {
                 setError(errMessage(e, "Could not enroll the contact."));
               }
@@ -307,6 +347,10 @@ export default function SequenceDetailPage() {
                     setError(null);
                     try {
                       await unsubscribe.mutateAsync(enr.id);
+                      notify({
+                        tone: "success",
+                        message: `${contactName(enr.contact_id)} unsubscribed.`,
+                      });
                     } catch (e) {
                       setError(errMessage(e, "Could not unsubscribe."));
                     }

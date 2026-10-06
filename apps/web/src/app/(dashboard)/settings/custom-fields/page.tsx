@@ -10,6 +10,8 @@ import {
   type CustomFieldDefinitionRecord,
 } from "@/hooks/use-custom-fields";
 import { Field, FormError } from "@/components/forms/fields";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { ConfirmDialog } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Lock, Pencil, Plus, Trash2, X } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
@@ -86,6 +88,8 @@ export default function CustomFieldsSettingsPage() {
   const update = useUpdateCustomFieldDefinition();
   const remove = useDeleteCustomFieldDefinition();
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<(typeof definitions)[number] | null>(null);
+  const { notice, notify, dismiss } = useActionNotice();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<DefinitionFormState>(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
@@ -128,12 +132,18 @@ export default function CustomFieldsSettingsPage() {
           .filter(Boolean),
       };
     }
+    const label = form.label.trim();
+    const wasEditing = editingId;
     try {
       if (editingId) await update.mutateAsync({ id: editingId, ...payload });
       else await create.mutateAsync(payload);
       setShowForm(false);
       setForm(EMPTY_FORM);
       setEditingId(null);
+      notify({
+        tone: "success",
+        message: wasEditing ? `Field “${label}” updated.` : `Field “${label}” added.`,
+      });
     } catch (err) {
       setError(errMessage(err, "Could not save the field."));
     }
@@ -330,15 +340,7 @@ export default function CustomFieldsSettingsPage() {
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={async () => {
-                            if (!confirm(`Delete field ${d.label}? Existing values stay on records.`)) return;
-                            setError(null);
-                            try {
-                              await remove.mutateAsync(d.id);
-                            } catch (e) {
-                              setError(errMessage(e, "Could not delete the field."));
-                            }
-                          }}
+                          onClick={() => setConfirmDelete(d)}
                           className="btn-ghost p-2"
                           aria-label={`Delete field ${d.label}`}
                         >
@@ -359,6 +361,26 @@ export default function CustomFieldsSettingsPage() {
           )}
         </div>
       </div>
+
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => {
+          if (!confirmDelete) return;
+          const label = confirmDelete.label;
+          setError(null);
+          setConfirmDelete(null);
+          remove.mutate(confirmDelete.id, {
+            onSuccess: () => notify({ tone: "success", message: `Field “${label}” deleted.` }),
+            onError: (e) => setError(errMessage(e, "Could not delete the field.")),
+          });
+        }}
+        title="Delete field?"
+        message={`“${confirmDelete?.label ?? ""}” will no longer appear on records. Values already stored stay on those records. This action cannot be undone.`}
+        confirming={remove.isPending}
+      />
     </div>
   );
 }

@@ -9,6 +9,8 @@ import {
   type PluginRecord,
 } from "@/hooks/use-plugins";
 import { Field, FormError } from "@/components/forms/fields";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { ConfirmDialog } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Pencil, Plus, Trash2, X, ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -48,6 +50,8 @@ export default function PluginsSettingsPage() {
   const update = useUpdatePlugin();
   const remove = useDeletePlugin();
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<(typeof plugins)[number] | null>(null);
+  const { notice, notify, dismiss } = useActionNotice();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<PluginFormState>(EMPTY_FORM);
   const [showForm, setShowForm] = useState(false);
@@ -89,12 +93,18 @@ export default function PluginsSettingsPage() {
       triggers: form.triggers,
       is_active: form.is_active,
     };
+    const label = form.name.trim();
+    const wasEditing = editingId;
     try {
       if (editingId) await update.mutateAsync({ id: editingId, ...payload });
       else await create.mutateAsync(payload);
       setShowForm(false);
       setForm(EMPTY_FORM);
       setEditingId(null);
+      notify({
+        tone: "success",
+        message: wasEditing ? `Plugin “${label}” updated.` : `Plugin “${label}” created.`,
+      });
     } catch (err) {
       setError(errMessage(err, "Could not save the plugin."));
     }
@@ -245,15 +255,7 @@ export default function PluginsSettingsPage() {
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
-                        onClick={async () => {
-                          if (!confirm(`Delete plugin ${plugin.name}?`)) return;
-                          setError(null);
-                          try {
-                            await remove.mutateAsync(plugin.id);
-                          } catch (e) {
-                            setError(errMessage(e, "Could not delete the plugin."));
-                          }
-                        }}
+                        onClick={() => setConfirmDelete(plugin)}
                         className="btn-ghost p-2"
                         aria-label={`Delete ${plugin.name}`}
                       >
@@ -272,6 +274,26 @@ export default function PluginsSettingsPage() {
           )}
         </div>
       </div>
+
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => {
+          if (!confirmDelete) return;
+          const label = confirmDelete.name;
+          setError(null);
+          setConfirmDelete(null);
+          remove.mutate(confirmDelete.id, {
+            onSuccess: () => notify({ tone: "success", message: `Plugin “${label}” deleted.` }),
+            onError: (e) => setError(errMessage(e, "Could not delete the plugin.")),
+          });
+        }}
+        title="Delete plugin?"
+        message={`“${confirmDelete?.name ?? ""}” will stop receiving CRM events. This action cannot be undone.`}
+        confirming={remove.isPending}
+      />
     </div>
   );
 }

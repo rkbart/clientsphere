@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Field, FormError } from "@/components/forms/fields";
+import { ResultModal } from "@/components/ui/modal";
 import { useCreateWebhook } from "@/hooks/use-webhooks";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
@@ -15,6 +16,7 @@ export default function NewWebhookPage() {
   const [events, setEvents] = useState("automation.executed");
   const [isActive, setIsActive] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ title: string; message: string; next: string } | null>(null);
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
@@ -37,12 +39,16 @@ export default function NewWebhookPage() {
             e.preventDefault();
             setError(null);
             try {
-              const result = (await create.mutateAsync({
+              const created = (await create.mutateAsync({
                 url: url.trim(),
                 events: events.split(",").map((s) => s.trim()).filter(Boolean),
                 is_active: isActive,
               })) as unknown as { id: string };
-              router.push(`/settings/webhooks/${result.id}`);
+              setResult({
+                title: "Webhook created",
+                message: `Events will POST to ${url.trim()}${isActive ? "" : " once you activate it"}.`,
+                next: `/settings/webhooks/${created.id}`,
+              });
             } catch (err) {
               setError(errMessage(err, "Could not create the webhook."));
             }
@@ -83,6 +89,18 @@ export default function NewWebhookPage() {
           </button>
         </form>
       </div>
+
+      <ResultModal
+        open={!!result}
+        onClose={() => {
+          const next = result?.next;
+          setResult(null);
+          if (next) router.push(next);
+        }}
+        tone="success"
+        title={result?.title ?? ""}
+        message={result?.message ?? ""}
+      />
     </div>
   );
 }

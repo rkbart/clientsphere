@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAutomations, useToggleAutomation, useDeleteAutomation } from "@/hooks/use-automations";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { ConfirmDialog } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Plus, Pencil, Trash2, Play, Pause } from "lucide-react";
 import { useState } from "react";
@@ -20,6 +22,8 @@ export default function AutomationsPage() {
   const toggle = useToggleAutomation();
   const remove = useDeleteAutomation();
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<(typeof list)[number] | null>(null);
+  const { notice, notify, dismiss, undo, undoing } = useActionNotice();
   const list = ((data as unknown as { data?: Automation[] })?.data ?? []);
 
   return (
@@ -86,6 +90,13 @@ export default function AutomationsPage() {
                           setError(null);
                           try {
                             await toggle.mutateAsync(a.id);
+                            notify({
+                              tone: "success",
+                              message: `“${a.name}” ${a.is_active ? "paused" : "activated"}.`,
+                              undo: async () => {
+                                await toggle.mutateAsync(a.id);
+                              },
+                            });
                           } catch (e) {
                             setError(errMessage(e, "Could not toggle the automation."));
                           }
@@ -100,15 +111,7 @@ export default function AutomationsPage() {
                         <Pencil className="h-4 w-4" />
                       </Link>
                       <button
-                        onClick={async () => {
-                          if (!confirm(`Delete automation "${a.name}"?`)) return;
-                          setError(null);
-                          try {
-                            await remove.mutateAsync(a.id);
-                          } catch (e) {
-                            setError(errMessage(e, "Could not delete the automation."));
-                          }
-                        }}
+                        onClick={() => setConfirmDelete(a)}
                         className="btn-ghost p-2"
                         aria-label={`Delete ${a.name}`}
                       >
@@ -127,6 +130,26 @@ export default function AutomationsPage() {
           )}
         </div>
       </div>
+
+      {notice && <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />}
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => {
+          if (!confirmDelete) return;
+          const name = confirmDelete.name;
+          setError(null);
+          setConfirmDelete(null);
+          remove.mutate(confirmDelete.id, {
+            onSuccess: () => notify({ tone: "success", message: `Automation “${name}” deleted.` }),
+            onError: (e) => setError(errMessage(e, "Could not delete the automation.")),
+          });
+        }}
+        title="Delete automation?"
+        message={`“${confirmDelete?.name ?? ""}” will stop reacting to CRM events. Its run history is removed too. This action cannot be undone.`}
+        confirming={remove.isPending}
+      />
     </div>
   );
 }

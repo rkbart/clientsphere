@@ -7,6 +7,8 @@ import { Plus, Trash2, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { ConfirmDialog } from "@/components/ui/modal";
 
 interface Webhook {
   id: string;
@@ -19,6 +21,8 @@ export default function WebhooksSettingsPage() {
   const { data, isLoading } = useWebhooks();
   const remove = useDeleteWebhook();
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Webhook | null>(null);
+  const { notice, notify, dismiss } = useActionNotice();
   const list = ((data as unknown as { data?: Webhook[] })?.data ?? []);
   const canManage = useCanManageSettings();
 
@@ -78,15 +82,7 @@ export default function WebhooksSettingsPage() {
                   <td className="table-cell">
                     <div className="flex justify-end">
                       <button
-                        onClick={async () => {
-                          if (!confirm(`Delete webhook ${w.url}?`)) return;
-                          setError(null);
-                          try {
-                            await remove.mutateAsync(w.id);
-                          } catch (e) {
-                            setError(errMessage(e, "Could not delete the webhook."));
-                          }
-                        }}
+                        onClick={() => setConfirmDelete(w)}
                         className="btn-ghost p-2"
                         aria-label={`Delete webhook ${w.url}`}
                       >
@@ -105,6 +101,26 @@ export default function WebhooksSettingsPage() {
           )}
         </div>
       </div>
+
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => {
+          if (!confirmDelete) return;
+          const url = confirmDelete.url;
+          setError(null);
+          setConfirmDelete(null);
+          remove.mutate(confirmDelete.id, {
+            onSuccess: () => notify({ tone: "success", message: `Webhook ${url} deleted.` }),
+            onError: (e) => setError(errMessage(e, "Could not delete the webhook.")),
+          });
+        }}
+        title="Delete webhook?"
+        message={`${confirmDelete?.url ?? ""} will stop receiving deliveries. Its delivery log is kept. This action cannot be undone.`}
+        confirming={remove.isPending}
+      />
     </div>
   );
 }

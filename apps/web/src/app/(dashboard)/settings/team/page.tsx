@@ -13,6 +13,8 @@ import {
 import { useAuthStore } from "@/store/auth-store";
 import { Avatar } from "@/components/shared/avatar";
 import { Field, FormError } from "@/components/forms/fields";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { ConfirmDialog } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Check, ChevronLeft, Copy, Trash2 } from "lucide-react";
 
@@ -28,6 +30,9 @@ export default function TeamSettingsPage() {
   const revoke = useRevokeInvitation();
   const currentUser = useAuthStore((s) => s.user);
   const [error, setError] = useState<string | null>(null);
+  const [confirmRemove, setConfirmRemove] = useState<(typeof memberships)[number] | null>(null);
+  const [confirmRevokeInvite, setConfirmRevokeInvite] = useState<(typeof invitations)[number] | null>(null);
+  const { notice, notify, dismiss, undo, undoing } = useActionNotice();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("member");
   const [inviteLink, setInviteLink] = useState<string | null>(null);
@@ -49,6 +54,8 @@ export default function TeamSettingsPage() {
     setError(null);
     try {
       await revoke.mutateAsync(id);
+      const target = invitations.find((i) => i.id === id);
+      notify({ tone: "success", message: `Invitation for ${target?.email ?? "member"} revoked.` });
     } catch (e) {
       setError(errMessage(e, "Could not revoke the invitation."));
     }
@@ -67,6 +74,12 @@ export default function TeamSettingsPage() {
       }
       setInviteEmailed(!!result.invite_sent);
       setEmail("");
+      notify({
+        tone: "success",
+        message: result.invite_sent
+          ? `Invitation sent to ${email.trim()}.`
+          : `Invitation created for ${email.trim()} — share the link below.`,
+      });
     } catch (err) {
       setError(errMessage(err, "Could not send the invitation."));
     }
@@ -130,9 +143,18 @@ export default function TeamSettingsPage() {
                         <select
                           value={m.role}
                           onChange={async (e) => {
+                            const nextRole = e.target.value;
+                            const previousRole = m.role;
                             setError(null);
                             try {
-                              await updateRole.mutateAsync({ id: m.id, role: e.target.value });
+                              await updateRole.mutateAsync({ id: m.id, role: nextRole });
+                              notify({
+                                tone: "success",
+                                message: `${m.user?.name ?? m.user?.email ?? "Member"} is now ${nextRole}.`,
+                                undo: async () => {
+                                  await updateRole.mutateAsync({ id: m.id, role: previousRole });
+                                },
+                              });
                             } catch (err) {
                               setError(errMessage(err, "Could not change the role."));
                             }
@@ -161,15 +183,7 @@ export default function TeamSettingsPage() {
                       <div className="flex justify-end">
                         {isManager && !isSelf && (
                           <button
-                            onClick={async () => {
-                              if (!confirm(`Remove ${m.user?.email} from the workspace?`)) return;
-                              setError(null);
-                              try {
-                                await remove.mutateAsync(m.id);
-                              } catch (e) {
-                                setError(errMessage(e, "Could not remove the member."));
-                              }
-                            }}
+                            onClick={() => setConfirmRemove(m)}
                             className="btn-ghost p-2"
                             aria-label={`Remove ${m.user?.email}`}
                           >
@@ -213,10 +227,7 @@ export default function TeamSettingsPage() {
                   </p>
                 </div>
                 <button
-                  onClick={async () => {
-                    if (!confirm(`Revoke the invitation for ${inv.email}?`)) return;
-                    await revokeInvite(inv.id);
-                  }}
+onClick={() => setConfirmRevokeInvite(inv)}
                   className="btn-ghost p-2 text-[var(--danger)]"
                   aria-label={`Revoke invitation for ${inv.email}`}
                 >
@@ -278,6 +289,39 @@ export default function TeamSettingsPage() {
           )}
         </form>
       )}
+
+      {notice && <ActionBanner notice={notice} onUndo={() => void undo()} onDismiss={dismiss} undoing={undoing} />}
+
+      <ConfirmDialog
+        open={!!confirmRemove}
+        onClose={() => setConfirmRemove(null)}
+        onConfirm={() => {
+          if (!confirmRemove) return;
+          const who = confirmRemove.user?.email ?? confirmRemove.user?.name ?? "this member";
+          setError(null);
+          setConfirmRemove(null);
+          remove.mutate(confirmRemove.id, {
+            onSuccess: () => notify({ tone: "success", message: `${who} removed from the workspace.` }),
+            onError: (e) => setError(errMessage(e, "Could not remove the member.")),
+          });
+        }}
+        title="Remove member?"
+        message={`${confirmRemove?.user?.email ?? "This member"} will lose access to the workspace immediately. This action cannot be undone.`}
+        confirming={remove.isPending}
+      />
+
+      <ConfirmDialog
+        open={!!confirmRevokeInvite}
+        onClose={() => setConfirmRevokeInvite(null)}
+        onConfirm={() => {
+          const target = confirmRevokeInvite;
+          setConfirmRevokeInvite(null);
+          if (target) void revokeInvite(target.id);
+        }}
+        title="Revoke invitation?"
+        message={`${confirmRevokeInvite?.email ?? "This invitee"} will no longer be able to join with this link. You can invite them again later.`}
+        confirming={revoke.isPending}
+      />
     </div>
   );
 }

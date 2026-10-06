@@ -7,7 +7,8 @@ import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 import { useDeal } from "@/hooks/use-deals";
 import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-filters";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
-import { useBulkCompleteActivities } from "@/hooks/use-activities";
+import { useBulkCompleteActivities, useUpdateActivity } from "@/hooks/use-activities";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
 import type { SortDir } from "@/components/shared/sort-header";
 import Link from "next/link";
 import { Plus, Search, X } from "lucide-react";
@@ -84,6 +85,8 @@ function ActivitiesPageInner() {
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkAnnouncement, setBulkAnnouncement] = useState("");
   const bulkComplete = useBulkCompleteActivities();
+  const reopen = useUpdateActivity();
+  const { notice, notify, dismiss, undo, undoing } = useActionNotice();
 
   const clearSelection = () => setSelectedIds(new Set());
   const toggleSelect = (id: string) =>
@@ -114,6 +117,23 @@ function ActivitiesPageInner() {
             ? `${done} ${done === 1 ? "activity" : "activities"} marked complete.`
             : `${done} completed, ${failed} failed.`
         );
+        notify({
+          tone: failed === 0 ? "success" : "error",
+          message:
+            failed === 0
+              ? `${done} ${done === 1 ? "activity" : "activities"} marked complete.`
+              : `${done} completed, ${failed} failed.`,
+          // bulk_complete only ever sets completed_at, so undo has to reopen
+          // them individually rather than re-calling it.
+          undo:
+            failed === 0
+              ? async () => {
+                  for (const id of result.completed) {
+                    await reopen.mutateAsync({ id, completed_at: null });
+                  }
+                }
+              : undefined,
+        });
         if (failed === 0) {
           clearSelection();
         } else {
@@ -333,6 +353,14 @@ function ActivitiesPageInner() {
       <span aria-live="polite" role="status" className="sr-only">
         {bulkAnnouncement}
       </span>
+      {notice && (
+        <ActionBanner
+          notice={notice}
+          onUndo={() => void undo()}
+          onDismiss={dismiss}
+          undoing={undoing}
+        />
+      )}
       {selectedIds.size > 0 && (
         <div className="flex flex-wrap items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--bg-card)] px-4 py-2.5 text-sm">
           <span className="tabular-nums font-medium">

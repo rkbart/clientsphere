@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Field, FormError } from "@/components/forms/fields";
+import { ResultModal } from "@/components/ui/modal";
 import { useWebhook, useUpdateWebhook, useWebhookDeliveries } from "@/hooks/use-webhooks";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
@@ -32,6 +33,7 @@ export default function WebhookDetailPage() {
   const { data: deliveriesRes } = useWebhookDeliveries(id);
   const update = useUpdateWebhook();
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
   const w = webhook as unknown as { url?: string; events?: string[]; is_active?: boolean } | undefined;
   const [url, setUrl] = useState<string | null>(null);
@@ -74,6 +76,7 @@ export default function WebhookDetailPage() {
                     url: shownUrl.trim(),
                     events: shownEvents.split(",").map((s) => s.trim()).filter(Boolean),
                   });
+                  setSaved(true);
                 } catch (err) {
                   setError(errMessage(err, "Could not save the webhook."));
                 }
@@ -148,6 +151,14 @@ export default function WebhookDetailPage() {
           )}
         </div>
       </div>
+
+      <ResultModal
+        open={saved}
+        onClose={() => setSaved(false)}
+        tone="success"
+        title="Webhook saved"
+        message="Your changes were saved."
+      />
     </div>
   );
 }

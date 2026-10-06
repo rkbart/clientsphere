@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Field, FormError } from "@/components/forms/fields";
+import { ResultModal } from "@/components/ui/modal";
 import { useCreateSequence } from "@/hooks/use-sequences";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
@@ -13,6 +14,7 @@ export default function NewSequencePage() {
   const create = useCreateSequence();
   const [name, setName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ title: string; message: string; next: string } | null>(null);
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
@@ -35,10 +37,14 @@ export default function NewSequencePage() {
             e.preventDefault();
             setError(null);
             try {
-              const result = (await create.mutateAsync({ name: name.trim(), is_active: true })) as unknown as {
+              const created = (await create.mutateAsync({ name: name.trim(), is_active: true })) as unknown as {
                 id: string;
               };
-              router.push(`/sequences/${result.id}`);
+              setResult({
+                title: "Sequence created",
+                message: `“${name.trim()}” is ready — add steps to it next.`,
+                next: `/sequences/${created.id}`,
+              });
             } catch (err) {
               setError(errMessage(err, "Could not create the sequence."));
             }
@@ -59,6 +65,18 @@ export default function NewSequencePage() {
           </button>
         </form>
       </div>
+
+      <ResultModal
+        open={!!result}
+        onClose={() => {
+          const next = result?.next;
+          setResult(null);
+          if (next) router.push(next);
+        }}
+        tone="success"
+        title={result?.title ?? ""}
+        message={result?.message ?? ""}
+      />
     </div>
   );
 }

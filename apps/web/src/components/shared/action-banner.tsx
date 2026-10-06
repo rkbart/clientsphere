@@ -56,12 +56,13 @@ export function ActionBanner({
   notice,
   onUndo,
   onDismiss,
-  undoing,
+  undoing = false,
 }: {
   notice: ActionNotice;
-  onUndo: () => void;
+  // Optional: notices for irreversible actions (deletes) render without Undo.
+  onUndo?: () => void;
   onDismiss: () => void;
-  undoing: boolean;
+  undoing?: boolean;
 }) {
   const Icon = notice.tone === "success" ? CheckCircle2 : AlertCircle;
   const accent =
@@ -75,7 +76,7 @@ export function ActionBanner({
     >
       <Icon className={`h-4 w-4 shrink-0 ${accent}`} aria-hidden="true" />
       <p className="flex-1 text-sm text-[var(--text-secondary)]">{notice.message}</p>
-      {notice.undo && (
+      {notice.undo && onUndo && (
         <button
           type="button"
           onClick={onUndo}

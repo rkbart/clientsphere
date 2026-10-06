@@ -8,6 +8,8 @@ import { Check, ChevronLeft, Copy, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { ConfirmDialog } from "@/components/ui/modal";
 
 export default function ApiTokensSettingsPage() {
   const { data: tokens = [], isLoading } = useApiTokens();
@@ -18,6 +20,8 @@ export default function ApiTokensSettingsPage() {
   const [expiresAt, setExpiresAt] = useState("");
   const [newToken, setNewToken] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [confirmRevoke, setConfirmRevoke] = useState<(typeof tokens)[number] | null>(null);
+  const { notice, notify, dismiss } = useActionNotice();
   const canManage = useCanManageSettings();
 
   const submit = async (e: React.FormEvent) => {
@@ -26,13 +30,15 @@ export default function ApiTokensSettingsPage() {
     setError(null);
     setNewToken(null);
     try {
+      const label = name.trim();
       const created = await create.mutateAsync({
-        name: name.trim(),
+        name: label,
         expires_at: expiresAt || null,
       });
       setNewToken(created.token);
       setName("");
       setExpiresAt("");
+      notify({ tone: "success", message: `Token “${label}” created.` });
     } catch (err) {
       setError(errMessage(err, "Could not create the token."));
     }
@@ -135,15 +141,7 @@ export default function ApiTokensSettingsPage() {
                   <td className="table-cell">
                     <div className="flex justify-end">
                       <button
-                        onClick={async () => {
-                          if (!confirm(`Revoke token ${t.name}? Integrations using it will break.`)) return;
-                          setError(null);
-                          try {
-                            await revoke.mutateAsync(t.id);
-                          } catch (e) {
-                            setError(errMessage(e, "Could not revoke the token."));
-                          }
-                        }}
+                        onClick={() => setConfirmRevoke(t)}
                         className="btn-ghost p-2"
                         aria-label={`Revoke token ${t.name}`}
                       >
@@ -162,6 +160,26 @@ export default function ApiTokensSettingsPage() {
           )}
         </div>
       </div>
+
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
+
+      <ConfirmDialog
+        open={!!confirmRevoke}
+        onClose={() => setConfirmRevoke(null)}
+        onConfirm={() => {
+          if (!confirmRevoke) return;
+          const name = confirmRevoke.name;
+          setError(null);
+          setConfirmRevoke(null);
+          revoke.mutate(confirmRevoke.id, {
+            onSuccess: () => notify({ tone: "success", message: `Token “${name}” revoked.` }),
+            onError: (e) => setError(errMessage(e, "Could not revoke the token.")),
+          });
+        }}
+        title="Revoke token?"
+        message={`${confirmRevoke?.name ?? "This token"} will stop working immediately. Integrations using it will break. This action cannot be undone.`}
+        confirming={revoke.isPending}
+      />
     </div>
   );
 }

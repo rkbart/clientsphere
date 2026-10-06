@@ -123,6 +123,18 @@ Create and save flows confirm with `ResultModal` rather than a toast, so
 every save in the app reports the same way. Inline `FormError` stays for
 validation feedback shown before a save is attempted.
 
+Which one to use:
+
+| Situation | Component |
+| --- | --- |
+| Submitting a form or saving a record, where the user is waiting on a result | `ResultModal` |
+| A settings page the user works in place (lists, toggles, in-row edits) | `ActionBanner` |
+| Deleting something irreversible | `ConfirmDialog`, then a banner reporting the outcome |
+
+Destructive actions always confirm with `ConfirmDialog` — never `window.confirm`.
+Undo is offered only where the change is genuinely reversible; deletes get the
+banner with Dismiss alone.
+
 ### Inline banners
 
 `ActionBanner` + `useActionNotice` in `@/components/shared/action-banner`.
@@ -132,6 +144,10 @@ the change is reversible and **Dismiss** always. It is an `aria-live="polite"`
 status region. Only one notice shows at a time; a new action replaces the
 previous one. Undo clears the banner when it succeeds and swaps in an error
 notice if the revert fails.
+
+Used on the Kanban board (drag-drop moves) and the in-place settings pages:
+Pipelines, Sequences, Webhooks, API Tokens, Team, Email, Custom Fields, Custom
+Objects, Plugins, Automations, plus the Activities bulk-complete bar.
 
 ## Responsive behavior
 

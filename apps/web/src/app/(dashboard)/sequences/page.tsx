@@ -6,6 +6,8 @@ import { useSequences, useDeleteSequence } from "@/hooks/use-sequences";
 import { errMessage } from "@/lib/error";
 import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
+import { ConfirmDialog } from "@/components/ui/modal";
 
 interface Sequence {
   id: string;
@@ -18,6 +20,8 @@ export default function SequencesPage() {
   const { data, isLoading } = useSequences();
   const remove = useDeleteSequence();
   const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Sequence | null>(null);
+  const { notice, notify, dismiss } = useActionNotice();
   const list = ((data as unknown as { data?: Sequence[] })?.data ?? []);
 
   return (
@@ -36,6 +40,8 @@ export default function SequencesPage() {
       </div>
 
       {error && <p className="text-sm text-[var(--danger)]">{error}</p>}
+
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
@@ -78,15 +84,7 @@ export default function SequencesPage() {
                   <td className="table-cell">
                     <div className="flex justify-end">
                       <button
-                        onClick={async () => {
-                          if (!confirm(`Delete sequence "${s.name}" and its enrollments?`)) return;
-                          setError(null);
-                          try {
-                            await remove.mutateAsync(s.id);
-                          } catch (e) {
-                            setError(errMessage(e, "Could not delete the sequence."));
-                          }
-                        }}
+                        onClick={() => setConfirmDelete(s)}
                         className="btn-ghost p-2"
                         aria-label={`Delete ${s.name}`}
                       >
@@ -105,6 +103,24 @@ export default function SequencesPage() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+        onConfirm={() => {
+          if (!confirmDelete) return;
+          const name = confirmDelete.name;
+          setError(null);
+          setConfirmDelete(null);
+          remove.mutate(confirmDelete.id, {
+            onSuccess: () => notify({ tone: "success", message: `Sequence “${name}” deleted.` }),
+            onError: (e) => setError(errMessage(e, "Could not delete the sequence.")),
+          });
+        }}
+        title="Delete sequence?"
+        message={`“${confirmDelete?.name ?? ""}” and its steps and enrollments will be removed. This action cannot be undone.`}
+        confirming={remove.isPending}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useEmailSettings, useUpdateEmailSettings } from "@/hooks/use-emails";
 import { FormError } from "@/components/forms/fields";
+import { ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Check, ChevronLeft, Copy } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
@@ -14,6 +15,7 @@ export default function EmailSettingsPage() {
   const update = useUpdateEmailSettings();
   const [form, setForm] = useState({ from_address: "", resend_api_key: "", webhook_secret: "" });
   const [saved, setSaved] = useState(false);
+  const [savedDialog, setSavedDialog] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const canManage = useCanManageSettings();
@@ -50,6 +52,7 @@ export default function EmailSettingsPage() {
       setForm((f) => ({ ...f, resend_api_key: "", webhook_secret: "" }));
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+      setSavedDialog(true);
     } catch (e) {
       setError(errMessage(e, "Could not save email settings."));
     }
@@ -170,6 +173,14 @@ export default function EmailSettingsPage() {
           {update.isPending ? "Saving…" : saved ? "Saved ✓" : "Save settings"}
         </button>
       </div>
+
+      <ResultModal
+        open={savedDialog}
+        onClose={() => setSavedDialog(false)}
+        tone="success"
+        title="Email settings saved"
+        message="New sends will use these credentials. Existing drafts keep their recorded sender."
+      />
     </div>
   );
 }
