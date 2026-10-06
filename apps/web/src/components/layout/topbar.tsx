@@ -5,7 +5,7 @@ import { useUIStore } from "@/store/ui-store";
 import { LogOut, Menu, Moon, Sun } from "lucide-react";
 
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
-  const { user, clearAuth } = useAuthStore();
+  const { user, account, clearAuth } = useAuthStore();
   const { theme, setTheme } = useUIStore();
 
   const handleLogout = () => {
@@ -29,6 +29,11 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
         <span className="hidden sm:inline text-sm text-[var(--text-secondary)] mr-1.5">
           {user?.name}
         </span>
+        {account?.name && (
+          <span className="hidden sm:inline text-xs text-[var(--text-tertiary)] border border-[var(--border)] rounded-full px-2 py-0.5">
+            {account.name}
+          </span>
+        )}
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="p-2 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)]"
