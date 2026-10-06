@@ -4,13 +4,55 @@ A complete guide to using your CRM — from first login to advanced automation.
 
 ## Getting Started
 
-### Sign up
+### Set up your company's workspace
 
-1. Go to `/signup`
-2. Enter your name, email, password (min 8 characters), and workspace name
-3. You're logged in immediately — your workspace is ready
-4. If your workspace has Google OAuth configured, you can also use
-   **Continue with Google** on the signup and login pages
+Starting fresh as a company? Signing up *is* setting up — one form creates
+your user, your workspace, and your owner membership:
+
+1. Go to `/signup` and enter your name, work email, and a password
+   (min 8 characters)
+2. Enter a **workspace name** — usually your company name (e.g. "Bean & Brew")
+3. You're logged in immediately — no verification step, no wizard. The CRM
+   starts empty and ready to shape
+4. If your deployment has Google OAuth configured, **Continue with Google**
+   works on the signup and login pages too (first Google sign-in creates a
+   personal "`<name>`'s workspace" with you as owner)
+
+Then make it yours, in a sensible order:
+
+1. **Shape your sales process** — Settings → Pipelines: rename the default
+   "Sales Pipeline" and its stages to match how you actually sell
+   (e.g. New → Qualified → Proposal → Won/Lost), or add more pipelines
+2. **Add your fields** — Settings → Custom Fields: anything the defaults
+   don't cover (e.g. a `Plan` select on contacts, a `Renewal date` on
+   companies)
+3. **Bring your data** — Settings → Import/Export: upload a contacts CSV
+   (maps First Name, Last Name, Email, Phone; skips or updates duplicates by
+   email, blanks never overwrite)
+4. **Connect email** — Settings → Email: add a Resend API key so invitations
+   and CRM emails actually send. Without it, invite links still work — you
+   just copy and share them manually
+5. **Invite the team** — Settings → Team: enter each email, pick a role
+   (owner / admin / member / viewer), send. They click the link, get logged
+   in automatically, and complete the one-time setup modal (name, phone, new
+   password — their invited email is shown read-only). Links expire after
+   7 days; pending invites can be revoked from the same page
+
+### Joining someone else's workspace
+
+There is no self-serve join — workspaces are closed by default and can't be
+discovered, searched, or requested. The only way in is an invitation:
+
+1. A workspace owner or admin invites your email from Settings → Team
+2. Click the link in the email (or the link they share with you directly)
+3. You're logged in automatically — complete the setup modal and you're in
+
+Note that signing up yourself never joins another workspace: `/signup` and
+Google sign-in always create a *new* personal workspace with you as owner.
+If you signed up first and get invited later, accepting the invite adds the
+company workspace to your account — switch between workspaces from the
+topbar. (Google sign-in with the same address you were invited with links
+to your existing user instead of making a duplicate.)
 
 ### Explore the demo data
 
