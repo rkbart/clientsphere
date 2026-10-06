@@ -264,6 +264,15 @@ export default function PipelinesSettingsPage() {
 
       <FormError message={error} />
 
+      {pipelineBanner.notice && (
+        <ActionBanner
+          notice={pipelineBanner.notice}
+          onUndo={() => void pipelineBanner.undo()}
+          onDismiss={pipelineBanner.dismiss}
+          undoing={pipelineBanner.undoing}
+        />
+      )}
+
       <div className="card p-5">
         <h2 className="text-sm font-semibold mb-3">All pipelines</h2>
         {isLoading ? (
@@ -380,15 +389,6 @@ export default function PipelinesSettingsPage() {
         </div>
       </div>
 
-      {pipelineBanner.notice && (
-        <ActionBanner
-          notice={pipelineBanner.notice}
-          onUndo={() => void pipelineBanner.undo()}
-          onDismiss={pipelineBanner.dismiss}
-          undoing={pipelineBanner.undoing}
-        />
-      )}
-
       {stageBanner.notice && (
         <ActionBanner
           notice={stageBanner.notice}
@@ -486,7 +486,14 @@ export default function PipelinesSettingsPage() {
             {
               onSuccess: () =>
                 stageBanner.notify({ tone: "success", message: `Stage "${stage.name}" deleted.` }),
-              onError: (e) => setError(errMessage(e, "Could not delete the stage.")),
+              // A stage holding deals is refused by the server; surface that
+              // in the banner above the stages card rather than the page-level
+              // error, which sits far from the row the user just clicked.
+              onError: (e) =>
+                stageBanner.notify({
+                  tone: "error",
+                  message: errMessage(e, "Could not delete the stage."),
+                }),
             },
           );
         }}

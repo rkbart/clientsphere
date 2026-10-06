@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Field, FormError } from "@/components/forms/fields";
 import { ResultModal } from "@/components/ui/modal";
+import { ActionBanner } from "@/components/shared/action-banner";
 import { getAuthHeadersForApi } from "@/lib/api/client";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Download, Upload } from "lucide-react";
@@ -100,6 +101,7 @@ export default function ImportExportSettingsPage() {
     title: string;
     message: string;
   } | null>(null);
+  const [exported, setExported] = useState<string | null>(null);
   const canManage = useCanManageSettings();
 
   const pickFile = async (f: File | null) => {
@@ -176,17 +178,11 @@ export default function ImportExportSettingsPage() {
       a.download = `${type}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      setFeedback({
-        tone: "success",
-        title: "Export ready",
-        message: `${type}.csv has been downloaded to your browser.`,
-      });
+      // No modal here: the browser's own download sheet is already taking
+      // focus, and a dialog opened alongside it would sit behind that.
+      setExported(type);
     } catch (err) {
-      setFeedback({
-        tone: "error",
-        title: "Export failed",
-        message: errMessage(err, "Could not export the file."),
-      });
+      setError(errMessage(err, "Could not export the file."));
     }
   };
 
@@ -329,6 +325,17 @@ export default function ImportExportSettingsPage() {
         title={feedback?.title ?? ""}
         message={feedback?.message ?? ""}
       />
+
+      {exported && (
+        <ActionBanner
+          notice={{
+            id: "exported",
+            tone: "success",
+            message: `${exported}.csv has been downloaded to your browser.`,
+          }}
+          onDismiss={() => setExported(null)}
+        />
+      )}
 
       <div className="card p-6">
         <h2 className="text-lg font-semibold mb-4">CSV Export</h2>

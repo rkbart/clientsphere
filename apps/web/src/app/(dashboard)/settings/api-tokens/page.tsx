@@ -73,17 +73,7 @@ export default function ApiTokensSettingsPage() {
 
       <FormError message={error} />
 
-      {newToken && (
-        <div className="rounded-[var(--radius-md)] bg-[var(--bg-elevated)] p-4 space-y-2">
-          <p className="text-sm font-medium">Copy this token now — it won&apos;t be shown again.</p>
-          <div className="flex items-center gap-2">
-            <code className="text-xs break-all flex-1">{newToken}</code>
-            <button type="button" onClick={copyToken} className="btn-ghost p-2" aria-label="Copy token">
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-            </button>
-          </div>
-        </div>
-      )}
+{notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
 
       <form onSubmit={submit} className="card p-6 space-y-4">
         <h2 className="text-lg font-semibold flex items-center gap-2">
@@ -115,8 +105,6 @@ export default function ApiTokensSettingsPage() {
           {create.isPending ? "Creating…" : "Create token"}
         </button>
       </form>
-
-      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
 
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
@@ -164,6 +152,18 @@ export default function ApiTokensSettingsPage() {
         </div>
       </div>
 
+      {newToken && (
+        <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3 space-y-2">
+          <p className="text-sm font-medium">Copy this token now — it won&apos;t be shown again.</p>
+          <div className="flex items-center gap-2">
+            <code className="text-xs break-all flex-1">{newToken}</code>
+            <button type="button" onClick={copyToken} className="btn-ghost p-2" aria-label="Copy token">
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            </button>
+          </div>
+        </div>
+      )}
+
       <ResultModal
         open={!!tokenResult}
         onClose={() => setTokenResult(null)}
@@ -177,11 +177,16 @@ export default function ApiTokensSettingsPage() {
         onClose={() => setConfirmRevoke(null)}
         onConfirm={() => {
           if (!confirmRevoke) return;
-          const name = confirmRevoke.name;
+          const target = confirmRevoke;
           setError(null);
           setConfirmRevoke(null);
-          revoke.mutate(confirmRevoke.id, {
-            onSuccess: () => notify({ tone: "success", message: `Token “${name}” revoked.` }),
+          // A revoked token is dead — drop the one-time secret if this is it.
+          if (newToken && newToken.startsWith(target.prefix)) {
+            setNewToken(null);
+            setCopied(false);
+          }
+          revoke.mutate(target.id, {
+            onSuccess: () => notify({ tone: "success", message: `Token “${target.name}” revoked.` }),
             onError: (e) => setError(errMessage(e, "Could not revoke the token.")),
           });
         }}

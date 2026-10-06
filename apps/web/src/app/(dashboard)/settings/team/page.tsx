@@ -33,11 +33,20 @@ export default function TeamSettingsPage() {
   const [confirmRemove, setConfirmRemove] = useState<(typeof memberships)[number] | null>(null);
   const [confirmRevokeInvite, setConfirmRevokeInvite] = useState<(typeof invitations)[number] | null>(null);
   const [invited, setInvited] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState<string | null>(null);
   const [roleChanged, setRoleChanged] = useState<string | null>(null);
   const { notice, notify, dismiss, undo, undoing } = useActionNotice();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("member");
   const [inviteLink, setInviteLink] = useState<string | null>(null);
+  // Revoking the invite that produced the link invalidates it, so the two are
+  // cleared together — a stale link would let the recipient join anyway.
+  const clearInviteLink = () => {
+    setInviteLink(null);
+    setCopied(false);
+    setInviteEmailed(false);
+    setInviteEmail(null);
+  };
   const [inviteEmailed, setInviteEmailed] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -57,9 +66,12 @@ export default function TeamSettingsPage() {
     try {
       await revoke.mutateAsync(id);
       const target = invitations.find((i) => i.id === id);
-      setInvited(`Invitation for ${target?.email ?? "member"} revoked.`);
+      notify({
+        tone: "success",
+        message: `The invitation to ${target?.email ?? "this member"} was deleted.`,
+      });
     } catch (e) {
-      setError(errMessage(e, "Could not revoke the invitation."));
+      notify({ tone: "error", message: errMessage(e, "Could not revoke the invitation.") });
     }
   };
 
@@ -67,19 +79,21 @@ export default function TeamSettingsPage() {
     e.preventDefault();
     if (!email.trim()) return;
     setError(null);
-    setInviteLink(null);
+    clearInviteLink();
     try {
-      const result = await invite.mutateAsync({ email: email.trim(), role });
+      const invitee = email.trim();
+      const result = await invite.mutateAsync({ email: invitee, role });
+      setInviteEmail(invitee);
       if (result.token) {
         const origin = window.location.origin;
-        setInviteLink(`${origin}/accept-invite/${result.token}?email=${encodeURIComponent(email.trim())}`);
+        setInviteLink(`${origin}/accept-invite/${result.token}?email=${encodeURIComponent(invitee)}`);
       }
       setInviteEmailed(!!result.invite_sent);
       setEmail("");
       setInvited(
         result.invite_sent
-          ? `Invitation sent to ${email.trim()}.`
-          : `Invitation created for ${email.trim()} — share the link below.`
+          ? `Invitation sent to ${invitee}.`
+          : `Invitation created for ${invitee} — share the link below.`
       );
     } catch (err) {
       setError(errMessage(err, "Could not send the invitation."));
@@ -330,7 +344,11 @@ onClick={() => setConfirmRevokeInvite(inv)}
         onConfirm={() => {
           const target = confirmRevokeInvite;
           setConfirmRevokeInvite(null);
-          if (target) void revokeInvite(target.id);
+          if (target) {
+            // Only clear the on-screen link when it is this invite's link.
+            if (inviteEmail && target.email === inviteEmail) clearInviteLink();
+            void revokeInvite(target.id);
+          }
         }}
         title="Revoke invitation?"
         message={`${confirmRevokeInvite?.email ?? "This invitee"} will no longer be able to join with this link. You can invite them again later.`}

@@ -138,6 +138,16 @@ change is genuinely reversible (rename, toggle, role change, reorder,
 bulk-complete); deletes get the banner with Dismiss alone, because recreating a
 record issues a new id rather than restoring the original.
 
+Two placements are deliberate rather than incidental: the API Tokens one-time
+secret sits **below** the token table, so the banner and the "New Token" form
+stay adjacent and the secret reads as a consequence of the action just taken;
+and a dialog is never opened alongside a browser-native sheet (the CSV download
+prompt), since it would render behind it — that case uses a banner.
+
+When an action invalidates state it produced, clear that state rather than
+leaving it stale: revoking an invitation drops its share link, revoking a token
+drops the one-time secret.
+
 ### Inline banners
 
 `ActionBanner` + `useActionNotice` in `@/components/shared/action-banner`.
