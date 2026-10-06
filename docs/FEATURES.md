@@ -214,7 +214,11 @@
 
 ### First login
 - Invitees arrive with a server-generated password, so acceptance pins them to
-  the workspace and prompts a one-time setup modal (name + password)
+  the workspace and prompts a one-time setup modal: readonly invited email,
+  display name, optional contact phone, and a new password
+- Email is identity (invitation + login key) and is never editable — not in
+  onboarding, not in Profile settings
+- Phone stays editable later under Settings → Profile
 - Existing accounts and self-signups are never prompted
 - Completing a password reset also clears the prompt
 

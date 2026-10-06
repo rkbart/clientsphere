@@ -64,7 +64,7 @@ namespace :openapi do
       ["api/v1/auth", "logout"] => "Revoke the current session",
       ["api/v1/auth", "me"] => "Current user, account and memberships",
       ["api/v1/auth", "switch_account"] => "Switch the session's current workspace",
-      ["api/v1/users", "me"] => "Update current user (name, password, first-login setup)",
+      ["api/v1/users", "me"] => "Update current user (name, phone, password, first-login setup)",
     }
 
     paths = {}

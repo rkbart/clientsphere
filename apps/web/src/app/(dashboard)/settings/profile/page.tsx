@@ -20,6 +20,7 @@ export default function ProfileSettingsPage() {
 
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user?.name ?? "");
+  const [phone, setPhone] = useState(user?.phone ?? "");
   const [password, setPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [saving, setSaving] = useState(false);
@@ -27,6 +28,7 @@ export default function ProfileSettingsPage() {
 
   const startEditing = () => {
     setName(user?.name ?? "");
+    setPhone(user?.phone ?? "");
     setPassword("");
     setConfirmation("");
     setError(null);
@@ -57,7 +59,7 @@ export default function ProfileSettingsPage() {
     setSaving(true);
     setError(null);
     try {
-      const body: Record<string, string> = { name: name.trim() };
+      const body: Record<string, string> = { name: name.trim(), phone: phone.trim() };
       if (password) {
         body.password = password;
         body.password_confirmation = confirmation;
@@ -118,6 +120,20 @@ export default function ProfileSettingsPage() {
               />
             </div>
             <div className="space-y-1.5">
+              <label htmlFor="profile-phone" className="block text-sm font-medium">
+                Phone
+              </label>
+              <input
+                id="profile-phone"
+                type="tel"
+                className="input w-full"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+1 555 010 2030"
+                autoComplete="tel"
+              />
+            </div>
+            <div className="space-y-1.5">
               <label htmlFor="profile-password" className="block text-sm font-medium">
                 New password
               </label>
@@ -165,6 +181,10 @@ export default function ProfileSettingsPage() {
               <div>
                 <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Email</dt>
                 <dd className="mt-0.5 text-sm">{user?.email ?? "—"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Phone</dt>
+                <dd className="mt-0.5 text-sm">{user?.phone || "—"}</dd>
               </div>
               <div>
                 <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Workspace</dt>

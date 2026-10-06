@@ -18,6 +18,30 @@ RSpec.describe "Current user", type: :request do
       expect(JSON.parse(response.body)["name"]).to eq("New Name")
     end
 
+    it "updates the contact phone" do
+      patch "/api/v1/users/me", params: { phone: "  +1 555 010 2030  " }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["phone"]).to eq("+1 555 010 2030")
+    end
+
+    it "clears the contact phone when blank" do
+      user.update!(phone: "+1 555 010 2030")
+
+      patch "/api/v1/users/me", params: { phone: "   " }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["phone"]).to be_nil
+    end
+
+    it "never changes the email (invitation identity)" do
+      patch "/api/v1/users/me", params: { email: "hacker@example.com" }, headers: headers, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["email"]).to eq("me@example.com")
+      expect(user.reload.email).to eq("me@example.com")
+    end
+
     it "marks the welcome banner as seen" do
       expect(user.welcome_seen_at).to be_nil
 

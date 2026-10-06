@@ -444,7 +444,7 @@ export interface paths {
     post: operations["create_api_v1_unsubscribes"];
   };
   "/users/me": {
-    /** Update current user (name, password, first-login setup) */
+    /** Update current user (name, phone, password, first-login setup) */
     patch: operations["me_api_v1_users"];
   };
   "/webhooks": {
@@ -3376,7 +3376,7 @@ export interface operations {
       };
     };
   };
-  /** Update current user (name, password, first-login setup) */
+  /** Update current user (name, phone, password, first-login setup) */
   me_api_v1_users: {
     requestBody?: {
       content: {

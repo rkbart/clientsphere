@@ -3934,7 +3934,7 @@ paths:
               additionalProperties: true
   "/api/v1/users/me":
     patch:
-      summary: Update current user (name, password, first-login setup)
+      summary: Update current user (name, phone, password, first-login setup)
       operationId: me_api_v1_users
       tags:
       - users

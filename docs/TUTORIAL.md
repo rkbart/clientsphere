@@ -467,10 +467,13 @@ Two rules keep responsibility clear:
 
 When someone accepts an invitation they land straight in the CRM with your
 workspace data — contacts, companies and deals are already there. Because we
-never email a password, the first screen asks them to set:
+never email a password, the first screen is a setup modal:
 
-1. The name their team will see (their email name is just a placeholder)
-2. A password, so they can sign in again
+1. Their work email, shown read-only — it's the address they were invited
+   with and can't be changed
+2. The name their team will see (their email name is just a placeholder)
+3. An optional contact phone number
+4. A new password (plus confirmation), so they can sign in again
 
 It only appears once, and only for invited members. Anyone who signs up
 themselves picks a password already, so they're never asked — and using
