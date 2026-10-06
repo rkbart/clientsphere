@@ -10,7 +10,7 @@ import type { Tag } from "@/hooks/use-tags";
 import { TagsCell } from "@/components/shared/tags-cell";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import type { SortDir } from "@/components/shared/sort-header";
-import { Modal } from "@/components/ui/modal";
+import { Modal, ResultModal } from "@/components/ui/modal";
 import { DealForm, EMPTY_DEAL } from "@/components/deals/deal-form";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
@@ -58,6 +58,7 @@ export default function DealsPage() {
   const [direction, setDirection] = useState<SortDir>(() => ((stored.direction as SortDir | undefined) ?? "asc"));
   const [addOpen, setAddOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [created, setCreated] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -275,12 +276,21 @@ export default function DealsPage() {
             try {
               await create.mutateAsync(values);
               setAddOpen(false);
+              setCreated(true);
             } catch (e) {
               setCreateError(errMessage(e, "Could not create the deal."));
             }
           }}
         />
       </Modal>
+
+      <ResultModal
+        open={created}
+        onClose={() => setCreated(false)}
+        tone="success"
+        title="Deal created"
+        message="The deal was added to your pipeline."
+      />
     </div>
   );
 }

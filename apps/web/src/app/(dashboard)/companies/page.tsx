@@ -8,7 +8,7 @@ import type { Tag } from "@/hooks/use-tags";
 import { TagsCell } from "@/components/shared/tags-cell";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import type { SortDir } from "@/components/shared/sort-header";
-import { Modal } from "@/components/ui/modal";
+import { Modal, ResultModal } from "@/components/ui/modal";
 import { CompanyForm, EMPTY_COMPANY } from "@/components/companies/company-form";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
@@ -43,6 +43,7 @@ export default function CompaniesPage() {
   const [direction, setDirection] = useState<SortDir>(() => ((stored.direction as SortDir | undefined) ?? "asc"));
   const [addOpen, setAddOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [created, setCreated] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -178,12 +179,21 @@ export default function CompaniesPage() {
             try {
               await create.mutateAsync(values);
               setAddOpen(false);
+              setCreated(true);
             } catch (e) {
               setCreateError(errMessage(e, "Could not create the company."));
             }
           }}
         />
       </Modal>
+
+      <ResultModal
+        open={created}
+        onClose={() => setCreated(false)}
+        tone="success"
+        title="Company created"
+        message="The company was added to your workspace."
+      />
     </div>
   );
 }

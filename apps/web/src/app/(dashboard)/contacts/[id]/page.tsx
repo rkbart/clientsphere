@@ -8,7 +8,7 @@ import { useCompany } from "@/hooks/use-companies";
 import { NotesSection } from "@/components/shared/notes-section";
 import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
-import { Modal, ConfirmDialog } from "@/components/ui/modal";
+import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { ContactForm, type ContactFormValues } from "@/components/contacts/contact-form";
 import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
 import { FormError } from "@/components/forms/fields";
@@ -42,6 +42,7 @@ export default function ContactDetailPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [savedNotice, setSavedNotice] = useState(false);
   const contact = data as unknown as ContactData | undefined;
   const { data: companyData } = useCompany(contact?.company?.id ?? contact?.company_id ?? "", {
     enabled: !!contact && !!(contact?.company?.id ?? contact?.company_id),
@@ -178,12 +179,21 @@ export default function ContactDetailPage() {
             try {
               await update.mutateAsync({ id: contact.id, ...values });
               setEditOpen(false);
+              setSavedNotice(true);
             } catch (e) {
               setEditError(errMessage(e, "Could not save the contact."));
             }
           }}
         />
       </Modal>
+
+      <ResultModal
+        open={savedNotice}
+        onClose={() => setSavedNotice(false)}
+        tone="success"
+        title="Contact saved"
+        message="Your changes to this contact were saved."
+      />
 
       <ConfirmDialog
         open={confirmDelete}

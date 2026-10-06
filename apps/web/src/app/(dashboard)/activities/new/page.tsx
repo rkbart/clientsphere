@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ActivityForm, EMPTY_ACTIVITY } from "@/components/activities/activity-form";
 import { useCreateActivity } from "@/hooks/use-activities";
 import { FormError } from "@/components/forms/fields";
+import { ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
 
@@ -13,6 +14,7 @@ export default function NewActivityPage() {
   const router = useRouter();
   const create = useCreateActivity();
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ title: string; message: string } | null>(null);
 
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
@@ -37,13 +39,27 @@ export default function NewActivityPage() {
             setError(null);
             try {
               await create.mutateAsync(values);
-              router.push("/activities");
+              setResult({
+                title: "Activity created",
+                message: `“${values.subject}” was added to your activities.`,
+              });
             } catch (e) {
               setError(errMessage(e, "Could not create the activity."));
             }
           }}
         />
       </div>
+
+      <ResultModal
+        open={!!result}
+        onClose={() => {
+          setResult(null);
+          router.push("/activities");
+        }}
+        tone="success"
+        title={result?.title ?? ""}
+        message={result?.message ?? ""}
+      />
     </div>
   );
 }

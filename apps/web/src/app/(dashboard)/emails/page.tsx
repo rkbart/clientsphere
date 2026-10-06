@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useEmails, useRedeliverEmail, useUpdateEmail } from "@/hooks/use-emails";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { Field, FormError } from "@/components/forms/fields";
-import { Modal } from "@/components/ui/modal";
+import { Modal, ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Mail, RotateCcw } from "lucide-react";
 
@@ -31,11 +31,13 @@ function EmailDetailModal({
   email,
   onClose,
   onRetry,
+  onSaved,
   retrying,
 }: {
   email: OutboxEmail;
   onClose: () => void;
   onRetry: (id: string) => void;
+  onSaved: () => void;
   retrying: boolean;
 }) {
   const update = useUpdateEmail();
@@ -62,6 +64,13 @@ function EmailDetailModal({
     } catch (e) {
       setError(errMessage(e, "Could not save the email."));
       return false;
+    }
+  };
+
+  const saveAndClose = async () => {
+    if (await saveChanges()) {
+      onClose();
+      onSaved();
     }
   };
 
@@ -125,7 +134,7 @@ function EmailDetailModal({
             </Field>
             <div className="flex gap-2">
               <button
-                onClick={() => void saveChanges().then((ok) => ok && onClose())}
+                onClick={() => void saveAndClose()}
                 disabled={update.isPending || !subject.trim()}
                 className="btn-primary text-sm"
               >
@@ -180,7 +189,9 @@ export default function OutboxPage() {
   const [perPage, setPerPage] = useState(25);
   const [actionError, setActionError] = useState<string | null>(null);
   const [retryingId, setRetryingId] = useState<string | null>(null);
+  const [retryNotice, setRetryNotice] = useState<{ title: string; message: string } | null>(null);
   const [selected, setSelected] = useState<OutboxEmail | null>(null);
+  const [saved, setSaved] = useState(false);
 
   const { data, isLoading } = useEmails({
     status: status || undefined,
@@ -195,7 +206,17 @@ export default function OutboxPage() {
     setActionError(null);
     setRetryingId(id);
     try {
-      await redeliver.mutateAsync(id);
+      const email = await redeliver.mutateAsync(id);
+      const recipients = ((email as unknown as { to_addresses?: string[] } | undefined)?.to_addresses ?? []).join(", ");
+      setRetryNotice({
+        title: (email as unknown as { status?: string } | undefined)?.status === "sent"
+          ? "Email sent"
+          : "Retry finished",
+        message:
+          (email as unknown as { status?: string } | undefined)?.status === "sent"
+            ? `Delivered to ${recipients || "the recipient"}.`
+            : "The provider did not confirm delivery, so it is still in the Outbox for review.",
+      });
     } catch (e) {
       setActionError(errMessage(e, "Could not redeliver the email."));
     } finally {
@@ -335,9 +356,26 @@ export default function OutboxPage() {
           email={selected}
           onClose={() => setSelected(null)}
           onRetry={(id) => void retry(id)}
+          onSaved={() => setSaved(true)}
           retrying={retryingId === selected.id}
         />
       )}
+
+      <ResultModal
+        open={saved}
+        onClose={() => setSaved(false)}
+        tone="success"
+        title="Email saved"
+        message="Your changes to this email were saved."
+      />
+
+      <ResultModal
+        open={!!retryNotice}
+        onClose={() => setRetryNotice(null)}
+        tone="success"
+        title={retryNotice?.title ?? ""}
+        message={retryNotice?.message ?? ""}
+      />
     </div>
   );
 }

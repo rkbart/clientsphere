@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { X } from "lucide-react";
+import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
 export function Modal({
   open,
@@ -79,6 +79,43 @@ export function Modal({
       </div>
     </div>,
     document.body
+  );
+}
+
+// Outcome notice for create/save flows. Success and failure share one dialog
+// so every save in the app confirms the same way.
+export function ResultModal({
+  open,
+  onClose,
+  tone,
+  title,
+  message,
+  confirmLabel = "Done",
+}: {
+  open: boolean;
+  onClose: () => void;
+  tone: "success" | "error";
+  title: string;
+  message: string;
+  confirmLabel?: string;
+}) {
+  const Icon = tone === "success" ? CheckCircle2 : AlertCircle;
+  const accent = tone === "success" ? "text-[var(--success-ink)]" : "text-[var(--danger-ink)]";
+
+  return (
+    <Modal open={open} onClose={onClose} title={title} maxWidth="max-w-sm">
+      <div className="flex gap-3">
+        <Icon className={`h-5 w-5 shrink-0 ${accent}`} aria-hidden="true" />
+        <p role="status" className="text-sm text-[var(--text-secondary)]">
+          {message}
+        </p>
+      </div>
+      <div className="flex justify-end mt-6">
+        <button onClick={onClose} className={tone === "success" ? "btn-primary" : "btn-secondary"}>
+          {confirmLabel}
+        </button>
+      </div>
+    </Modal>
   );
 }
 

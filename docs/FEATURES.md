@@ -135,7 +135,8 @@
 - Templates: 6 ready-made blueprints (`GET /automations/templates`) in a
   collapsible gallery — selecting one highlights it and loads the builder,
   re-select to swap, rename and customize before saving
-- UI: list, create/edit form, detail with runs
+- UI: list, create/edit form, detail with runs; saving confirms in a dialog
+  before navigating away
 - Zapier/Make/n8n: see [INTEGRATIONS.md](INTEGRATIONS.md)
 
 ### Email Sequences

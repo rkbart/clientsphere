@@ -6,6 +6,7 @@ import Link from "next/link";
 import { WorkflowBuilder, type WorkflowValues } from "@/components/automations/workflow-builder";
 import { useAutomationTemplates, useCreateAutomation, type AutomationTemplate } from "@/hooks/use-automations";
 import { FormError } from "@/components/forms/fields";
+import { ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Check, ChevronDown, ChevronLeft, LayoutTemplate, Zap } from "lucide-react";
 
@@ -48,6 +49,9 @@ export default function NewAutomationPage() {
   const create = useCreateAutomation();
   const { data: templates } = useAutomationTemplates();
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ tone: "success" | "error"; title: string; message: string; next?: string } | null>(
+    null
+  );
   const [templateKey, setTemplateKey] = useState<string | null>(null);
   const [templatesOpen, setTemplatesOpen] = useState(true);
 
@@ -148,14 +152,31 @@ export default function NewAutomationPage() {
           onSubmit={async (values) => {
             setError(null);
             try {
-              const result = (await create.mutateAsync(values)) as unknown as { id: string };
-              router.push(`/automations/${result.id}/edit`);
+              const created = (await create.mutateAsync(values)) as unknown as { id: string };
+              setResult({
+                tone: "success",
+                title: "Automation created",
+                message: `“${values.name}” is saved and ${values.is_active ? "active" : "paused"}.`,
+                next: `/automations/${created.id}/edit`,
+              });
             } catch (e) {
               setError(errMessage(e, "Could not create the automation."));
             }
           }}
         />
       </div>
+
+      <ResultModal
+        open={!!result}
+        onClose={() => {
+          const next = result?.next;
+          setResult(null);
+          if (next) router.push(next);
+        }}
+        tone={result?.tone ?? "success"}
+        title={result?.title ?? ""}
+        message={result?.message ?? ""}
+      />
     </div>
   );
 }

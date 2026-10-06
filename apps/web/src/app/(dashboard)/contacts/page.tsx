@@ -7,7 +7,7 @@ import { persistFilters, readRememberedFilters } from "@/hooks/use-remembered-fi
 import { useTags } from "@/hooks/use-tags";
 import { TagsCell } from "@/components/shared/tags-cell";
 import type { Tag } from "@/hooks/use-tags";
-import { Modal, ConfirmDialog } from "@/components/ui/modal";
+import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { ContactForm, EMPTY_CONTACT } from "@/components/contacts/contact-form";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
@@ -63,6 +63,7 @@ export default function ContactsPage() {
   const [direction, setDirection] = useState<SortDir>(() => ((stored.direction as SortDir | undefined) ?? "asc"));
   const [addOpen, setAddOpen] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [created, setCreated] = useState(false);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -267,12 +268,21 @@ export default function ContactsPage() {
             try {
               await create.mutateAsync(values);
               setAddOpen(false);
+              setCreated(true);
             } catch (e) {
               setCreateError(errMessage(e, "Could not create the contact."));
             }
           }}
         />
       </Modal>
+
+      <ResultModal
+        open={created}
+        onClose={() => setCreated(false)}
+        tone="success"
+        title="Contact created"
+        message="The contact was added to your workspace."
+      />
     </div>
   );
 }

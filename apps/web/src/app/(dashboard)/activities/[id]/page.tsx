@@ -8,7 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useContact } from "@/hooks/use-contacts";
 import { useCompany } from "@/hooks/use-companies";
 import { useDeal } from "@/hooks/use-deals";
-import { Modal, ConfirmDialog } from "@/components/ui/modal";
+import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { ActivityForm, type ActivityFormValues } from "@/components/activities/activity-form";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
@@ -39,6 +39,7 @@ export default function ActivityDetailPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
+  const [savedNotice, setSavedNotice] = useState(false);
   const activity = data as unknown as ActivityData | undefined;
 
   const { data: contactData } = useContact(activity?.contact_id ?? "", {
@@ -223,12 +224,21 @@ export default function ActivityDetailPage() {
             try {
               await update.mutateAsync({ id: activity.id, ...values });
               setEditOpen(false);
+              setSavedNotice(true);
             } catch (e) {
               setEditError(errMessage(e, "Could not save the activity."));
             }
           }}
         />
       </Modal>
+
+      <ResultModal
+        open={savedNotice}
+        onClose={() => setSavedNotice(false)}
+        tone="success"
+        title="Activity saved"
+        message="Your changes to this activity were saved."
+      />
 
       <ConfirmDialog
         open={confirmDelete}

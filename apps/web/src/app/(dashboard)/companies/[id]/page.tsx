@@ -7,7 +7,7 @@ import { useCompany, useUpdateCompany, useDeleteCompany } from "@/hooks/use-comp
 import { NotesSection } from "@/components/shared/notes-section";
 import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
-import { Modal, ConfirmDialog } from "@/components/ui/modal";
+import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { CompanyForm, type CompanyFormValues } from "@/components/companies/company-form";
 import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
 import { FormError } from "@/components/forms/fields";
@@ -39,6 +39,7 @@ export default function CompanyDetailPage() {
   const update = useUpdateCompany();
   const remove = useDeleteCompany();
   const [editOpen, setEditOpen] = useState(false);
+  const [savedNotice, setSavedNotice] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -195,12 +196,21 @@ export default function CompanyDetailPage() {
             try {
               await update.mutateAsync({ id: company.id, ...values });
               setEditOpen(false);
+              setSavedNotice(true);
             } catch (e) {
               setEditError(errMessage(e, "Could not save the company."));
             }
           }}
         />
       </Modal>
+
+      <ResultModal
+        open={savedNotice}
+        onClose={() => setSavedNotice(false)}
+        tone="success"
+        title="Company saved"
+        message="Your changes to this company were saved."
+      />
 
       <ConfirmDialog
         open={confirmDelete}

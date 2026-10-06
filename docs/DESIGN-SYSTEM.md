@@ -109,6 +109,20 @@ one-off utility combinations:
 | `.table-row` / `.table-cell` / `.table-header` | — | Row hover = background color only; rows navigate on click (Enter/Space too) except from controls (checkboxes, buttons, links, selects, tag chips) |
 | `.animate-fade-in` / `-slide-in` / `-scale-in`, `.stagger` | | Entrance helpers (200ms / 300ms staggered) |
 
+### Dialogs
+
+All three live in `@/components/ui/modal`:
+
+| Component | Use |
+| --- | --- |
+| `Modal` | Generic dialog; focus-traps on mount, Escape closes, `createPortal` to `body` |
+| `ConfirmDialog` | Destructive confirmation (delete), with a `btn-danger` confirm and inline error |
+| `ResultModal` | Outcome of a create/save. `tone="success"` uses `CheckCircle2` + `--success-ink` and a primary action; `tone="error"` uses `AlertCircle` + `--danger-ink` and a secondary action |
+
+Create and save flows confirm with `ResultModal` rather than a toast, so
+every save in the app reports the same way. Inline `FormError` stays for
+validation feedback shown before a save is attempted.
+
 ## Responsive behavior
 
 **Breakpoint: `lg` (1024px).** Below it — including a half-width browser

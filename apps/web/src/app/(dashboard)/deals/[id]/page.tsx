@@ -13,7 +13,7 @@ import { CustomFieldValues } from "@/components/custom-fields/custom-field-input
 import { DealSummary } from "@/components/deals/deal-summary";
 import { DealOverdueTasks } from "@/components/deals/deal-overdue-tasks";
 import { EmailComposer } from "@/components/emails/email-composer";
-import { Modal, ConfirmDialog } from "@/components/ui/modal";
+import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { DealForm, type DealFormValues } from "@/components/deals/deal-form";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
@@ -49,6 +49,7 @@ export default function DealDetailPage() {
   const update = useUpdateDeal();
   const remove = useDeleteDeal();
   const [editOpen, setEditOpen] = useState(false);
+  const [savedNotice, setSavedNotice] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -222,12 +223,21 @@ export default function DealDetailPage() {
             try {
               await update.mutateAsync({ id: deal.id, ...values });
               setEditOpen(false);
+              setSavedNotice(true);
             } catch (e) {
               setEditError(errMessage(e, "Could not save the deal."));
             }
           }}
         />
       </Modal>
+
+      <ResultModal
+        open={savedNotice}
+        onClose={() => setSavedNotice(false)}
+        tone="success"
+        title="Deal saved"
+        message="Your changes to this deal were saved."
+      />
 
       <ConfirmDialog
         open={confirmDelete}

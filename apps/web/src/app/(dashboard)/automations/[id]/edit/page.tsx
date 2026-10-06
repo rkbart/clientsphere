@@ -6,6 +6,7 @@ import Link from "next/link";
 import { WorkflowBuilder, type WorkflowValues } from "@/components/automations/workflow-builder";
 import { useAutomation, useUpdateAutomation, useAutomationRuns } from "@/hooks/use-automations";
 import { FormError } from "@/components/forms/fields";
+import { ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft } from "lucide-react";
 
@@ -41,6 +42,9 @@ export default function EditAutomationPage() {
   const { data: runsRes } = useAutomationRuns(id);
   const update = useUpdateAutomation();
   const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{ tone: "success" | "error"; title: string; message: string; next?: string } | null>(
+    null
+  );
   const automation = data as unknown as AutomationRecord | undefined;
   const runs = ((runsRes as unknown as { data?: Run[] })?.data ?? []);
 
@@ -93,7 +97,12 @@ export default function EditAutomationPage() {
                 setError(null);
                 try {
                   await update.mutateAsync({ id, ...values });
-                  router.push("/automations");
+                  setResult({
+                    tone: "success",
+                    title: "Automation saved",
+                    message: `“${values.name}” was updated successfully.`,
+                    next: "/automations",
+                  });
                 } catch (e) {
                   setError(errMessage(e, "Could not save the automation."));
                 }
@@ -127,6 +136,18 @@ export default function EditAutomationPage() {
           )}
         </div>
       </div>
+
+      <ResultModal
+        open={!!result}
+        onClose={() => {
+          const next = result?.next;
+          setResult(null);
+          if (next) router.push(next);
+        }}
+        tone={result?.tone ?? "success"}
+        title={result?.title ?? ""}
+        message={result?.message ?? ""}
+      />
     </div>
   );
 }
