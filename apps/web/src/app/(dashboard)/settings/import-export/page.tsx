@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Field, FormError } from "@/components/forms/fields";
 import { ResultModal } from "@/components/ui/modal";
-import { ActionBanner } from "@/components/shared/action-banner";
 import { getAuthHeadersForApi } from "@/lib/api/client";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Download, Upload } from "lucide-react";
@@ -101,7 +100,6 @@ export default function ImportExportSettingsPage() {
     title: string;
     message: string;
   } | null>(null);
-  const [exported, setExported] = useState<string | null>(null);
   const canManage = useCanManageSettings();
 
   const pickFile = async (f: File | null) => {
@@ -178,9 +176,9 @@ export default function ImportExportSettingsPage() {
       a.download = `${type}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      // No modal here: the browser's own download sheet is already taking
-      // focus, and a dialog opened alongside it would sit behind that.
-      setExported(type);
+      // No confirmation of any kind: whether the file was saved or the user
+      // cancelled the browser's download sheet is not knowable from here, so
+      // any claim we made would be a guess.
     } catch (err) {
       setError(errMessage(err, "Could not export the file."));
     }
@@ -325,17 +323,6 @@ export default function ImportExportSettingsPage() {
         title={feedback?.title ?? ""}
         message={feedback?.message ?? ""}
       />
-
-      {exported && (
-        <ActionBanner
-          notice={{
-            id: "exported",
-            tone: "success",
-            message: `${exported}.csv has been downloaded to your browser.`,
-          }}
-          onDismiss={() => setExported(null)}
-        />
-      )}
 
       <div className="card p-6">
         <h2 className="text-lg font-semibold mb-4">CSV Export</h2>

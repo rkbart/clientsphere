@@ -140,9 +140,13 @@ record issues a new id rather than restoring the original.
 
 Two placements are deliberate rather than incidental: the API Tokens one-time
 secret sits **below** the token table, so the banner and the "New Token" form
-stay adjacent and the secret reads as a consequence of the action just taken;
-and a dialog is never opened alongside a browser-native sheet (the CSV download
-prompt), since it would render behind it — that case uses a banner.
+stay adjacent and the secret reads as a consequence of the action just taken.
+
+And a rule about what is *knowable*: do not confirm an action whose outcome the
+app cannot observe. A CSV export hands the file to the browser's own download
+sheet, which the user may cancel, so nothing is reported at all — an earlier
+version claimed "downloaded to your browser" unconditionally and was wrong
+whenever the user dismissed that sheet.
 
 When an action invalidates state it produced, clear that state rather than
 leaving it stale: revoking an invitation drops its share link, revoking a token
