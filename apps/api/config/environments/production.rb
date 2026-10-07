@@ -13,6 +13,13 @@ Rails.application.configure do
   config.active_support.disallowed_deprecation_warnings = []
   config.log_tags = [:request_id]
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
+  # Render only shows stdout — without this, request and error logs go to
+  # log/production.log where nobody can read them.
+  if ENV["RAILS_LOG_TO_STDOUT"].present?
+    logger = ActiveSupport::Logger.new($stdout)
+    logger.formatter = config.log_formatter
+    config.logger = ActiveSupport::TaggedLogging.new(logger)
+  end
 
   # Solid Cache + Solid Queue back the app in production (single database).
   config.cache_store = :solid_cache_store

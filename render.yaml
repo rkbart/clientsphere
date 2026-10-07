@@ -32,6 +32,9 @@ envVarGroups:
     envVars:
       - key: RAILS_ENV
         value: production
+      # Ship Rails logs to stdout so they appear in Render logs.
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"
       # Run Solid Queue (dispatcher + workers + scheduler) inside Puma —
       # there is no separate worker service on the free tier.
       - key: SOLID_QUEUE_IN_PUMA
