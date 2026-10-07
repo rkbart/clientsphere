@@ -1,23 +1,24 @@
 module Invitations
-  # Emails the accept link for an invitation via Resend when configured.
+  # Emails the accept link through the workspace's configured provider
+  # (Gmail or Resend), falling back to the global credentials.
   # Failures are logged and swallowed: the raw token is still returned in
   # the create response so owners can share the link manually.
   class Notifier
-    # Resend normally answers in ~1s; a hung socket must not block the
+    # Delivery normally answers in ~1s; a hung socket must not block the
     # request past the proxy timeout (60s), so cap delivery tightly.
     DEFAULT_DELIVERY_TIMEOUT = 10
 
     def self.send_invite(invitation, raw_token)
-      return false unless ENV["RESEND_API_KEY"].present?
+      resolved = EmailDelivery.for_account(invitation.account) || EmailDelivery.global
+      return false if resolved.nil?
 
-      Resend.api_key = ENV.fetch("RESEND_API_KEY")
-      params = {
-        from: ENV.fetch("EMAIL_FROM_ADDRESS", "noreply@example.com"),
+      EmailDelivery.deliver(
+        resolved,
         to: [invitation.email],
         subject: "You've been invited to #{invitation.account.name} on ClientSphere",
-        html: invite_body(invitation, raw_token)
-      }
-      Timeout.timeout(delivery_timeout) { Resend::Emails.send(params) }
+        html: invite_body(invitation, raw_token),
+        timeout: delivery_timeout
+      )
       true
     rescue Timeout::Error
       Rails.logger.warn("[Invitations::Notifier] delivery timed out after #{delivery_timeout}s")

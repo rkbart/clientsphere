@@ -11,6 +11,7 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
     attributes = email_settings_params
     attributes = attributes.except(:resend_api_key) if attributes[:resend_api_key].blank?
     attributes = attributes.except(:webhook_secret) if attributes[:webhook_secret].blank?
+    attributes = attributes.except(:smtp_password) if attributes[:smtp_password].blank?
     setting.assign_attributes(attributes)
     setting.save!
     render json: settings_payload(setting)
@@ -19,11 +20,13 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
   private
 
   def settings_payload(setting)
-    return { from_address: nil, resend_api_key_set: false, webhook_secret_set: false, webhook_url: nil } unless setting
+    return { from_address: nil, provider: "resend", resend_api_key_set: false, smtp_password_set: false, webhook_secret_set: false, webhook_url: nil } unless setting
 
     {
       from_address: setting.from_address,
+      provider: setting.provider,
       resend_api_key_set: setting.resend_api_key.present?,
+      smtp_password_set: setting.smtp_password.present?,
       webhook_secret_set: setting.webhook_secret.present?,
       webhook_url: webhook_url(setting)
     }
@@ -37,6 +40,6 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
   end
 
   def email_settings_params
-    params.require(:email_setting).permit(:from_address, :resend_api_key, :webhook_secret)
+    params.require(:email_setting).permit(:from_address, :provider, :resend_api_key, :smtp_password, :webhook_secret)
   end
 end

@@ -1,21 +1,22 @@
 module PasswordResets
-  # Emails the reset link via Resend when configured. Failures are logged and
+  # Emails the reset link through the globally configured provider (Resend
+  # or Gmail — resets have no workspace context). Failures are logged and
   # swallowed: the request endpoint always reports success so we never reveal
   # whether an address exists, and the owner can retry.
   class Notifier
     DEFAULT_DELIVERY_TIMEOUT = 10
 
     def self.send_reset(password_reset, raw_token)
-      return false unless ENV["RESEND_API_KEY"].present?
+      resolved = EmailDelivery.global
+      return false if resolved.nil?
 
-      Resend.api_key = ENV.fetch("RESEND_API_KEY")
-      params = {
-        from: ENV.fetch("EMAIL_FROM_ADDRESS", "noreply@example.com"),
+      EmailDelivery.deliver(
+        resolved,
         to: [password_reset.user.email],
         subject: "Reset your ClientSphere password",
-        html: body(password_reset, raw_token)
-      }
-      Timeout.timeout(delivery_timeout) { Resend::Emails.send(params) }
+        html: body(password_reset, raw_token),
+        timeout: delivery_timeout
+      )
       true
     rescue Timeout::Error
       Rails.logger.warn("[PasswordResets::Notifier] delivery timed out after #{delivery_timeout}s")

@@ -49,4 +49,28 @@ RSpec.describe EmailService do
 
     expect(email.reload.status).to eq("failed")
   end
+
+  it "delivers through the workspace provider and stores its message id" do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil))
+    account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
+    allow(EmailDelivery).to receive(:deliver).and_return("<uuid@gmail.com>")
+
+    email = described_class.send_email(account: account, contact: contact, subject: "Hi", body: "Hello")
+
+    expect(EmailDelivery).to have_received(:deliver) do |resolved, **kwargs|
+      expect(resolved.provider).to eq("gmail")
+      expect(kwargs[:to]).to eq(["john-es@example.com"])
+    end
+    expect(email.reload.status).to eq("sent")
+    expect(email.provider_message_id).to eq("<uuid@gmail.com>")
+  end
+
+  it "keeps a draft when gmail is chosen but the app password is missing" do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil))
+    account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com")
+
+    email = described_class.send_email(account: account, contact: contact, subject: "Hi", body: "Hello")
+
+    expect(email.status).to eq("draft")
+  end
 end

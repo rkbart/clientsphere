@@ -1,7 +1,8 @@
-# Sends outbound email and records it. Delivery goes through Resend when
-# configured (per-account email setting first, RESEND_API_KEY fallback);
-# otherwise the email is kept as a draft record so sequences and
-# automations still leave an auditable trail.
+# Sends outbound email and records it. Delivery goes through the workspace's
+# configured provider (Resend by default, Gmail SMTP when chosen — see
+# EmailDelivery), per-account email setting first with the global Resend
+# key as fallback; otherwise the email is kept as a draft record so
+# sequences and automations still leave an auditable trail.
 class EmailService
   def self.send_sequence_step(contact, step)
     enrollment = contact.sequence_enrollments.find_by(sequence_id: step.sequence_id, status: :active)
@@ -26,7 +27,7 @@ class EmailService
       body: body,
       status: :draft
     )
-    return email unless resend_configured?(account)
+    return email unless delivery_configured?(account)
 
     deliver(email)
   rescue StandardError => e
@@ -56,16 +57,12 @@ class EmailService
     "\n\n---\n<a href=\"#{url}\">Unsubscribe</a>"
   end
 
-  def self.resend_configured?(account = nil)
-    resend_api_key(account).present?
-  end
-
-  def self.resend_api_key(account = nil)
-    account&.email_setting&.resend_api_key.presence || ENV.fetch("RESEND_API_KEY", nil)
+  def self.delivery_configured?(account = nil)
+    EmailDelivery.for_account(account).present?
   end
 
   def self.redeliver(email)
-    return email unless resend_configured?(email.account)
+    return email unless delivery_configured?(email.account)
 
     deliver(email)
   rescue StandardError => e
@@ -75,18 +72,17 @@ class EmailService
   end
 
   def self.deliver(email)
-    Resend.api_key = resend_api_key(email.account) || ""
-    params = {
-      from: email.from_address,
+    resolved = EmailDelivery.for_account(email.account)
+    message_id = EmailDelivery.deliver(
+      resolved,
       to: email.to_addresses,
+      cc: email.cc_addresses,
+      bcc: email.bcc_addresses,
       subject: email.subject,
       html: to_html(email.body),
       text: to_text(email.body)
-    }
-    params[:cc] = email.cc_addresses if email.cc_addresses.present?
-    params[:bcc] = email.bcc_addresses if email.bcc_addresses.present?
-    response = Resend::Emails.send(params)
-    email.update!(status: :sent, sent_at: Time.current, provider_message_id: response[:id])
+    )
+    email.update!(status: :sent, sent_at: Time.current, provider_message_id: message_id)
     email
   end
 
@@ -109,6 +105,6 @@ class EmailService
     body.to_s.gsub(%r{</p>}i, "\n\n").gsub(%r{<br\s*/?>}i, "\n").gsub(/<[^>]+>/, "").strip
   end
 
-  private_class_method :deliver, :from_address, :resend_configured?, :resend_api_key,
+  private_class_method :deliver, :from_address, :delivery_configured?,
                        :unsubscribe_footer, :to_html, :to_text
 end

@@ -34,6 +34,32 @@ RSpec.describe Invitations::Notifier do
       expect(sender).not_to have_received(:send)
     end
 
+    it "delivers through the workspace Gmail account when chosen" do
+      stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil))
+      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
+      allow(EmailDelivery).to receive(:deliver).and_return("<uuid@gmail.com>")
+
+      expect(described_class.send_invite(invitation, "raw-token")).to be(true)
+      expect(EmailDelivery).to have_received(:deliver) do |resolved, **kwargs|
+        expect(resolved.provider).to eq("gmail")
+        expect(kwargs[:to]).to eq(["join-notify@example.com"])
+      end
+    end
+
+    it "prefers the workspace provider over the global Resend key" do
+      stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
+      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
+      sender = class_double("Resend::Emails").as_stubbed_const
+      allow(sender).to receive(:send)
+      allow(EmailDelivery).to receive(:deliver).and_return("<uuid@gmail.com>")
+
+      expect(described_class.send_invite(invitation, "raw-token")).to be(true)
+      expect(sender).not_to have_received(:send)
+      expect(EmailDelivery).to have_received(:deliver) do |resolved, _kwargs|
+        expect(resolved.provider).to eq("gmail")
+      end
+    end
+
     it "swallows provider errors" do
       stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
       sender = class_double("Resend::Emails").as_stubbed_const

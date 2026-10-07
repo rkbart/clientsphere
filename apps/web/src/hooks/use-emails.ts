@@ -43,7 +43,9 @@ export function useEmails(params?: Record<string, unknown>) {
 
 export interface EmailSettings {
   from_address?: string | null;
+  provider?: "resend" | "gmail";
   resend_api_key_set?: boolean;
+  smtp_password_set?: boolean;
   webhook_secret_set?: boolean;
   webhook_url?: string | null;
 }

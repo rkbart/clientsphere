@@ -13,7 +13,13 @@ import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
 export default function EmailSettingsPage() {
   const { data: settings, isLoading } = useEmailSettings();
   const update = useUpdateEmailSettings();
-  const [form, setForm] = useState({ from_address: "", resend_api_key: "", webhook_secret: "" });
+  const [form, setForm] = useState({
+    from_address: "",
+    provider: "resend" as "resend" | "gmail",
+    resend_api_key: "",
+    smtp_password: "",
+    webhook_secret: "",
+  });
   const [saved, setSaved] = useState(false);
   const [savedDialog, setSavedDialog] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -21,7 +27,11 @@ export default function EmailSettingsPage() {
   const canManage = useCanManageSettings();
 
   useEffect(() => {
-    setForm((f) => ({ ...f, from_address: settings?.from_address ?? "" }));
+    setForm((f) => ({
+      ...f,
+      from_address: settings?.from_address ?? "",
+      provider: settings?.provider ?? "resend",
+    }));
   }, [settings]);
 
   if (!canManage) return <ManagerOnlyNotice title="Email Settings" />;
@@ -40,16 +50,22 @@ export default function EmailSettingsPage() {
   }
 
   const hasKey = settings?.resend_api_key_set ?? false;
+  const hasSmtpPassword = settings?.smtp_password_set ?? false;
   const hasSecret = settings?.webhook_secret_set ?? false;
+  const isGmail = form.provider === "gmail";
 
   const handleSave = async () => {
     setError(null);
-    const payload: Record<string, unknown> = { from_address: form.from_address.trim() || null };
-    if (form.resend_api_key) payload.resend_api_key = form.resend_api_key;
-    if (form.webhook_secret) payload.webhook_secret = form.webhook_secret;
+    const payload: Record<string, unknown> = {
+      from_address: form.from_address.trim() || null,
+      provider: form.provider,
+    };
+    if (!isGmail && form.resend_api_key) payload.resend_api_key = form.resend_api_key;
+    if (!isGmail && form.webhook_secret) payload.webhook_secret = form.webhook_secret;
+    if (isGmail && form.smtp_password) payload.smtp_password = form.smtp_password;
     try {
       await update.mutateAsync(payload);
-      setForm((f) => ({ ...f, resend_api_key: "", webhook_secret: "" }));
+      setForm((f) => ({ ...f, resend_api_key: "", smtp_password: "", webhook_secret: "" }));
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
       setSavedDialog(true);
@@ -77,12 +93,43 @@ export default function EmailSettingsPage() {
         </Link>
         <h1 className="text-2xl font-semibold tracking-tight mt-2">Email Settings</h1>
         <p className="text-[var(--text-secondary)] text-sm mt-1">
-          Resend credentials for this workspace — keys are stored encrypted and never returned.
+          Sending provider for this workspace — credentials are stored encrypted and never returned.
         </p>
       </div>
 
       <div className="card p-6 space-y-5">
         <FormError message={error} />
+
+        <div role="radiogroup" aria-label="Sending provider">
+          <p className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Provider</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {(
+              [
+                { value: "resend", title: "Resend", hint: "API delivery with open/click tracking." },
+                { value: "gmail", title: "Company Gmail", hint: "Send as a Gmail address via SMTP." },
+              ] as const
+            ).map((option) => {
+              const selected = form.provider === option.value;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setForm({ ...form, provider: option.value })}
+                  className={`text-left rounded-[var(--radius-md)] border px-3.5 py-3 transition-colors ${
+                    selected
+                      ? "border-[var(--accent)] bg-[var(--accent-soft)]"
+                      : "border-[var(--border)] hover:border-[var(--text-tertiary)]"
+                  }`}
+                >
+                  <span className="block text-sm font-medium text-[var(--text-primary)]">{option.title}</span>
+                  <span className="block text-xs text-[var(--text-secondary)] mt-0.5">{option.hint}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <div>
           <label htmlFor="email-from" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
@@ -92,62 +139,91 @@ export default function EmailSettingsPage() {
             id="email-from"
             value={form.from_address}
             onChange={(e) => setForm({ ...form, from_address: e.target.value })}
-            placeholder="you@your-domain.com"
+            placeholder={isGmail ? "you@gmail.com" : "you@your-domain.com"}
             autoComplete="off"
             className="input"
           />
           <p className="text-xs text-[var(--text-secondary)] mt-1.5">
-            Falls back to the server default when blank. Use an address on a domain you verified in Resend.
+            {isGmail
+              ? "Must be the Gmail (or Workspace) address you sign into SMTP with, or one of its verified Send As aliases."
+              : "Falls back to the server default when blank. Use an address on a domain you verified in Resend."}
           </p>
         </div>
 
-        <div>
-          <label htmlFor="email-key" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-            Resend API key
-            {hasKey && !form.resend_api_key && (
-              <span className="badge badge-success ml-2 align-middle">Saved</span>
-            )}
-          </label>
-          <input
-            id="email-key"
-            type="password"
-            value={form.resend_api_key}
-            onChange={(e) => setForm({ ...form, resend_api_key: e.target.value })}
-            placeholder={hasKey ? "••••••••  (leave blank to keep current key)" : "re_…"}
-            autoComplete="off"
-            className="input"
-          />
-          <p className="text-xs text-[var(--text-secondary)] mt-1.5">
-            Get a key at{" "}
-            <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--text-primary)]">
-              resend.com/api-keys
-            </a>
-            . Without a key, outbound mail is kept as drafts.
-          </p>
-        </div>
+        {isGmail ? (
+          <div>
+            <label htmlFor="email-smtp-password" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+              Gmail app password
+              {hasSmtpPassword && !form.smtp_password && (
+                <span className="badge badge-success ml-2 align-middle">Saved</span>
+              )}
+            </label>
+            <input
+              id="email-smtp-password"
+              type="password"
+              value={form.smtp_password}
+              onChange={(e) => setForm({ ...form, smtp_password: e.target.value })}
+              placeholder={hasSmtpPassword ? "••••••••  (leave blank to keep current password)" : "xxxx xxxx xxxx xxxx"}
+              autoComplete="off"
+              className="input"
+            />
+            <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+              Google Account → Security → 2-Step Verification → App passwords (name it
+              “ClientSphere”). Never use your real Google password. Personal Gmail
+              accounts can send roughly 500 emails a day this way.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div>
+              <label htmlFor="email-key" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                Resend API key
+                {hasKey && !form.resend_api_key && (
+                  <span className="badge badge-success ml-2 align-middle">Saved</span>
+                )}
+              </label>
+              <input
+                id="email-key"
+                type="password"
+                value={form.resend_api_key}
+                onChange={(e) => setForm({ ...form, resend_api_key: e.target.value })}
+                placeholder={hasKey ? "••••••••  (leave blank to keep current key)" : "re_…"}
+                autoComplete="off"
+                className="input"
+              />
+              <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+                Get a key at{" "}
+                <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--text-primary)]">
+                  resend.com/api-keys
+                </a>
+                . Without a key, outbound mail is kept as drafts.
+              </p>
+            </div>
 
-        <div>
-          <label htmlFor="email-webhook-secret" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-            Webhook signing secret
-            {hasSecret && !form.webhook_secret && (
-              <span className="badge badge-success ml-2 align-middle">Saved</span>
-            )}
-          </label>
-          <input
-            id="email-webhook-secret"
-            type="password"
-            value={form.webhook_secret}
-            onChange={(e) => setForm({ ...form, webhook_secret: e.target.value })}
-            placeholder={hasSecret ? "••••••••  (leave blank to keep current secret)" : "whsec_…"}
-            autoComplete="off"
-            className="input"
-          />
-          <p className="text-xs text-[var(--text-secondary)] mt-1.5">
-            From your Resend webhook&apos;s signing secret. Enables delivered/opened tracking.
-          </p>
-        </div>
+            <div>
+              <label htmlFor="email-webhook-secret" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                Webhook signing secret
+                {hasSecret && !form.webhook_secret && (
+                  <span className="badge badge-success ml-2 align-middle">Saved</span>
+                )}
+              </label>
+              <input
+                id="email-webhook-secret"
+                type="password"
+                value={form.webhook_secret}
+                onChange={(e) => setForm({ ...form, webhook_secret: e.target.value })}
+                placeholder={hasSecret ? "••••••••  (leave blank to keep current secret)" : "whsec_…"}
+                autoComplete="off"
+                className="input"
+              />
+              <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+                From your Resend webhook&apos;s signing secret. Enables delivered/opened tracking.
+              </p>
+            </div>
+          </>
+        )}
 
-        {settings?.webhook_url && (
+        {!isGmail && settings?.webhook_url && (
           <div>
             <p className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
               Webhook URL — paste this into Resend

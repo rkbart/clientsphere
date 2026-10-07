@@ -22,7 +22,7 @@ const CARDS: SettingsCard[] = [
   {
     href: "/settings/email",
     title: "Email",
-    description: "Resend API key, sender and tracking",
+    description: "Sending provider (Resend or Gmail), sender and tracking",
     managerOnly: true,
   },
   {

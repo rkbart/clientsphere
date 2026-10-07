@@ -113,11 +113,16 @@
 - Drafts pile up here automatically when no provider is configured
 
 ### Email settings & tracking
-- Settings → Email: Resend API key, sender address, webhook secret
-  (encrypted, write-only, owner/admin only; overrides env vars)
+- Settings → Email: per-workspace provider — Resend API key or a company
+  Gmail address + app password (SMTP) — plus sender address and webhook
+  secret (all secrets encrypted, write-only, owner/admin only; workspace
+  settings override env vars)
 - Delivery tracking via Resend webhooks (`email.delivered` → delivered,
   `email.opened` → opened, `email.bounced` → failed); forward-only,
-  signature-verified, per-account URL
+  signature-verified, per-account URL. Gmail sends record delivery with a
+  client-stamped Message-ID instead (no tracking callbacks)
+- Account-less mail (password resets) uses the global `RESEND_API_KEY`, or
+  `GMAIL_ADDRESS` + `GMAIL_APP_PASSWORD` when no Resend key is set
 
 ### Lead Scoring
 - Rules-based scoring with reasons
@@ -150,7 +155,7 @@
 
 ### Email Sequences
 - Steps with delays, enrollment
-- Sending via EmailService (Resend when configured, else draft record)
+- Sending via EmailService (workspace provider — Resend or Gmail — when configured, else draft record)
 - Unsubscribe: per-enrollment signed link + public page, stop on unsubscribe
 - Stop on reply: planned
 
@@ -231,7 +236,7 @@
 - Onboarding replays only for users who hold **no** workspace at accept time
   (removed-then-reinvited members). An existing user with their own workspace
   who accepts another workspace's invite joins without the setup modal
-- Email delivery via Resend when configured, invite link + copy button otherwise
+- Email delivery via the workspace provider (Resend or Gmail) when configured, invite link + copy button otherwise
 
 ### First login
 - Invitees arrive with a server-generated password, so acceptance pins them to
