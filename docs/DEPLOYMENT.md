@@ -13,19 +13,23 @@ Cost: your server only.
 ## Option B — Free-tier demo (current plan)
 
 ```
-Vercel (web)  ──►  Render free web service (Rails) + Render free worker  ──►  Neon free Postgres
+Vercel (web)  ──►  Render free web service (Rails, jobs run in-process)  ──►  Neon free Postgres
 ```
 
 Apply `render.yaml` from the repo root (Render dashboard → New →
-Blueprint): it creates the API service and the worker with build/start
-commands, health checks, and generated secrets pre-wired. The web frontend
+Blueprint): it creates the API service with build/start commands, health
+checks, and generated secrets pre-wired. Free tier has no background
+workers, so Solid Queue runs inside Puma (`SOLID_QUEUE_IN_PUMA`, async
+mode) — jobs process whenever the web service is awake. The web frontend
 is deployed separately on Vercel (root directory `apps/web`).
 
 ### Caveats
 
 - Render free services spin down after ~15 minutes idle; the next request can take up to about a minute
-- Delayed jobs persist in Postgres via Solid Queue, but the worker only runs
-  while awake — schedules and retries stall while it sleeps
+- Delayed jobs persist in Postgres via Solid Queue, but they only run while
+  the web service is awake — schedules and retries stall while it sleeps.
+  (Upgrade path: paid plan + a dedicated `worker` service running
+  `bin/jobs start`, Solid Queue picks up the same database.)
 - Neon free projects autosuspend when idle (fast wake) and have storage/compute caps
 - Free instance hours are capped monthly
 - Vercel Hobby is intended for personal, non-commercial use

@@ -1,6 +1,10 @@
 # Render Blueprint for ClientSphere (Render + Neon, see docs/DEPLOYMENT.md).
 # Apply: Render dashboard → New → Blueprint → pick this repo.
-# The web frontend lives on Vercel (apps/web) — only the API + worker run here.
+# The web frontend lives on Vercel (apps/web) — only the Rails API runs
+# here. Free tier has no background workers, so Solid Queue runs inside
+# Puma (SOLID_QUEUE_IN_PUMA); jobs process whenever the web service is
+# awake. Need 24/7 schedules? Upgrade and add a `worker` service running
+# `bin/jobs start` (Starter plan).
 # Database is Neon (external): paste the DIRECT, non-pooled connection string
 # (hostname WITHOUT "-pooler", with ?sslmode=require). The pooled endpoint
 # breaks Solid Queue advisory locks — do not use it.
@@ -20,22 +24,15 @@ services:
     envVars:
       - fromGroup: clientsphere-settings
 
-  - type: worker
-    name: clientsphere-worker
-    runtime: ruby
-    region: singapore
-    plan: free
-    buildCommand: cd apps/api && bundle install
-    startCommand: cd apps/api && bin/jobs start
-    autoDeploy: true
-    envVars:
-      - fromGroup: clientsphere-settings
-
 envVarGroups:
   - name: clientsphere-settings
     envVars:
       - key: RAILS_ENV
         value: production
+      # Run Solid Queue (dispatcher + workers + scheduler) inside Puma —
+      # there is no separate worker service on the free tier.
+      - key: SOLID_QUEUE_IN_PUMA
+        value: "true"
       # Neon DIRECT connection string (NOT the -pooler one), with ?sslmode=require.
       - key: DATABASE_URL
         sync: false
