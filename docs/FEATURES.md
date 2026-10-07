@@ -228,8 +228,9 @@
   reset immediately and clears their pinned workspace; password login is
   refused once they hold no memberships (same generic error, no enumeration)
 - Removed emails can be re-invited and rejoin through the normal accept flow
-- Re-accepting a previously onboarded email resets the setup modal, so the
-  returner picks a fresh name, phone and password
+- Onboarding replays only for users who hold **no** workspace at accept time
+  (removed-then-reinvited members). An existing user with their own workspace
+  who accepts another workspace's invite joins without the setup modal
 - Email delivery via Resend when configured, invite link + copy button otherwise
 
 ### First login

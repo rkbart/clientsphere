@@ -52,10 +52,10 @@ class Api::V1::InvitationsController < Api::V1::BaseController
       user.password = SecureRandom.hex(16)
       user.name = invitation.email.split("@").first
       user.save!
-    else
-      # Rejoining (e.g. removed then re-invited, or invited on a second
-      # workspace): run onboarding again so the returner sets a fresh name,
-      # contact phone and password for this workspace.
+    elsif user.memberships.none?
+      # Rejoining after removal (no workspace at all): replay onboarding so
+      # they pick fresh credentials. An existing user who already belongs to
+      # another workspace just joins — they onboarded once and keep it.
       user.update!(welcome_seen_at: nil)
     end
 

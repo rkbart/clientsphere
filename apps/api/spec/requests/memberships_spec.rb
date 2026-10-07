@@ -235,6 +235,34 @@ RSpec.describe "Team memberships", type: :request do
       expect(JSON.parse(response.body)["user"]["welcome_seen_at"]).to be_nil
       expect(member_user.reload.memberships.where(account: account)).to exist
     end
+
+    it "keeps onboarding done for an existing user who already has a workspace" do
+      # The reported bug: an OAuth user who onboarded in their own workspace
+      # accepted a second workspace's invite and got the setup modal again.
+      member_user.update!(welcome_seen_at: Time.current)
+      own = Account.create!(name: "Their Own")
+      Membership.create!(account: own, user: member_user, role: :owner)
+      member_user.update!(current_account: own)
+
+      # A second workspace invites them (not the one they're in).
+      other = Account.create!(name: "Other Co")
+      other_owner = User.create!(name: "OO", email: "oo-ws@example.com", password: "password123")
+      Membership.create!(account: other, user: other_owner, role: :owner)
+      other_owner.update!(current_account: other)
+      other_headers = { "Authorization" => "Bearer #{Session.create!(user: other_owner).token}" }
+
+      post "/api/v1/invitations",
+           params: { invitation: { email: member_user.email, role: "member" } },
+           headers: other_headers, as: :json
+      token = JSON.parse(response.body)["token"]
+
+      post "/api/v1/invitations/#{token}/accept", as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["user"]["welcome_seen_at"]).to be_present
+      expect(member_user.reload.current_account).to eq(other)
+      expect(member_user.memberships.where(account: own)).to exist
+    end
   end
 
   it "reports invite delivery status on create" do

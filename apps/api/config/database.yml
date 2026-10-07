@@ -2,16 +2,23 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  url: <%= ENV["DATABASE_URL"] %>
 
 development:
   <<: *default
   database: clientsphere_development
+  url: <%= ENV["DATABASE_URL"] %>
 
 test:
   <<: *default
   database: clientsphere_test
+  # dotenv loads .env in every environment and its DATABASE_URL targets
+  # clientsphere_development — without this rewrite the suite would run
+  # against development data (spec rows pollute real workspaces). A URL that
+  # already points elsewhere (CI sets .../clientsphere_test) passes through
+  # untouched.
+  url: <%= ENV["DATABASE_URL"]&.sub(%r{/clientsphere_development\z}, "/clientsphere_test") %>
 
 production:
   <<: *default
   database: clientsphere_production
+  url: <%= ENV["DATABASE_URL"] %>

@@ -543,8 +543,10 @@ never email a password, the first screen is a setup modal:
 It only appears once, and only for invited members. Anyone who signs up
 themselves picks a password already, so they're never asked — and using
 **Forgot password?** clears it too. Saving the form pops a "You're all set"
-confirmation before they enter the workspace. If a removed member is
-re-invited with the same email, they onboard again from scratch.
+confirmation before they enter the workspace. If someone who already uses
+ClientSphere (with their own workspace) is invited to a second one, they
+just join — no setup modal, because they onboarded once already. Only a
+removed member invited back (holding no workspace) sets up again.
 
 ### Forgotten password
 
