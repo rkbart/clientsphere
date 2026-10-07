@@ -11,8 +11,11 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
     attributes = email_settings_params
     attributes = attributes.except(:resend_api_key) if attributes[:resend_api_key].blank?
     attributes = attributes.except(:webhook_secret) if attributes[:webhook_secret].blank?
-    attributes = attributes.except(:smtp_password) if attributes[:smtp_password].blank?
     setting.assign_attributes(attributes)
+    # Gmail sends as whoever saves the setting — their Google login must
+    # have granted the gmail.send scope (a login without consent stores no
+    # token, and the model rejects the save with a plain message).
+    setting.gmail_user = (setting.provider == "gmail" ? Current.user : nil)
     setting.save!
     render json: settings_payload(setting)
   end
@@ -26,15 +29,15 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
     # credentials are invisible and unmanageable from the UI.
     configured = EmailDelivery.for_account(Current.account).present?
     workspace_ready = setting&.delivery_configured? || false
-    return { from_address: nil, provider: "resend", delivery_configured: configured, workspace_configured: workspace_ready, resend_api_key_set: false, smtp_password_set: false, webhook_secret_set: false, webhook_url: nil } unless setting
+    return { from_address: nil, provider: "resend", delivery_configured: configured, workspace_configured: workspace_ready, gmail_connected_as: nil, resend_api_key_set: false, webhook_secret_set: false, webhook_url: nil } unless setting
 
     {
       from_address: setting.from_address,
       provider: setting.provider,
       delivery_configured: configured,
       workspace_configured: workspace_ready,
+      gmail_connected_as: setting.gmail_user&.google_email,
       resend_api_key_set: setting.resend_api_key.present?,
-      smtp_password_set: setting.smtp_password.present?,
       webhook_secret_set: setting.webhook_secret.present?,
       webhook_url: webhook_url(setting)
     }
@@ -48,6 +51,6 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
   end
 
   def email_settings_params
-    params.require(:email_setting).permit(:from_address, :provider, :resend_api_key, :smtp_password, :webhook_secret)
+    params.require(:email_setting).permit(:from_address, :provider, :resend_api_key, :webhook_secret)
   end
 end

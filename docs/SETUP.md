@@ -77,28 +77,28 @@ saved as `draft` rows (visible in the app) instead of being delivered.
 Two ways to configure (per-workspace settings win over env vars):
 
 **A. In the app (recommended):** Settings → Email — pick the provider, then
-paste the Resend API key (plus webhook signing secret for tracking) or the
-Gmail address + app password. No restart needed.
+paste the Resend API key (plus webhook signing secret for tracking), or
+choose Gmail after logging in with Google (saving links the workspace to
+your Google account). No restart needed.
 
 **B. Via env:**
 1. Resend: create a free account, verify a sending domain, create an API key.
-   Gmail: turn on 2-Step Verification, then create an app password
-   (Google Account → Security → App passwords). Never use the real password.
 2. Set:
    ```
    RESEND_API_KEY=re_xxx
    EMAIL_FROM_ADDRESS=you@your-verified-domain.com  # defaults to noreply@example.com
-   # Gmail fallback for account-less mail (password resets):
-   GMAIL_ADDRESS=you@gmail.com
-   GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx  # spaces are stripped automatically
    ```
 3. Restart the API **and** the worker (`bin/jobs start`) so both pick up the vars.
    Docker Compose forwards both vars to the `api` and `worker` services.
 
-Gmail notes: sending goes through `smtp.gmail.com` as the account itself —
-no domain verification needed. Roughly 500 emails/day on personal Gmail
-(2,000 on Workspace). Changing the Google password revokes app passwords,
-so sends start failing until a fresh one is pasted in.
+Gmail notes: workspaces send through the Gmail HTTPS API as the Google
+account that saves the setting — no domain verification, no app passwords.
+The saver must have logged in with Google (granting Gmail sending); the
+From address must match that Gmail address. Revoking ClientSphere under
+Google Account → Security → Third-party access breaks sending until it is
+reconnected. Roughly 500 emails/day on personal Gmail (2,000 on
+Workspace). This also works where SMTP submission ports are filtered,
+since everything goes over HTTPS.
 
 **Delivery tracking:** copy the webhook URL from Settings → Email into a
 Resend webhook to flip `sent` → `delivered`/`opened`. Resend can't reach

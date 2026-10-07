@@ -7,6 +7,12 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
   has_many :password_resets, dependent: :destroy
   has_many :api_tokens, dependent: :destroy
+  # Workspaces sending as this user's Gmail keep working if the link is cut:
+  # nullify instead of restricting the user delete.
+  has_many :gmail_email_settings, class_name: "EmailSetting", foreign_key: :gmail_user_id,
+                                  dependent: :nullify, inverse_of: :gmail_user
+
+  encrypts :google_refresh_token
   has_many :created_contacts, class_name: "Contact", foreign_key: :owner_id
   has_many :assigned_activities, class_name: "Activity", foreign_key: :assignee_id
   has_many :authored_notes, class_name: "Note", foreign_key: :author_id
