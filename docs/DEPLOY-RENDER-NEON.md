@@ -29,7 +29,9 @@ URL), and Vercel must exist before the final Render env pass.
    - Leave `WEB_URL`, `APP_HOST`, `GOOGLE_*`, `RESEND_*`, `GMAIL_*` empty
      for now (filled in steps 4–6). Everything marked generated fills
      itself — **copy `MISSION_CONTROL_PASSWORD` somewhere safe.**
-3. Apply. Both services build; the API runs `db:migrate` pre-deploy.
+3. Apply. Both services build; the API runs `db:migrate` as the last
+   build step (Render free tier rejects `preDeployCommand`, so migrations
+   live in `buildCommand` — `DATABASE_URL` is available to builds).
 4. Watch the API deploy logs: Puma should log `Listening on ...` and the
    migrate step should end with `migrated`. Then open
    `https://clientsphere-api.onrender.com/up` (your name will differ) —

@@ -53,8 +53,9 @@ is deployed separately on Vercel (root directory `apps/web`).
   rewrite). **Set it before the first Vercel build** — rewrites are baked in
   at build time, not read at runtime
 - If not using the blueprint: build (Render, root dir `apps/api`):
-  `bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile`;
-  pre-deploy: `bin/rails db:migrate`; start: `bundle exec puma -C config/puma.rb`,
+  `bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && bin/rails db:migrate`
+  (migrations run at build time — free tier rejects `preDeployCommand`);
+  start: `bundle exec puma -C config/puma.rb`,
   plus a background worker running `bin/jobs start`
 - Web (Vercel, root dir `apps/web`): framework auto-detected; set
   `API_INTERNAL_URL` to the Render URL. With pnpm workspaces, if the install

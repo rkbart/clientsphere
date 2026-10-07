@@ -11,8 +11,9 @@ services:
     runtime: ruby
     region: singapore
     plan: free
-    buildCommand: cd apps/api && bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
-    preDeployCommand: cd apps/api && bin/rails db:migrate
+    # NOTE: no preDeployCommand — Render free tier rejects it. Migrations
+    # run at build time instead (DATABASE_URL is available to builds).
+    buildCommand: cd apps/api && bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && bin/rails db:migrate
     startCommand: cd apps/api && bundle exec puma -C config/puma.rb
     healthCheckPath: /up
     autoDeploy: true
