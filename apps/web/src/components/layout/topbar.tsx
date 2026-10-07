@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
 import { useSwitchWorkspace, useWorkspaces } from "@/hooks/use-workspaces";
-import { ChevronDown, LogOut, Moon, Sun } from "lucide-react";
+import { ChevronDown, LogOut } from "lucide-react";
+import { Expand } from "@/components/ui/expand";
 
 export function Topbar() {
   const { user, account, clearAuth } = useAuthStore();
@@ -91,13 +92,12 @@ export function Topbar() {
             )}
           </div>
         )}
-        <button
+        <Expand
+          toggled={theme === "dark"}
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="p-2 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)]"
           aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
+          className="p-2 rounded-[var(--radius-md)] text-base text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)] inline-flex items-center justify-center transition-colors"
+        />
         <button
           onClick={handleLogout}
           className="p-2 rounded-[var(--radius-md)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)]"
