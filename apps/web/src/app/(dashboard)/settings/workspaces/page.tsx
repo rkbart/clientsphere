@@ -12,6 +12,7 @@ import {
 import { Field, FormError } from "@/components/forms/fields";
 import { ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
+import { ActionBanner, useActionNotice } from "@/components/shared/action-banner";
 import { ChevronLeft, Plus } from "lucide-react";
 
 export default function WorkspacesSettingsPage() {
@@ -25,6 +26,7 @@ export default function WorkspacesSettingsPage() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [created, setCreated] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<(typeof workspaces)[number] | null>(null);
+  const { notice, notify, dismiss } = useActionNotice();
 
   // The list endpoint returns id/name/slug only — ownership lives in Team's
   // roles for the active workspace. Deletion is ultimately enforced server-side
@@ -68,6 +70,8 @@ export default function WorkspacesSettingsPage() {
           Switch between workspaces, or create a new one. You own every workspace you create.
         </p>
       </div>
+
+      {notice && <ActionBanner notice={notice} onDismiss={dismiss} />}
 
       <div className="card p-6 space-y-4">
         <h2 className="text-sm font-semibold">Your workspaces</h2>
@@ -153,6 +157,7 @@ export default function WorkspacesSettingsPage() {
           const target = confirmDelete;
           setConfirmDelete(null);
           remove.mutate(target.id, {
+            onSuccess: () => notify({ tone: "success", message: `“${target.name}” was deleted.` }),
             onError: (e) => setCreateError(errMessage(e, "Could not delete the workspace.")),
           });
         }}

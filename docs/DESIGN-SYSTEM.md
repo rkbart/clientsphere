@@ -164,9 +164,11 @@ notice if the revert fails.
 
 Used on the Kanban board (drag-drop moves) and the in-place settings pages:
 Pipelines, Sequences, Webhooks, API Tokens, Custom Fields, Custom Objects,
-Plugins, Automations, plus the Activities bulk-complete bar. Settings → Pipelines
-runs two independent banners — one above "All pipelines" for rename / set-default
-/ delete, another above the stages card for row saves and stage deletes.
+Plugins, Automations, plus the Activities bulk-complete bar. Settings → Workspaces
+shows one above "Your workspaces" after a delete, naming the removed workspace.
+Settings → Pipelines runs two independent banners — one above "All pipelines"
+for rename / set-default / delete, another above the stages card for row saves
+and stage deletes.
 
 ## Responsive behavior
 
