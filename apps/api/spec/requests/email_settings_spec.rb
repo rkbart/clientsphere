@@ -18,13 +18,39 @@ RSpec.describe "Email settings", type: :request do
   let(:viewer_headers) { { "Authorization" => "Bearer #{Session.create!(user: viewer).token}" } }
 
   it "returns empty settings when unconfigured" do
+    stub_const("ENV", ENV.to_h.except("RESEND_API_KEY", "GMAIL_APP_PASSWORD"))
+
     get "/api/v1/email_settings", headers: headers
 
     body = JSON.parse(response.body)
     expect(body["from_address"]).to be_nil
+    expect(body["delivery_configured"]).to be(false)
     expect(body["resend_api_key_set"]).to be(false)
     expect(body["webhook_secret_set"]).to be(false)
     expect(body.keys).not_to include("resend_api_key", "webhook_secret")
+  end
+
+  it "reports delivery configured from the global key alone" do
+    stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_env"))
+
+    get "/api/v1/email_settings", headers: headers
+
+    body = JSON.parse(response.body)
+    expect(body["delivery_configured"]).to be(true)
+    # ...but the workspace itself is still unconfigured, which is what the
+    # onboarding nudge keys off.
+    expect(body["workspace_configured"]).to be(false)
+  end
+
+  it "reports delivery configured for a complete gmail setting" do
+    account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
+
+    get "/api/v1/email_settings", headers: headers
+
+    body = JSON.parse(response.body)
+    expect(body["delivery_configured"]).to be(true)
+    expect(body["workspace_configured"]).to be(true)
+    expect(body["provider"]).to eq("gmail")
   end
 
   it "saves secrets without ever returning them" do

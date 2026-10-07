@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useEmailSettings, useUpdateEmailSettings } from "@/hooks/use-emails";
 import { FormError } from "@/components/forms/fields";
+import { EmailSetupBanner } from "@/components/settings/email-setup-nudge";
 import { ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Check, ChevronLeft, Copy } from "lucide-react";
@@ -96,6 +97,8 @@ export default function EmailSettingsPage() {
           Sending provider for this workspace — credentials are stored encrypted and never returned.
         </p>
       </div>
+
+      <EmailSetupBanner showLink={false} />
 
       <div className="card p-6 space-y-5">
         <FormError message={error} />

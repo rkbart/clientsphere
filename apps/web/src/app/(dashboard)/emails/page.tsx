@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useEmails, useRedeliverEmail, useUpdateEmail } from "@/hooks/use-emails";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { Field, FormError } from "@/components/forms/fields";
+import { EmailSetupBanner, EmailSetupModal } from "@/components/settings/email-setup-nudge";
 import { Modal, ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Mail, RotateCcw } from "lucide-react";
@@ -308,6 +309,8 @@ export default function OutboxPage() {
 
       <FormError message={actionError} />
 
+      <EmailSetupBanner />
+
       <div className="flex flex-wrap items-center gap-2">
         <select
           value={status}
@@ -376,6 +379,8 @@ export default function OutboxPage() {
         title={retryNotice?.title ?? ""}
         message={retryNotice?.message ?? ""}
       />
+
+      <EmailSetupModal />
     </div>
   );
 }

@@ -20,11 +20,19 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
   private
 
   def settings_payload(setting)
-    return { from_address: nil, provider: "resend", resend_api_key_set: false, smtp_password_set: false, webhook_secret_set: false, webhook_url: nil } unless setting
+    # delivery_configured: anything at all can deliver (includes the global
+    # env fallback). workspace_configured: THIS workspace has its own
+    # provider credentials — the onboarding nudge keys off this, since env
+    # credentials are invisible and unmanageable from the UI.
+    configured = EmailDelivery.for_account(Current.account).present?
+    workspace_ready = setting&.delivery_configured? || false
+    return { from_address: nil, provider: "resend", delivery_configured: configured, workspace_configured: workspace_ready, resend_api_key_set: false, smtp_password_set: false, webhook_secret_set: false, webhook_url: nil } unless setting
 
     {
       from_address: setting.from_address,
       provider: setting.provider,
+      delivery_configured: configured,
+      workspace_configured: workspace_ready,
       resend_api_key_set: setting.resend_api_key.present?,
       smtp_password_set: setting.smtp_password.present?,
       webhook_secret_set: setting.webhook_secret.present?,
