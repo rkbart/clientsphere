@@ -24,9 +24,10 @@ Next.js (apps/web)  ── rewrites /api/* ──►  Rails API (apps/api)
   custom properties in `globals.css` (color, radius, shadow, easing,
   duration) plus component classes (`card`, `btn-*`, `input`, `badge-*`);
   see [DESIGN-SYSTEM.md](DESIGN-SYSTEM.md)
-- **Responsive shell** — fixed sidebar rail at `lg+` (1024px), slide-in
-  drawer below (covers half-width browser views); tables scroll
-  horizontally on narrow viewports
+- **Responsive shell** — collapsible sidebar (full rail or icon-only,
+  preference persisted); below `lg` (1024px) an icon rail stays visible
+  and expands into a temporary overlay that collapses on navigation;
+  tables scroll horizontally on narrow viewports
 - **TanStack Query** — server state, caching, background refetch
 - **Zustand** — client state (sidebar, auth, persisted token)
 - **openapi-fetch** — typed API calls against the hand-written schema

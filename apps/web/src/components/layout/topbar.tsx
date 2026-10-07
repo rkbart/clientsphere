@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
 import { useSwitchWorkspace, useWorkspaces } from "@/hooks/use-workspaces";
-import { ChevronDown, LogOut, Menu, Moon, Sun } from "lucide-react";
+import { ChevronDown, LogOut, Moon, Sun } from "lucide-react";
 
-export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
+export function Topbar() {
   const { user, account, clearAuth } = useAuthStore();
   const { theme, setTheme } = useUIStore();
   const { data: workspaces = [] } = useWorkspaces();
@@ -36,17 +36,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-14 bg-[var(--bg-card)] border-b border-[var(--border)] flex items-center justify-between px-4 sm:px-6">
-      <div className="flex items-center gap-2 min-w-0">
-        <button
-          onClick={onMenuClick}
-          className="lg:hidden -ml-1.5 p-2 rounded-[var(--radius-md)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--accent-soft)]"
-          aria-label="Open menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-      </div>
-
+    <header className="sticky top-0 z-30 h-14 bg-[var(--bg-card)] border-b border-[var(--border)] flex items-center justify-end px-4 sm:px-6">
       <div className="flex items-center gap-1.5">
         <span className="hidden sm:inline text-sm text-[var(--text-secondary)] mr-1.5">
           {user?.name}

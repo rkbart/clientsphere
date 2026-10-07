@@ -654,7 +654,9 @@ link, and a Buy-Me-a-Coffee button. Read-only, same for every role.
 ## Tips
 
 - **Keyboard**: Tab through forms, ⌘/Ctrl + Enter saves notes, Escape closes menus
-- **Mobile**: The sidebar becomes a hamburger menu; tables scroll horizontally
+- **Mobile**: The sidebar stays as an icon rail — tap the expand button at its
+  bottom to reveal labels; it collapses again when you pick a page. Tables
+  scroll horizontally
 - **Search**: Use the search box on any list page — it's debounced for performance
 - **Filters**: Combine search, status, and tags for powerful filtering
 - **Automations**: Start simple — one trigger, one action — then build up

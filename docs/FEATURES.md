@@ -280,9 +280,11 @@
 
 ### Responsive layout
 - Mobile-first: below `lg` (1024px) — including half-width browser
-  windows — the sidebar becomes a slide-in drawer (backdrop, Escape to
-  close, scroll lock)
-- Sticky topbar with hamburger and current page title on mobile
+  windows — the sidebar stays a collapsed icon rail; a footer toggle
+  reveals it as a temporary overlay (backdrop, Escape to close, scroll
+  lock) that collapses again when a destination is picked. The desktop
+  rail collapses the same way, and the preference persists
+- Sticky topbar with workspace switcher, user, theme and logout
 - Tables scroll horizontally; page headers and grids stack on narrow
   viewports
 

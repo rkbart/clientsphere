@@ -175,19 +175,23 @@ and stage deletes.
 **Breakpoint: `lg` (1024px).** Below it — including a half-width browser
 window — the mobile layout applies:
 
-- **Sidebar → drawer.** The fixed 240px rail is `hidden lg:flex`. Below
-  `lg` a hamburger in the topbar opens a slide-in drawer with a backdrop,
+- **Sidebar → collapsible rail.** A footer toggle collapses the sidebar to
+  icons-only (labels get `title` tooltips + `aria-label`s); the preference
+  persists in `clientsphere-ui`. Below `lg` the icon rail stays visible and
+  the toggle reveals it as a temporary overlay with a backdrop,
   Escape-to-close, body scroll lock, and `visibility`-based focus handling
-  (closed links leave the tab order only after the exit animation).
-  Implemented in `src/components/layout/sidebar.tsx`.
-- **Topbar** is sticky and utility-only (mobile hamburger, user, theme,
+  (closed links leave the tab order only after the exit animation); picking
+  a destination collapses it back to the rail. Implemented in
+  `src/components/layout/sidebar.tsx`.
+- **Topbar** is sticky and utility-only (workspace switcher, user, theme,
   logout) — page titles live on the page `<h1>`, not in the header.
 - **Page headers** stack (`flex-col` below `sm`), action buttons align
   start.
 - **Tables** scroll horizontally (`overflow-x-auto`, `min-w` 560–600px) so
   half-browser views fit without scrolling and phones can pan.
 - **Stat/detail grids** stack to one column below `sm`/`md`.
-- Content padding: `p-4 sm:p-6`; main content offset `lg:pl-60`.
+- Content padding: `p-4 sm:p-6`; main content offset `pl-16` below `lg`
+  (icon rail), `lg:pl-60` expanded / `lg:pl-16` collapsed.
 
 ## Design & animation skills
 

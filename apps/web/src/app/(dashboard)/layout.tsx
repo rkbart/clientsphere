@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuthStore } from "@/store/auth-store";
+import { useUIStore } from "@/store/ui-store";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
@@ -14,8 +15,8 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const { token } = useAuthStore();
+  const collapsed = useUIStore((s) => s.sidebarCollapsed);
   const [mounted, setMounted] = useState(false);
-  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -40,9 +41,13 @@ export default function DashboardLayout({
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
-      <Sidebar open={navOpen} onClose={() => setNavOpen(false)} />
-      <div className="lg:pl-60">
-        <Topbar onMenuClick={() => setNavOpen(true)} />
+      <Sidebar />
+      <div
+        className={`pl-16 transition-[padding-left] duration-200 ${
+          collapsed ? "lg:pl-16" : "lg:pl-60"
+        }`}
+      >
+        <Topbar />
         <main id="main-content" className="p-4 sm:p-6">{children}</main>
       </div>
       <FirstLoginSetupModal />
