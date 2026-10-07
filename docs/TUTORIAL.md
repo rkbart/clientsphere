@@ -314,10 +314,37 @@ On any contact, company, or deal detail page:
 - **Outbox** — every outbound email with status filter; edit drafts inline,
   retry failures (retry saves your edits first). Drafts pile up here
   automatically when no provider is configured.
-- **Delivery tracking** — Settings → Email holds the Resend key and the
-  webhook URL to paste into Resend; Outbox rows flip sent → delivered →
-  opened as events arrive (tunnel needed for local testing)
+- **Delivery tracking** — Settings → Email holds the provider credentials
+  and (for Resend) the webhook URL to paste into Resend; Outbox rows flip
+  sent → delivered → opened as events arrive (tunnel needed for local
+  testing). Gmail sends don't call back — delivery is recorded instead
 - **Deal Summary** — rule-based status (stage, value, close date, activity, staleness)
+
+### Send as your Gmail address
+
+No verified domain? A workspace can send through a company Gmail account
+instead of Resend — handy for SMEs that live in Gmail. Everything (deal
+compose, sequences, automations, invites) then goes out as that address.
+
+1. **Turn on 2-Step Verification** on the Google account (required — the
+   App passwords page doesn't appear without it): Google Account →
+   Security → 2-Step Verification.
+2. **Create an app password**: Security → App passwords (use Google's
+   search if you don't see it) → name it `ClientSphere` → copy the
+   16-character code. This is **not** your Google password — pasting the
+   real password fails with `534-5.7.9 Application-specific password
+   required`. Spaces in the code don't matter.
+3. **Connect it**: Settings → Email → Provider **Company Gmail** → From
+   address = that Gmail address (or one of its verified Send As aliases)
+   → paste the code into **Gmail app password** → Save.
+4. **Test it**: compose an email from any deal page and check the inbox
+   (first sends sometimes land in Spam).
+
+Good to know: personal Gmail allows roughly 500 sends a day (2,000 on
+Workspace) — fine for invites, resets, and small sequences, not bulk
+blasts. Changing the Google password, or revoking the app password,
+breaks sending until a fresh code is pasted in (failed rows pile up in
+the Outbox so you'll notice).
 
 > There is no **Re-score** button in the contact UI — lead scoring is API-only
 > (see Contacts above).
