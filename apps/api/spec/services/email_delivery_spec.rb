@@ -82,10 +82,10 @@ RSpec.describe EmailDelivery do
   end
 
   describe ".smtp_settings" do
-    it "points at Gmail with STARTTLS" do
+    it "points at Gmail with direct TLS" do
       expect(described_class.smtp_settings(username: "me@gmail.com", password: "app-pass")).to eq(
-        address: "smtp.gmail.com", port: 587, user_name: "me@gmail.com",
-        password: "app-pass", authentication: :plain, enable_starttls: :auto
+        address: "smtp.gmail.com", port: 465, user_name: "me@gmail.com",
+        password: "app-pass", authentication: :plain, tls: true
       )
     end
   end

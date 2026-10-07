@@ -8,7 +8,9 @@ require "mail"
 # credentials instead. Returns the provider's message id on success.
 class EmailDelivery
   GMAIL_SMTP_ADDRESS = "smtp.gmail.com".freeze
-  GMAIL_SMTP_PORT = 587
+  # Port 465 with direct TLS (not 587/STARTTLS): some hosts blackhole the
+  # STARTTLS handshake while direct TLS connects fine (seen on Render).
+  GMAIL_SMTP_PORT = 465
   DEFAULT_TIMEOUT = 10
 
   Resolved = Struct.new(:provider, :from, :resend_key, :smtp_username, :smtp_password, keyword_init: true)
@@ -82,7 +84,7 @@ class EmailDelivery
       # App passwords display as "xxxx xxxx xxxx xxxx" — spaces break SMTP auth.
       password: password.to_s.gsub(/\s+/, ""),
       authentication: :plain,
-      enable_starttls: :auto
+      tls: true
     }
   end
 
