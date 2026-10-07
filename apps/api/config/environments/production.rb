@@ -5,6 +5,9 @@ Rails.application.configure do
   config.action_controller.perform_caching = true
   config.public_file_server.enabled = ENV["RAILS_SERVE_STATIC_FILES"].present?
   config.force_ssl = true
+  # TLS terminates at the platform proxy (Render); trust its
+  # X-Forwarded-Proto instead of redirect-looping plain-http internals.
+  config.assume_ssl = true
   config.active_support.deprecation = :notify
   config.active_support.disallowed_deprecation = :raise
   config.active_support.disallowed_deprecation_warnings = []

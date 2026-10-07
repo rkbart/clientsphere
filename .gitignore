@@ -52,6 +52,7 @@ coverage/
 # Generated
 openapi.yaml
 schema.d.ts
+apps/api/public/assets/
 
 # TypeScript build info
 *.tsbuildinfo

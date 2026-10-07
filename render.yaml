@@ -1,0 +1,77 @@
+# Render Blueprint for ClientSphere (Render + Neon, see docs/DEPLOYMENT.md).
+# Apply: Render dashboard → New → Blueprint → pick this repo.
+# The web frontend lives on Vercel (apps/web) — only the API + worker run here.
+# Database is Neon (external): paste the DIRECT, non-pooled connection string
+# (hostname WITHOUT "-pooler", with ?sslmode=require). The pooled endpoint
+# breaks Solid Queue advisory locks — do not use it.
+
+services:
+  - type: web
+    name: clientsphere-api
+    runtime: ruby
+    region: singapore
+    plan: free
+    buildCommand: cd apps/api && bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+    preDeployCommand: cd apps/api && bin/rails db:migrate
+    startCommand: cd apps/api && bundle exec puma -C config/puma.rb
+    healthCheckPath: /up
+    autoDeploy: true
+    envVars:
+      - fromGroup: clientsphere-settings
+
+  - type: worker
+    name: clientsphere-worker
+    runtime: ruby
+    region: singapore
+    plan: free
+    buildCommand: cd apps/api && bundle install
+    startCommand: cd apps/api && bin/jobs start
+    autoDeploy: true
+    envVars:
+      - fromGroup: clientsphere-settings
+
+envVarGroups:
+  - name: clientsphere-settings
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      # Neon DIRECT connection string (NOT the -pooler one), with ?sslmode=require.
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      # Encryption keys for workspace credentials — must be real values in
+      # production (the codebase falls back to insecure dev defaults).
+      - key: ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY
+        generateValue: true
+      - key: ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY
+        generateValue: true
+      - key: ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT
+        generateValue: true
+      # Public web origin (your Vercel URL) — used in email links + OAuth landing.
+      - key: WEB_URL
+        sync: false
+      # Public API origin (https://clientsphere-api.onrender.com) — shown as
+      # the Resend webhook URL in Settings → Email.
+      - key: APP_HOST
+        sync: false
+      - key: MISSION_CONTROL_USER
+        value: admin
+      - key: MISSION_CONTROL_PASSWORD
+        generateValue: true
+      # Optional: Google OAuth (also register GOOGLE_REDIRECT_URI in Google Cloud Console).
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+      # Optional: global email credentials (per-workspace settings win).
+      - key: RESEND_API_KEY
+        sync: false
+      - key: EMAIL_FROM_ADDRESS
+        sync: false
+      - key: GMAIL_ADDRESS
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false

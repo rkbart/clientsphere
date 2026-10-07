@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Platform health checks (Render healthCheckPath, load balancers).
+  get "up" => "rails/health#show", as: :rails_health_check
+
   # Solid Queue dashboard (HTTP basic auth, see config/initializers/mission_control_jobs.rb)
   mount MissionControl::Jobs::Engine, at: "/jobs"
 
