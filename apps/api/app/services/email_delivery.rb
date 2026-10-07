@@ -68,11 +68,17 @@ class EmailDelivery
   # returns no provider id, so stamp our own Message-ID for the audit trail
   # (Gmail preserves client-supplied IDs).
   def self.deliver_smtp(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [])
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    stamp = ->(stage) { Rails.logger.info("[EmailDelivery] smtp #{stage} after #{((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round}ms") }
     mail = build_message(from: resolved.from, to: to, cc: cc, bcc: bcc,
                          subject: subject, html: html, text: text)
+    stamp.call("built")
     mail.delivery_method :smtp, smtp_settings(username: resolved.smtp_username,
                                               password: resolved.smtp_password)
+    # deliver! covers resolve + TCP connect + TLS + AUTH + DATA; the stamps
+    # show which stage stalls when a host blackholes SMTP traffic.
     mail.deliver!
+    stamp.call("delivered")
     mail.message_id
   end
 

@@ -20,7 +20,7 @@ services:
     rootDir: apps/api
     # NOTE: no preDeployCommand — Render free tier rejects it. Migrations
     # run at build time instead (DATABASE_URL is available to builds).
-    buildCommand: bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && bin/rails db:migrate
+    buildCommand: bundle install && SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile && bin/rails db:migrate && (printf 'precedence ::ffff:0:0/96 100\n' >> /etc/gai.conf || true)
     startCommand: bundle exec puma -C config/puma.rb
     healthCheckPath: /up
     autoDeploy: true
