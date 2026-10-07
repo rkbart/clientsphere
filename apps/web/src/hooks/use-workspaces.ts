@@ -60,9 +60,11 @@ export function useSwitchWorkspace() {
     },
     onSuccess: ({ account }) => {
       setAccount(account);
-      // Every list is tenant-scoped — wipe caches so the new workspace's
-      // data loads instead of the old workspace's.
-      queryClient.clear();
+      // Every list is tenant-scoped — reset caches so the new workspace's
+      // data loads instead of the old workspace's. resetQueries (not clear):
+      // clear drops cached data but never rebuilds mounted observers, so
+      // pages keep rendering the destroyed query's last state forever.
+      void queryClient.resetQueries();
     },
   });
 }
@@ -82,7 +84,9 @@ export function useDeleteWorkspace() {
     },
     onSuccess: (payload) => {
       if (payload.account) setAccount(payload.account);
-      queryClient.clear();
+      // Same tenant-repoint as switching — reset (not clear) so every
+      // mounted query refetches under the surviving workspace.
+      void queryClient.resetQueries();
     },
   });
 }
