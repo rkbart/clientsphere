@@ -1,39 +1,50 @@
 "use client";
 
-import {
-  Facebook,
-  Github,
-  Globe,
-  Instagram,
-  Link2,
-  Linkedin,
-  Plus,
-  Trash2,
-  Twitter,
-  Youtube,
-  type LucideIcon,
-} from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 
 export interface SocialLink {
   platform: string;
   url: string;
 }
 
-export const SOCIAL_PLATFORMS: { value: string; label: string; icon: LucideIcon }[] = [
-  { value: "linkedin", label: "LinkedIn", icon: Linkedin },
-  { value: "x", label: "X (Twitter)", icon: Twitter },
-  { value: "facebook", label: "Facebook", icon: Facebook },
-  { value: "instagram", label: "Instagram", icon: Instagram },
-  { value: "youtube", label: "YouTube", icon: Youtube },
-  { value: "github", label: "GitHub", icon: Github },
-  { value: "website", label: "Website", icon: Globe },
-  { value: "other", label: "Other", icon: Link2 },
+export const SOCIAL_PLATFORMS: { value: string; label: string }[] = [
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "x", label: "X (Twitter)" },
+  { value: "facebook", label: "Facebook" },
+  { value: "instagram", label: "Instagram" },
+  { value: "youtube", label: "YouTube" },
+  { value: "github", label: "GitHub" },
+  { value: "website", label: "Website" },
+  { value: "other", label: "Other" },
 ];
 
-export function SocialIcon({ platform, className }: { platform: string; className?: string }) {
-  const found = SOCIAL_PLATFORMS.find((p) => p.value === platform);
-  const Icon = found?.icon ?? Link2;
-  return <Icon className={className ?? "h-4 w-4"} aria-label={found?.label ?? platform} />;
+// Read-only list: one row per link with the platform name followed by the
+// real URL as a clickable link.
+export function SocialLinksList({ links }: { links: SocialLink[] }) {
+  if (links.length === 0) return null;
+  return (
+    <div className="sm:col-span-2">
+      <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Social</dt>
+      <dd className="mt-1.5 space-y-1.5">
+        {links.map((l, i) => {
+          const found = SOCIAL_PLATFORMS.find((p) => p.value === l.platform);
+          return (
+            <div key={i} className="flex items-center gap-2 text-sm min-w-0">
+              <span className="shrink-0 text-[var(--text-secondary)]">{found?.label ?? l.platform}</span>
+              <a
+                href={l.url}
+                target="_blank"
+                rel="noreferrer"
+                className="min-w-0 flex-1 truncate text-[var(--accent-hover)] hover:underline"
+              >
+                {l.url}
+              </a>
+            </div>
+          );
+        })}
+      </dd>
+    </div>
+  );
 }
 
 export function SocialLinksEditor({

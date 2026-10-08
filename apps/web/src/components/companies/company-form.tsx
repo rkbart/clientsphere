@@ -4,12 +4,6 @@ import { useState } from "react";
 import { Field } from "@/components/forms/fields";
 import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/custom-field-inputs";
 import { SocialLinksEditor, type SocialLink } from "@/components/shared/social-links-editor";
-import {
-  AddressFields,
-  EMPTY_ADDRESS,
-  serializeAddress,
-  type AddressValues,
-} from "@/components/shared/address-fields";
 import { useContacts } from "@/hooks/use-contacts";
 
 export interface CompanyFormValues {
@@ -20,8 +14,6 @@ export interface CompanyFormValues {
   annual_revenue: string;
   description: string;
   address: string;
-  billing_address: AddressValues;
-  shipping_address: AddressValues;
   main_contact_id: string;
   social_links: SocialLink[];
   custom_data: CustomData;
@@ -35,8 +27,6 @@ export const EMPTY_COMPANY: CompanyFormValues = {
   annual_revenue: "",
   description: "",
   address: "",
-  billing_address: { ...EMPTY_ADDRESS },
-  shipping_address: { ...EMPTY_ADDRESS },
   main_contact_id: "",
   social_links: [],
   custom_data: {},
@@ -79,8 +69,6 @@ export function CompanyForm({
           annual_revenue: values.annual_revenue.trim() === "" ? null : Number(values.annual_revenue),
           description: values.description.trim() || null,
           address: values.address.trim() || null,
-          billing_address: serializeAddress(values.billing_address),
-          shipping_address: serializeAddress(values.shipping_address),
           main_contact_id: values.main_contact_id || null,
           social_links: values.social_links
             .map((l) => ({ platform: l.platform, url: l.url.trim() }))
@@ -132,20 +120,6 @@ export function CompanyForm({
       <Field label="Address" htmlFor="company-address">
         <input id="company-address" className="input" value={values.address} onChange={set("address")} />
       </Field>
-      <AddressFields
-        title="Billing address"
-        idPrefix="company-billing"
-        value={values.billing_address}
-        onChange={(billing_address) => setValues((v) => ({ ...v, billing_address }))}
-      />
-      <AddressFields
-        title="Shipping address"
-        idPrefix="company-shipping"
-        value={values.shipping_address}
-        onChange={(shipping_address) => setValues((v) => ({ ...v, shipping_address }))}
-        sameAs={values.billing_address}
-        sameAsLabel="Same as billing"
-      />
       {companyId && (
         <Field label="Main contact" htmlFor="company-main-contact">
           <select

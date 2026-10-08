@@ -138,8 +138,8 @@ reacts to it.
 ### Detail page
 
 Click any contact to see:
-- Contact info (email, phone, status, company, job title, city, added-on date,
-  social links)
+- Contact info (email, phone, status, company, job title, address, added-on date,
+  social links shown as platform name + clickable URL)
 - Tags — add/remove with the tag editor
 - Custom fields (if defined), e.g. the demo `Plan` select
 - Notes — add notes with ⌘/Ctrl + Enter to save
@@ -153,7 +153,7 @@ Click any contact to see:
 
 Click **Add Contact** (opens a modal) or the **Edit** button on any detail page.
 The form includes:
-- Standard fields (name, email, phone, status, company, job title, city,
+- Standard fields (name, email, phone, status, company, job title, address,
   social links)
 - Custom fields (automatically appear if defined)
 - Validation errors show inline. Contacts support soft delete (discard) plus a

@@ -40,6 +40,23 @@ RSpec.describe "Addresses", type: :request do
     expect(body["shipping_address"]).to include("country" => "Germany")
   end
 
+  it "saves a free-text address on contacts" do
+    post "/api/v1/contacts",
+         params: { contact: { first_name: "Ada", address: "123 Main St, Berlin" } },
+         headers: headers
+
+    expect(response).to have_http_status(:created)
+    body = JSON.parse(response.body)
+    expect(body["address"]).to eq("123 Main St, Berlin")
+
+    patch "/api/v1/contacts/#{body['id']}",
+          params: { contact: { address: "5 Harbor Rd, Hamburg" } },
+          headers: headers
+
+    expect(response).to have_http_status(:ok)
+    expect(JSON.parse(response.body)["address"]).to eq("5 Harbor Rd, Hamburg")
+  end
+
   it "strips unknown address keys instead of rejecting" do
     post "/api/v1/contacts",
          params: { contact: { first_name: "Ada", billing_address: { "planet" => "Mars", "city" => "Berlin" } } },

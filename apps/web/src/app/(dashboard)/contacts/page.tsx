@@ -23,7 +23,7 @@ interface Contact {
   phone: string;
   status: "lead" | "customer" | "churned" | null;
   company?: { id: string; name: string } | null;
-  city?: string | null;
+  address?: string | null;
   tags?: Tag[];
 }
 
@@ -130,9 +130,9 @@ export default function ContactsPage() {
       render: (c) => <span className="text-[var(--text-secondary)]">{c.company?.name || "—"}</span>,
     },
     {
-      key: "city",
-      label: "City",
-      render: (c) => <span className="text-[var(--text-secondary)]">{c.city || "—"}</span>,
+      key: "address",
+      label: "Address",
+      render: (c) => <span className="text-[var(--text-secondary)]">{c.address || "—"}</span>,
     },
     {
       key: "status",

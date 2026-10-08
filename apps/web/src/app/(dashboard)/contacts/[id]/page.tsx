@@ -10,8 +10,7 @@ import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { ContactForm, type ContactFormValues } from "@/components/contacts/contact-form";
-import { formatAddress, normalizeAddress } from "@/components/shared/address-fields";
-import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
+import { SocialLinksList, type SocialLink } from "@/components/shared/social-links-editor";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
 import { ChevronLeft, Pencil, Trash2 } from "lucide-react";
@@ -26,9 +25,7 @@ interface ContactData {
   company_id?: string | null;
   company?: { id: string; name: string } | null;
   job_title?: string | null;
-  city?: string | null;
-  billing_address?: Record<string, unknown> | null;
-  shipping_address?: Record<string, unknown> | null;
+  address?: string | null;
   social_links?: SocialLink[] | null;
   custom_data?: Record<string, unknown> | null;
   created_at: string;
@@ -117,40 +114,14 @@ export default function ContactDetailPage() {
             <dd className="mt-0.5 text-sm">{contact.job_title || "—"}</dd>
           </div>
           <div>
-            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">City</dt>
-            <dd className="mt-0.5 text-sm">{contact.city || "—"}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Billing address</dt>
-            <dd className="mt-0.5 text-sm">{formatAddress(contact.billing_address)}</dd>
-          </div>
-          <div>
-            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Shipping address</dt>
-            <dd className="mt-0.5 text-sm">{formatAddress(contact.shipping_address)}</dd>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Address</dt>
+            <dd className="mt-0.5 text-sm">{contact.address || "—"}</dd>
           </div>
           <div>
             <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Added on</dt>
             <dd className="mt-0.5 text-sm">{new Date(contact.created_at).toLocaleDateString()}</dd>
           </div>
-          {(contact.social_links ?? []).length > 0 && (
-            <div className="sm:col-span-2">
-              <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Social</dt>
-              <dd className="mt-1.5 flex flex-wrap gap-2">
-                {(contact.social_links ?? []).map((l, i) => (
-                  <a
-                    key={i}
-                    href={l.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn-secondary text-sm !px-2.5"
-                    aria-label={`${l.platform} profile`}
-                  >
-                    <SocialIcon platform={l.platform} />
-                  </a>
-                ))}
-              </dd>
-            </div>
-          )}
+          <SocialLinksList links={contact.social_links ?? []} />
         </dl>
       </div>
 
@@ -176,9 +147,7 @@ export default function ContactDetailPage() {
             status: contact.status ?? "lead",
             company_id: contact.company_id ?? contact.company?.id ?? "",
             job_title: contact.job_title ?? "",
-            city: contact.city ?? "",
-            billing_address: normalizeAddress(contact.billing_address),
-            shipping_address: normalizeAddress(contact.shipping_address),
+            address: contact.address ?? "",
             social_links: (contact.social_links ?? []).map((l) => ({
               platform: l.platform ?? "other",
               url: l.url ?? "",

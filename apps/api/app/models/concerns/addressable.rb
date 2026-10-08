@@ -52,7 +52,7 @@ module Addressable
   end
 
   # Models including Addressable predate structured addresses:
-  # contacts had `city`, companies had `address`.
+  # contacts and companies keep a free-text `address` column.
   def legacy_address_fallback
     respond_to?(:address) ? address.presence : city.presence
   end

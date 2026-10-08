@@ -190,8 +190,8 @@ window — the mobile layout applies:
 - **Tables** scroll horizontally (`overflow-x-auto`, `min-w` 560–600px) so
   half-browser views fit without scrolling and phones can pan.
 - **Stat/detail grids** stack to one column below `sm`/`md`.
-- Content padding: `p-4 sm:p-6`; main content offset `pl-16` below `lg`
-  (icon rail), `lg:pl-60` expanded / `lg:pl-16` collapsed.
+- Content padding: `p-4 sm:p-6`; main content offset `pl-10` below `lg`
+  (icon rail), `lg:pl-60` expanded / `lg:pl-10` collapsed.
 
 ## Design & animation skills
 
