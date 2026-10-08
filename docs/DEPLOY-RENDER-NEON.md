@@ -63,6 +63,7 @@ services behind, delete them first, then re-apply.)
 1. In the `clientsphere-settings` env group, set:
    - `WEB_URL` = `https://<your-app>.vercel.app`
    - `APP_HOST` = `https://clientsphere-api.onrender.com`
+   - `RESEND_API_KEY` = your Resend key (from dashboard.resend.com)
 2. Saving env vars triggers an automatic redeploy of both services.
 3. Now test signup + login end-to-end on the Vercel URL.
 
@@ -74,9 +75,9 @@ services behind, delete them first, then re-apply.)
   `GOOGLE_REDIRECT_URI` (same URI) on Render and redeploy.
 - **Resend tracking**: in the app, Settings → Email → copy the webhook
   URL into a Resend webhook (needs a verified sending domain first).
-- **Gmail**: Settings → Email → provider Gmail (see
+- **Resend**: Settings → Email → provider Resend (see
   `docs/TUTORIAL.md`, "Send as your Gmail address"). No tunnel needed —
-  Render is public.
+  Render is public. Set `RESEND_API_KEY` and verify a sending domain first.
 
 ## 6. Smoke test the demo
 
@@ -97,4 +98,6 @@ services behind, delete them first, then re-apply.)
 | Jobs stuck in `pending` | Web service asleep (free tier) or crashed — check deploy logs + `/jobs` |
 | Google login: `redirect_uri_mismatch` | URI in Google Console must match `GOOGLE_REDIRECT_URI` exactly (scheme, host, path) |
 | Vercel pages show API errors | `API_INTERNAL_URL` was wrong/missing at build time — fix the var and **redeploy** (rebuild), don't just restart |
-| Resend `test mode` delivery failures | Verify a sending domain, or switch the workspace to Gmail (Settings → Email) |
+| Resend `test mode` delivery failures | Verify a sending domain, or ensure
+  the workspace has a Resend API key set (Settings → Email). Gmail is not
+  available on Render free tier (SMTP blocked). |

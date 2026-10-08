@@ -171,9 +171,9 @@ export default function EmailSettingsPage() {
               className="input"
             />
             <p className="text-xs text-[var(--text-secondary)] mt-1.5">
-              Google Account → Security → 2-Step Verification → App passwords (name it
-              "ClientSphere"). This works with personal Gmail too — you&apos;ll send from your own
-              address, roughly 500 emails/day. Never use your real Google password.
+              Must be the Gmail (or Google Workspace) address you sign into SMTP with,
+              or one of its verified Send As aliases. (Note: SMTP ports 25/465/587
+              are blocked on Render free tier; use Resend instead for Render deploys.)
             </p>
           </div>
         ) : (
@@ -199,7 +199,9 @@ export default function EmailSettingsPage() {
                 <a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="underline hover:text-[var(--text-primary)]">
                   resend.com/api-keys
                 </a>
-                . Without a key, outbound mail is kept as drafts.
+                . Without a key, outbound mail is kept as drafts. SMTP ports 25/465/587
+                are blocked on Render free tier, so Resend (HTTP API) is the recommended
+                path.
               </p>
             </div>
 
