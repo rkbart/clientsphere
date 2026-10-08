@@ -74,7 +74,7 @@ services behind, delete them first, then re-apply.)
   `GOOGLE_REDIRECT_URI` (same URI) on Render and redeploy.
 - **Resend tracking**: in the app, Settings → Email → copy the webhook
   URL into a Resend webhook (needs a verified sending domain first).
-- **Company Gmail**: Settings → Email → provider Company Gmail (see
+- **Gmail**: Settings → Email → provider Gmail (see
   `docs/TUTORIAL.md`, "Send as your Gmail address"). No tunnel needed —
   Render is public.
 

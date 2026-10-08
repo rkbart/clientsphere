@@ -56,7 +56,7 @@ export function EmailSetupModal() {
           <p className="mt-0.5">Verify a domain at resend.com, then paste the API key in Email Settings.</p>
         </div>
         <div className="rounded-[var(--radius-md)] border border-[var(--border)] p-3">
-          <p className="font-medium text-[var(--text-primary)]">Company Gmail</p>
+          <p className="font-medium text-[var(--text-primary)]">Gmail</p>
           <p className="mt-0.5">
             Turn on 2-Step Verification, create an App password, and paste it in Email Settings.
           </p>

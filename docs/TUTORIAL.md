@@ -322,9 +322,10 @@ On any contact, company, or deal detail page:
 
 ### Send as your Gmail address
 
-No verified domain? A workspace can send through a company Gmail account
+No verified domain? A workspace can send through a Gmail account
 instead of Resend — handy for SMEs that live in Gmail. Everything (deal
 compose, sequences, automations, invites) then goes out as that address.
+Personal Gmail addresses work the same way via app passwords.
 
 1. **Turn on 2-Step Verification** on the Google account (required — the
    App passwords page doesn't appear without it): Google Account →
@@ -334,9 +335,9 @@ compose, sequences, automations, invites) then goes out as that address.
    16-character code. This is **not** your Google password — pasting the
    real password fails with `534-5.7.9 Application-specific password
    required`. Spaces in the code don't matter.
-3. **Connect it**: Settings → Email → Provider **Company Gmail** → From
-   address = that Gmail address (or one of its verified Send As aliases)
-   → paste the code into **Gmail app password** → Save.
+3. **Connect it**: Settings → Email → Provider **Gmail** → From
+    address = that Gmail address (or one of its verified Send As aliases)
+    → paste the code into **Gmail app password** → Save.
 4. **Test it**: compose an email from any deal page and check the inbox
    (first sends sometimes land in Spam).
 

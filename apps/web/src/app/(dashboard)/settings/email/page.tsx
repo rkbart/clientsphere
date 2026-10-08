@@ -106,12 +106,12 @@ export default function EmailSettingsPage() {
         <div role="radiogroup" aria-label="Sending provider">
           <p className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">Provider</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {(
-              [
-                { value: "resend", title: "Resend", hint: "API delivery with open/click tracking." },
-                { value: "gmail", title: "Company Gmail", hint: "Send as a Gmail address via SMTP." },
-              ] as const
-            ).map((option) => {
+{(
+                [
+                  { value: "resend", title: "Resend", hint: "API delivery with open/click tracking." },
+                  { value: "gmail", title: "Gmail", hint: "Send as a Gmail address via SMTP." },
+                ] as const
+              ).map((option) => {
               const selected = form.provider === option.value;
               return (
                 <button
@@ -172,8 +172,8 @@ export default function EmailSettingsPage() {
             />
             <p className="text-xs text-[var(--text-secondary)] mt-1.5">
               Google Account → Security → 2-Step Verification → App passwords (name it
-              “ClientSphere”). Never use your real Google password. Personal Gmail
-              accounts can send roughly 500 emails a day this way.
+              "ClientSphere"). This works with personal Gmail too — you&apos;ll send from your own
+              address, roughly 500 emails/day. Never use your real Google password.
             </p>
           </div>
         ) : (

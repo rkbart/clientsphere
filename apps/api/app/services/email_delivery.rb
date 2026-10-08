@@ -3,7 +3,7 @@ require "mail"
 # Resolves which provider delivers a given send and performs it.
 #
 # The provider is chosen per workspace via EmailSetting#provider ("resend"
-# by default, "gmail" for a company Gmail account through Gmail SMTP with
+# by default, "gmail" for a Gmail account through Gmail SMTP with
 # an app password). Account-less sends (password resets) use global env
 # credentials instead. Returns the provider's message id on success.
 class EmailDelivery

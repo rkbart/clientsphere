@@ -71,7 +71,7 @@ MISSION_CONTROL_PASSWORD=<generate>
 ### Email (optional, Resend or Gmail)
 
 Automations and sequences send email through the workspace's provider —
-Resend or a company Gmail account. Without credentials, outbound mail is
+Resend or a Gmail account. Without credentials, outbound mail is
 saved as `draft` rows (visible in the app) instead of being delivered.
 
 Two ways to configure (per-workspace settings win over env vars):
