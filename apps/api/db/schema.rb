@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_161000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -238,6 +238,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_161000) do
     t.string "provider", default: "resend", null: false
     t.text "smtp_password"
     t.string "inbound_address"
+    t.text "gmail_refresh_token"
+    t.string "gmail_address"
+    t.boolean "gmail_grant_revoked", default: false, null: false
     t.index ["account_id"], name: "index_email_settings_on_account_id", unique: true
     t.index ["inbound_address"], name: "index_email_settings_on_inbound_address", unique: true
   end

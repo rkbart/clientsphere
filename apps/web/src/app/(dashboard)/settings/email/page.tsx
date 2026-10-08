@@ -2,14 +2,21 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useEmailSettings, useUpdateEmailSettings } from "@/hooks/use-emails";
+import { useEmailSettings, useUpdateEmailSettings, useGmailConnectToken, useGmailDisconnect } from "@/hooks/use-emails";
 import { FormError } from "@/components/forms/fields";
-import { EmailSetupBanner } from "@/components/settings/email-setup-nudge";
+import { EmailSetupBanner, NoticeBanner } from "@/components/settings/email-setup-nudge";
 import { ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
 import { Check, ChevronLeft, Copy } from "lucide-react";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 import { ManagerOnlyNotice } from "@/components/settings/manager-only-notice";
+
+const GMAIL_CONNECT_ERRORS: Record<string, string> = {
+  missing: "Gmail connect didn't return an account. Try again.",
+  unauthorized: "Only workspace owners and admins can connect Gmail.",
+  no_grant: "Google didn't issue a sending grant. Revoke ClientSphere at myaccount.google.com/permissions and reconnect.",
+  denied: "Gmail connect was cancelled.",
+};
 
 export default function EmailSettingsPage() {
   const { data: settings, isLoading } = useEmailSettings();
@@ -26,7 +33,25 @@ export default function EmailSettingsPage() {
   const [savedDialog, setSavedDialog] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [connectNotice, setConnectNotice] = useState<string | null>(null);
+  const [connectError, setConnectError] = useState<string | null>(null);
   const canManage = useCanManageSettings();
+  const connectToken = useGmailConnectToken();
+  const disconnectGmail = useGmailDisconnect();
+
+  // Landing back from Google carries ?gmail_connected=1 or ?gmail_error=…
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const err = q.get("gmail_error");
+    if (q.get("gmail_connected")) {
+      setConnectNotice("Gmail connected — workspace sends now go out as the connected address.");
+    } else if (err) {
+      setConnectError(GMAIL_CONNECT_ERRORS[err] ?? `Gmail connect failed (${err}). Try again.`);
+    }
+    if (q.get("gmail_connected") || err) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     setForm((f) => ({
@@ -56,6 +81,18 @@ export default function EmailSettingsPage() {
   const hasSmtpPassword = settings?.smtp_password_set ?? false;
   const hasSecret = settings?.webhook_secret_set ?? false;
   const isGmail = form.provider === "gmail";
+  const gmailConnected = settings?.gmail_connected ?? false;
+  const gmailNeedsReconnect = settings?.gmail_needs_reconnect ?? false;
+
+  const startGmailConnect = async () => {
+    setError(null);
+    try {
+      const { connect_token } = await connectToken.mutateAsync();
+      window.location.href = `/auth/google_connect?connect_token=${encodeURIComponent(connect_token)}`;
+    } catch (e) {
+      setError(errMessage(e, "Could not start Gmail connect."));
+    }
+  };
 
   const handleSave = async () => {
     setError(null);
@@ -103,6 +140,11 @@ export default function EmailSettingsPage() {
 
       <EmailSetupBanner showLink={false} />
 
+      {connectNotice && (
+        <NoticeBanner message={connectNotice} onDismiss={() => setConnectNotice(null)} />
+      )}
+      {connectError && <FormError message={connectError} />}
+
       <div className="card p-6 space-y-5">
         <FormError message={error} />
 
@@ -111,8 +153,8 @@ export default function EmailSettingsPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 {(
                 [
-                  { value: "resend", title: "Resend", hint: "API delivery with open/click tracking." },
-                  { value: "gmail", title: "Gmail", hint: "Send as a Gmail address via SMTP." },
+                { value: "resend", title: "Resend", hint: "API delivery with open/click tracking." },
+                { value: "gmail", title: "Gmail", hint: "Connect a Gmail account; sends via Google API." },
                 ] as const
               ).map((option) => {
               const selected = form.provider === option.value;
@@ -176,28 +218,80 @@ export default function EmailSettingsPage() {
         </div>
 
         {isGmail ? (
-          <div>
-            <label htmlFor="email-smtp-password" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-              Gmail app password
-              {hasSmtpPassword && !form.smtp_password && (
-                <span className="badge badge-success ml-2 align-middle">Saved</span>
+          <>
+            <div className="rounded-[var(--radius-md)] border border-[var(--border)] p-4">
+              {gmailConnected && !gmailNeedsReconnect ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex-1 min-w-40">
+                    <p className="text-sm font-medium text-[var(--text-primary)]">
+                      Connected as {settings?.gmail_address ?? "Gmail"}
+                      <span className="badge badge-success ml-2 align-middle">Connected</span>
+                    </p>
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
+                      Sends go through the Gmail API, so this works on any host —
+                      no open SMTP ports needed. Everyone in the workspace sends as
+                      this address.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void disconnectGmail.mutateAsync().catch((e: unknown) => setError(errMessage(e, "Could not disconnect Gmail.")))}
+                    disabled={disconnectGmail.isPending}
+                    className="btn-secondary text-sm"
+                  >
+                    {disconnectGmail.isPending ? "Disconnecting…" : "Disconnect"}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex-1 min-w-40">
+                    <p className="text-sm font-medium text-[var(--text-primary)]">
+                      {gmailNeedsReconnect ? "Reconnect Gmail" : "Connect a Gmail account"}
+                      {gmailNeedsReconnect && (
+                        <span className="badge badge-warning ml-2 align-middle">Needs reconnect</span>
+                      )}
+                    </p>
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">
+                      {gmailNeedsReconnect
+                        ? "Google rejected the stored grant (password changed or access revoked). Reconnect to resume sending."
+                        : "One owner connects the company Gmail once — the whole workspace then sends as it, over the Gmail API."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void startGmailConnect()}
+                    disabled={connectToken.isPending}
+                    className="btn-primary text-sm"
+                  >
+                    {connectToken.isPending ? "Connecting…" : gmailNeedsReconnect ? "Reconnect" : "Connect Gmail"}
+                  </button>
+                </div>
               )}
-            </label>
-            <input
-              id="email-smtp-password"
-              type="password"
-              value={form.smtp_password}
-              onChange={(e) => setForm({ ...form, smtp_password: e.target.value })}
-              placeholder={hasSmtpPassword ? "••••••••  (leave blank to keep current password)" : "xxxx xxxx xxxx xxxx"}
-              autoComplete="off"
-              className="input"
-            />
-            <p className="text-xs text-[var(--text-secondary)] mt-1.5">
-              Must be the Gmail (or Google Workspace) address you sign into SMTP with,
-              or one of its verified Send As aliases. (Note: SMTP ports 25/465/587
-              are blocked on Render free tier; use Resend instead for Render deploys.)
-            </p>
-          </div>
+            </div>
+            <div>
+              <label htmlFor="email-smtp-password" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+                Gmail app password
+                {hasSmtpPassword && !form.smtp_password && (
+                  <span className="badge badge-success ml-2 align-middle">Saved</span>
+                )}
+              </label>
+              <input
+                id="email-smtp-password"
+                type="password"
+                value={form.smtp_password}
+                onChange={(e) => setForm({ ...form, smtp_password: e.target.value })}
+                placeholder={hasSmtpPassword ? "••••••••  (leave blank to keep current password)" : "xxxx xxxx xxxx xxxx"}
+                autoComplete="off"
+                className="input"
+              />
+              <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+                Optional SMTP fallback for self-hosted deploys with open submission
+                ports (Google Account → Security → App passwords). Not needed when
+                Gmail is connected above — and SMTP ports 25/465/587 are blocked on
+                Render&apos;s free tier.
+              </p>
+            </div>
+          </>
         ) : (
           <>
             <div>

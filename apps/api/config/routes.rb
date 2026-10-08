@@ -12,7 +12,10 @@ Rails.application.routes.draw do
   mount Rswag::Api::Engine => "/api-docs"
   mount Rswag::Ui::Engine => "/api-docs"
 
-  # Google OAuth (OmniAuth request phase lives at /auth/google_oauth2)
+  # Google OAuth (OmniAuth request phase lives at /auth/google_oauth2).
+  # The connect route must come first: the generic :provider pattern below
+  # would otherwise swallow it into the login callback.
+  match "/auth/google_connect/callback", to: "omniauth_callbacks#gmail_connect", via: [:get, :post]
   match "/auth/:provider/callback", to: "omniauth_callbacks#callback", via: [:get, :post]
   match "/auth/failure", to: "omniauth_callbacks#failure", via: [:get, :post]
 
@@ -145,6 +148,8 @@ Rails.application.routes.draw do
       # Email settings (owner/admin only)
       get "email_settings", to: "email_settings#show"
       patch "email_settings", to: "email_settings#update"
+      post "email_settings/gmail_connect_token", to: "email_settings#gmail_connect_token"
+      post "email_settings/gmail_disconnect", to: "email_settings#gmail_disconnect"
 
       # Inbound Resend tracking webhooks (Svix-signed, per-account URL)
       post "webhooks/resend/:account_id", to: "resend_webhooks#create"

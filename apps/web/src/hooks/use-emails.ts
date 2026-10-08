@@ -105,6 +105,9 @@ export interface EmailSettings {
   from_address?: string | null;
   inbound_address?: string | null;
   provider?: "resend" | "gmail";
+  gmail_connected?: boolean;
+  gmail_address?: string | null;
+  gmail_needs_reconnect?: boolean;
   delivery_configured?: boolean;
   workspace_configured?: boolean;
   resend_api_key_set?: boolean;
@@ -132,6 +135,34 @@ export function useUpdateEmailSettings() {
     mutationFn: async (settings: Record<string, unknown>) => {
       const { data, error } = await apiClient.PATCH("/email_settings", {
         body: { email_setting: settings as never },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as unknown as EmailSettings;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["email-settings"] });
+    },
+  });
+}
+
+export function useGmailConnectToken() {
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await apiClient.POST("/email_settings/gmail_connect_token", {
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as unknown as { connect_token: string };
+    },
+  });
+}
+
+export function useGmailDisconnect() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await apiClient.POST("/email_settings/gmail_disconnect", {
         headers: headers(),
       });
       if (error) throw error;

@@ -58,7 +58,8 @@ export function EmailSetupModal() {
         <div className="rounded-[var(--radius-md)] border border-[var(--border)] p-3">
           <p className="font-medium text-[var(--text-primary)]">Gmail</p>
           <p className="mt-0.5">
-            Turn on 2-Step Verification, create an App password, and paste it in Email Settings.
+            Connect the company Gmail in Email Settings — sends go through the
+            Gmail API and work on any host.
           </p>
         </div>
         <div className="flex items-center gap-2 pt-1">

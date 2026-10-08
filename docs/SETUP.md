@@ -98,7 +98,10 @@ Gmail address + app password. No restart needed.
 Gmail notes: sending goes through `smtp.gmail.com` as the account itself —
 no domain verification needed. Roughly 500 emails/day on personal Gmail
 (2,000 on Workspace). Changing the Google password revokes app passwords,
-so sends start failing until a fresh one is pasted in.
+so sends start failing until a fresh one is pasted in. Prefer the
+**Connect Gmail** button in Settings → Email instead: one OAuth grant per
+workspace, sends via the Gmail API (works on Render free), no app
+passwords involved.
 
 **Delivery tracking:** copy the webhook URL from Settings → Email into a
 Resend webhook to flip `sent` → `delivered`/`opened`. Resend can't reach
@@ -119,8 +122,11 @@ onto the original deal:
 ### Google OAuth (optional)
 
 1. Create OAuth credentials at [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-   (type: Web application). Authorized redirect URI (dev):
-   `http://localhost:3000/auth/google_oauth2/callback`
+   (type: Web application). Authorized redirect URIs (dev) — register both,
+   on one client shared by dev and prod:
+   `http://localhost:3000/auth/google_oauth2/callback` (login) and
+   `http://localhost:3000/auth/google_connect/callback` (workspace Gmail
+   connect). Prod adds the same two paths on your API (or Vercel) host.
 2. Set:
    ```
    GOOGLE_CLIENT_ID=<client-id>

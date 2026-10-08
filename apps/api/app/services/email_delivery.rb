@@ -13,17 +13,26 @@ class EmailDelivery
   GMAIL_SMTP_PORT = 465
   DEFAULT_TIMEOUT = 10
 
-  Resolved = Struct.new(:provider, :from, :resend_key, :smtp_username, :smtp_password, keyword_init: true)
+  Resolved = Struct.new(:provider, :from, :resend_key, :smtp_username, :smtp_password,
+                        :gmail_refresh_token, keyword_init: true)
 
   # Per-workspace resolution. Falls back to the global Resend key so
-  # workspaces without their own setting keep today's behavior.
+  # workspaces without their own setting keep today's behavior. Gmail
+  # prefers the workspace API grant (works on any host); SMTP app
+  # passwords remain for self-hosted deploys with open submission ports.
   def self.for_account(account)
     setting = account&.email_setting
     from = setting&.from_address.presence || ENV.fetch("EMAIL_FROM_ADDRESS", "noreply@example.com")
-    if setting&.gmail? && setting.from_address.present? && setting.smtp_password.present?
-      Resolved.new(provider: "gmail", from: from, smtp_username: setting.from_address,
-                   smtp_password: setting.smtp_password)
-    elsif (key = setting&.resend_api_key.presence || ENV.fetch("RESEND_API_KEY", nil)).present?
+    if setting&.gmail?
+      if setting.gmail_api_ready?
+        sender = setting.gmail_address.presence || from
+        return Resolved.new(provider: "gmail_api", from: sender, gmail_refresh_token: setting.gmail_refresh_token)
+      elsif setting.from_address.present? && setting.smtp_password.present?
+        return Resolved.new(provider: "gmail", from: from, smtp_username: setting.from_address,
+                            smtp_password: setting.smtp_password)
+      end
+    end
+    if (key = setting&.resend_api_key.presence || ENV.fetch("RESEND_API_KEY", nil)).present?
       Resolved.new(provider: "resend", from: from, resend_key: key)
     end
   end
@@ -47,10 +56,21 @@ class EmailDelivery
     Timeout.timeout(timeout) do
       if resolved.provider == "gmail"
         deliver_smtp(resolved, to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text, message_id: message_id)
+      elsif resolved.provider == "gmail_api"
+        deliver_gmail_api(resolved, to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text, message_id: message_id)
       else
         deliver_resend(resolved, to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text, message_id: message_id)
       end
     end
+  end
+
+  # Gmail API (HTTPS): same stamped Message-ID so replies thread back;
+  # Google returns its own id, which becomes the provider id.
+  def self.deliver_gmail_api(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [], message_id: nil)
+    token = GmailApi.access_token(resolved.gmail_refresh_token)
+    mail = build_message(from: resolved.from, to: to, cc: cc, bcc: bcc,
+                         subject: subject, html: html, text: text, message_id: message_id)
+    GmailApi.send_email(access_token: token, mail: mail)
   end
 
   def self.deliver_resend(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [], message_id: nil)
@@ -115,5 +135,5 @@ class EmailDelivery
     mail
   end
 
-  private_class_method :deliver_resend, :deliver_smtp
+  private_class_method :deliver_resend, :deliver_smtp, :deliver_gmail_api
 end

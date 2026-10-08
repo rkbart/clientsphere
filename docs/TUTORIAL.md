@@ -330,7 +330,17 @@ On any contact, company, or deal detail page:
 No verified domain? A workspace can send through a Gmail account
 instead of Resend — handy for SMEs that live in Gmail. Everything (deal
 compose, sequences, automations, invites) then goes out as that address.
-Personal Gmail addresses work the same way via app passwords.
+Two ways to wire it up: connected Gmail (API) or SMTP app password.
+
+**Recommended: connect Gmail (works everywhere, including Render).**
+An owner goes to Settings → Email → Provider **Gmail** → **Connect Gmail**,
+picks the company Gmail account, and approves the sending permission once.
+From then on the whole workspace sends as that address through the Gmail
+API — nobody needs to log in with that Google account themselves, and no
+SMTP ports are involved. If the grant ever dies (password changed, access
+revoked), sends fail visibly and Settings shows **Reconnect**.
+
+**SMTP fallback (self-hosted deploys only):**
 
 1. **Turn on 2-Step Verification** on the Google account (required — the
    App passwords page doesn't appear without it): Google Account →
@@ -348,9 +358,38 @@ Personal Gmail addresses work the same way via app passwords.
 
 Good to know: personal Gmail allows roughly 500 sends a day (2,000 on
 Workspace) — fine for invites, resets, and small sequences, not bulk
-blasts. Changing the Google password, or revoking the app password,
-breaks sending until a fresh code is pasted in (failed rows pile up in
-the Outbox so you'll notice).
+blasts. The Gmail connect flow needs one extra redirect URI registered in
+Google Cloud Console alongside the login one:
+`https://<api-host>/auth/google_connect/callback` (or your Vercel app URL +
+`/auth/google_connect/callback` if that is what `GOOGLE_REDIRECT_URI` uses).
+With the SMTP fallback, changing the Google password (or revoking the app
+password) breaks sending until a fresh code is pasted in (failed rows pile
+up in the Outbox so you'll notice).
+
+**Google verification for the connect flow:** `gmail.send` is a _sensitive_
+scope, so Google shows an "unverified app" warning until the OAuth consent
+screen is verified. Two paths:
+- **Just us (recommended for now):** leave the app in Testing and add each
+  connecting Gmail account under Consent screen → Test users (up to 100).
+  No verification needed — click through the warning once per account.
+  Caveat: test-mode refresh tokens expire after **7 days**, so expect a
+  weekly **Reconnect** in Settings → Email until verified.
+- **Going public:** Consent screen → Publish, then complete verification
+  (brand info, verified domain, privacy policy, demo video of the flow).
+  `gmail.send` needs verification but _not_ the paid security assessment
+  (that's only for restricted scopes like full mailbox access).
+
+**Connect troubleshooting:**
+- `redirect_uri_mismatch` → the exact URI isn't on the exact client. Use
+  **one OAuth client for dev and prod** (put all four URIs on it: login +
+  connect × localhost + production) and point both `.env` and Render at it.
+  Compare the `client_id` in the Google error URL against the console.
+- `No route matches /auth/google_connect` → the API server booted without
+  `GOOGLE_*` set (strategies mount at boot). Check for `.env` typos
+  (`bin/rails runner 'puts ENV["GOOGLE_CLIENT_ID"].present?'`), then
+  restart `bin/rails s` — initializers don't reload in dev.
+- Stuck at an old error page → hard-refresh; the connect round trip is
+  plain browser navigation, not API calls.
 
 > There is no **Re-score** button in the contact UI — lead scoring is API-only
 > (see Contacts above).

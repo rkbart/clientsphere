@@ -87,6 +87,11 @@ class EmailService
     )
     email.update!(status: :sent, sent_at: Time.current, provider_message_id: provider_id, message_id: rfc_id)
     email
+  rescue GmailApi::AuthError
+    # Dead grant (revoked password/permission): stop trying the API until
+    # an owner reconnects, so the queue doesn't burn retries on 401s.
+    email.account.email_setting&.update!(gmail_grant_revoked: true)
+    raise
   end
 
   # Composed bodies are plain text with blank-line paragraph breaks. Sending

@@ -35,5 +35,24 @@ if ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?
                scope: "email,profile",
                prompt: "select_account",
              }
+    # Workspace Gmail connect: same Google client, separate strategy name so
+    # it never collides with login. The setup step verifies the signed
+    # handoff token (minted by an authenticated owner/admin) and stashes the
+    # account/user ids in the cookie session for the callback.
+    provider :google_oauth2,
+             ENV.fetch("GOOGLE_CLIENT_ID"),
+             ENV.fetch("GOOGLE_CLIENT_SECRET"),
+             {
+               name: "google_connect",
+               redirect_uri: ENV.fetch(
+                 "GOOGLE_REDIRECT_URI",
+                 "http://localhost:3000/auth/google_oauth2/callback"
+               ).sub("google_oauth2", "google_connect"),
+               scope: "email,https://www.googleapis.com/auth/gmail.send",
+               access_type: "offline",
+               prompt: "select_account consent",
+               # String reference: app code isn't loaded when initializers run.
+               setup: ->(env) { "GmailConnectSetup".constantize.call(env) },
+             }
   end
 end

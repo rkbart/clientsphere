@@ -301,6 +301,14 @@ export interface paths {
     /** Update email setting */
     patch: operations["update_api_v1_email_settings"];
   };
+  "/email_settings/gmail_connect_token": {
+    /** Gmail connect token email setting */
+    post: operations["gmail_connect_token_api_v1_email_settings"];
+  };
+  "/email_settings/gmail_disconnect": {
+    /** Gmail disconnect email setting */
+    post: operations["gmail_disconnect_api_v1_email_settings"];
+  };
   "/emails": {
     /** Index email */
     get: operations["index_api_v1_emails"];
@@ -2454,6 +2462,50 @@ export interface operations {
   };
   /** Update email setting */
   update_api_v1_email_settings: {
+    requestBody?: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Success */
+      200: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Gmail connect token email setting */
+  gmail_connect_token_api_v1_email_settings: {
+    requestBody?: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Success */
+      200: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Gmail disconnect email setting */
+  gmail_disconnect_api_v1_email_settings: {
     requestBody?: {
       content: {
         "application/json": {

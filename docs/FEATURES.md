@@ -126,10 +126,10 @@
 - `email_received` automation trigger + "Inbound reply follow-up" template
 
 ### Email settings & tracking
-- Settings → Email: per-workspace provider — Resend API key or a company
-  Gmail address + app password (SMTP) — plus sender address and webhook
-  secret (all secrets encrypted, write-only, owner/admin only; workspace
-  settings override env vars)
+- Settings → Email: per-workspace provider — Resend API key or Gmail
+  (connected Google grant via OAuth, or address + app password for SMTP) —
+  plus sender/inbound addresses and webhook secret (all secrets encrypted,
+  write-only, owner/admin only; workspace settings override env vars)
 - Delivery tracking via Resend webhooks (`email.delivered` → delivered,
   `email.opened` → opened, `email.bounced` → failed); forward-only,
   signature-verified, per-account URL. Gmail sends record delivery with a

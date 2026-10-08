@@ -2687,6 +2687,56 @@ paths:
               additionalProperties: true
       security:
       - bearerAuth: []
+  "/api/v1/email_settings/gmail_connect_token":
+    post:
+      summary: Gmail connect token email setting
+      operationId: gmail_connect_token_api_v1_email_settings
+      tags:
+      - email_settings
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
+  "/api/v1/email_settings/gmail_disconnect":
+    post:
+      summary: Gmail disconnect email setting
+      operationId: gmail_disconnect_api_v1_email_settings
+      tags:
+      - email_settings
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
   "/api/v1/emails":
     get:
       summary: Index email

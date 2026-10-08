@@ -82,6 +82,10 @@ services behind, delete them first, then re-apply.)
 - **Resend**: Settings → Email → provider Resend (see
   `docs/TUTORIAL.md`, "Send as your Gmail address"). No tunnel needed —
   Render is public. Set `RESEND_API_KEY` and verify a sending domain first.
+- **Gmail**: Settings → Email → provider Gmail → **Connect Gmail** (same
+  tutorial section). The API-based grant works on Render free — only SMTP
+  app passwords are blocked there. Register the extra redirect URI from the
+  tutorial in Google Cloud Console.
 
 ## 6. Smoke test the demo
 
@@ -103,5 +107,6 @@ services behind, delete them first, then re-apply.)
 | Google login: `redirect_uri_mismatch` | URI in Google Console must match `GOOGLE_REDIRECT_URI` exactly (scheme, host, path) |
 | Vercel pages show API errors | `API_INTERNAL_URL` was wrong/missing at build time — fix the var and **redeploy** (rebuild), don't just restart |
 | Resend `test mode` delivery failures | Verify a sending domain, or ensure
-  the workspace has a Resend API key set (Settings → Email). Gmail is not
-  available on Render free tier (SMTP blocked). |
+  the workspace has a Resend API key set (Settings → Email). Gmail SMTP is
+  not available on Render free tier (ports blocked) — use **Connect Gmail**
+  (API) instead. |
