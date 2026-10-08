@@ -41,24 +41,27 @@ class EmailDelivery
     end
   end
 
-  def self.deliver(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [], timeout: DEFAULT_TIMEOUT)
+  def self.deliver(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [], timeout: DEFAULT_TIMEOUT, message_id: nil)
     raise ArgumentError, "no delivery provider resolved" if resolved.nil?
 
     Timeout.timeout(timeout) do
       if resolved.provider == "gmail"
-        deliver_smtp(resolved, to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text)
+        deliver_smtp(resolved, to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text, message_id: message_id)
       else
-        deliver_resend(resolved, to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text)
+        deliver_resend(resolved, to: to, cc: cc, bcc: bcc, subject: subject, html: html, text: text, message_id: message_id)
       end
     end
   end
 
-  def self.deliver_resend(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [])
+  def self.deliver_resend(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [], message_id: nil)
     Resend.api_key = resolved.resend_key || ""
     params = { from: resolved.from, to: Array(to), subject: subject, html: html }
     params[:text] = text if text.present?
     params[:cc] = Array(cc) if Array(cc).present?
     params[:bcc] = Array(bcc) if Array(bcc).present?
+    # Stamp our RFC id so replies thread back even though Resend's own id
+    # is what tracking webhooks report.
+    params[:headers] = { "Message-Id" => message_id } if message_id.present?
     response = Resend::Emails.send(params)
     response[:id]
   end
@@ -67,11 +70,11 @@ class EmailDelivery
   # (or Workspace) address itself — it doubles as the From header. SMTP
   # returns no provider id, so stamp our own Message-ID for the audit trail
   # (Gmail preserves client-supplied IDs).
-  def self.deliver_smtp(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [])
+  def self.deliver_smtp(resolved, to:, subject:, html:, text: nil, cc: [], bcc: [], message_id: nil)
     started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
     stamp = ->(stage) { Rails.logger.info("[EmailDelivery] smtp #{stage} after #{((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started) * 1000).round}ms") }
     mail = build_message(from: resolved.from, to: to, cc: cc, bcc: bcc,
-                         subject: subject, html: html, text: text)
+                         subject: subject, html: html, text: text, message_id: message_id)
     stamp.call("built")
     mail.delivery_method :smtp, smtp_settings(username: resolved.smtp_username,
                                               password: resolved.smtp_password)
@@ -94,7 +97,7 @@ class EmailDelivery
     }
   end
 
-  def self.build_message(from:, to:, subject:, html:, text: nil, cc: [], bcc: [])
+  def self.build_message(from:, to:, subject:, html:, text: nil, cc: [], bcc: [], message_id: nil)
     mail = Mail.new do
       from from
       to Array(to)
@@ -108,7 +111,7 @@ class EmailDelivery
       end
     end
     domain = from.to_s.split("@").last.presence || "clientsphere"
-    mail.message_id = "<#{SecureRandom.uuid}@#{domain}>"
+    mail.message_id = message_id || "<#{SecureRandom.uuid}@#{domain}>"
     mail
   end
 

@@ -52,6 +52,8 @@ class Api::V1::ResendWebhooksController < Api::V1::BaseController
   end
 
   def handle(event, account)
+    return handle_received(event, account) if event["type"] == "email.received"
+
     status = STATUS_BY_EVENT[event["type"]]
     message_id = event.dig("data", "email_id")
     return if status.nil? || message_id.blank?
@@ -63,5 +65,19 @@ class Api::V1::ResendWebhooksController < Api::V1::BaseController
     attrs = { status: status }
     attrs[:opened_at] = Time.current if status == :opened && email.opened_at.nil?
     email.update!(attrs)
+  end
+
+  # Inbound replies arrive on the workspace's inbound address. The URL
+  # already scopes to the account; the address check keeps multi-recipient
+  # posts from landing in the wrong workspace.
+  def handle_received(event, account)
+    data = event["data"] || {}
+    inbound = account.email_setting&.inbound_address.to_s.downcase
+    return if inbound.blank?
+
+    recipients = Array(data["to"]).map { |a| a.to_s.downcase }
+    return unless recipients.include?(inbound)
+
+    InboundEmail::ResendReceiver.call(account: account, event_data: data)
   end
 end

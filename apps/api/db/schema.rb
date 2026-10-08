@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_161000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -237,7 +237,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
     t.datetime "updated_at", null: false
     t.string "provider", default: "resend", null: false
     t.text "smtp_password"
+    t.string "inbound_address"
     t.index ["account_id"], name: "index_email_settings_on_account_id", unique: true
+    t.index ["inbound_address"], name: "index_email_settings_on_inbound_address", unique: true
   end
 
   create_table "emails", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -257,10 +259,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_150000) do
     t.jsonb "cc_addresses", default: [], null: false
     t.jsonb "bcc_addresses", default: [], null: false
     t.string "provider_message_id"
+    t.datetime "read_at"
+    t.string "in_reply_to"
+    t.string "thread_key"
+    t.string "message_id"
     t.index ["account_id"], name: "index_emails_on_account_id"
     t.index ["contact_id"], name: "index_emails_on_contact_id"
     t.index ["deal_id"], name: "index_emails_on_deal_id"
     t.index ["provider_message_id"], name: "index_emails_on_provider_message_id", unique: true
+    t.index ["thread_key"], name: "index_emails_on_thread_key"
   end
 
   create_table "invitations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

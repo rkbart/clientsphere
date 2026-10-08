@@ -6,6 +6,9 @@ class Api::V1::EmailsController < Api::V1::BaseController
     emails = emails.where(contact_id: params[:contact_id]) if params[:contact_id].present?
     emails = emails.where(deal_id: params[:deal_id]) if params[:deal_id].present?
     emails = emails.where(status: params[:status]) if params[:status].present? && Email.statuses.key?(params[:status])
+    emails = emails.where(direction: params[:direction]) if params[:direction].present? && Email.directions.key?(params[:direction])
+    emails = emails.unread if params[:unread] == "true"
+    emails = emails.inbound.where.not(read_at: nil) if params[:unread] == "false"
     emails = emails.order(:created_at).reverse_order
 
     paginate(emails)
@@ -39,7 +42,6 @@ class Api::V1::EmailsController < Api::V1::BaseController
   def redeliver
     email = Current.account.emails.find(params[:id])
     authorize email, :update?
-
     # Retrying hits the provider directly, which rejects a send with no "to".
     if Array(email.to_addresses).empty?
       message = "This email has no recipient. Add one before retrying."
@@ -47,6 +49,32 @@ class Api::V1::EmailsController < Api::V1::BaseController
     end
 
     render json: EmailService.redeliver(email)
+  end
+
+  # Badge counts for the Mail nav item and tabs: unread inbound replies,
+  # plus outbound drafts and failures that need attention.
+  def unread_count
+    authorize Email, :index?
+    scoped = policy_scope(Email)
+    render json: {
+      unread_count: scoped.unread.count,
+      failed_count: scoped.outbound.failed.count,
+      draft_count: scoped.outbound.draft.count
+    }
+  end
+
+  # Opening an inbound mail marks it read; idempotent.
+  def mark_read
+    email = Current.account.emails.find(params[:id])
+    authorize email, :update?
+    email.update!(read_at: Time.current) if email.read_at.nil?
+    render json: email
+  end
+
+  def mark_all_read
+    authorize Email, :index?
+    policy_scope(Email).unread.update_all(read_at: Time.current)
+    render json: { unread_count: 0 }
   end
 
   def templates

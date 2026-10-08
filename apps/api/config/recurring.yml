@@ -7,6 +7,9 @@ development:
   fire_overdue_activity_triggers:
     class: OverdueActivityCheckJob
     schedule: every hour at minute 30
+  poll_gmail_inboxes:
+    class: GmailInboxPollJob
+    schedule: every 15 minutes
 
 production:
   clear_solid_queue_finished_jobs:
@@ -15,3 +18,6 @@ production:
   fire_overdue_activity_triggers:
     class: OverdueActivityCheckJob
     schedule: every hour at minute 30
+  poll_gmail_inboxes:
+    class: GmailInboxPollJob
+    schedule: every 15 minutes

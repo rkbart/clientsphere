@@ -66,11 +66,27 @@ module Automations
         kind: :task,
         subject: action["subject"],
         description: action["description"],
-        contact_id: record.is_a?(Contact) ? record.id : nil,
-        deal_id: record.is_a?(Deal) ? record.id : nil,
+        contact_id: linked_contact_id(record),
+        deal_id: linked_deal_id(record),
         creator_id: task_creator_id(record),
         due_at: action["due_days"]&.days&.from_now || 1.day.from_now
       )
+    end
+
+    # Records carrying a contact (emails) link their tasks the same way
+    # direct contact triggers do.
+    def linked_contact_id(record)
+      return record.id if record.is_a?(Contact)
+      return record.contact_id if record.respond_to?(:contact_id)
+
+      nil
+    end
+
+    def linked_deal_id(record)
+      return record.id if record.is_a?(Deal)
+      return record.deal_id if record.respond_to?(:deal_id)
+
+      nil
     end
 
     def task_creator_id(record)

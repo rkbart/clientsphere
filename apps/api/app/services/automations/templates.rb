@@ -72,6 +72,17 @@ module Automations
         actions: [
           { "type" => "create_task", "subject" => "Overdue activity needs attention", "description" => "Catch up on the missed activity.", "due_days" => "1" }
         ]
+      },
+      {
+        key: "inbound_reply_followup",
+        name: "Inbound reply follow-up",
+        description: "Queue a follow-up task when a contact replies by email.",
+        trigger_type: "email_received",
+        delay_days: 0,
+        conditions: {},
+        actions: [
+          { "type" => "create_task", "subject" => "Reply to inbound email", "description" => "A contact replied — read it and respond.", "due_days" => "1" }
+        ]
       }
     ].freeze
 

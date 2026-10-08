@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useEmails, useRedeliverEmail, useUpdateEmail } from "@/hooks/use-emails";
+import { useEmails, useRedeliverEmail, useUpdateEmail, useMarkReadEmail, useMarkAllReadEmails, useUnreadEmailCount } from "@/hooks/use-emails";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { Field, FormError } from "@/components/forms/fields";
 import { EmailSetupBanner, EmailSetupModal } from "@/components/settings/email-setup-nudge";
@@ -18,6 +18,8 @@ interface OutboxEmail {
   cc_addresses?: string[] | null;
   bcc_addresses?: string[] | null;
   status?: string | null;
+  direction?: string | null;
+  read_at?: string | null;
   created_at: string;
   sent_at?: string | null;
 }
@@ -28,7 +30,9 @@ const splitAddrs = (s: string) =>
 // Retry goes straight to the provider, which rejects a send with no "to".
 const hasRecipient = (e: OutboxEmail) => (e.to_addresses ?? []).length > 0;
 
-function EmailDetailModal({
+// Shared with the contact mail thread: inbound mail is always read-only
+// (retry/edit only apply to outbound drafts and failures).
+export function EmailDetailModal({
   email,
   onClose,
   onRetry,
@@ -184,8 +188,10 @@ const STATUS_BADGE: Record<string, string> = {
   failed: "badge-danger",
 };
 
-export default function OutboxPage() {
+export default function MailPage() {
+  const [tab, setTab] = useState<"inbox" | "outbox">("inbox");
   const [status, setStatus] = useState("");
+  const [readFilter, setReadFilter] = useState("");
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(25);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -195,13 +201,36 @@ export default function OutboxPage() {
   const [saved, setSaved] = useState(false);
 
   const { data, isLoading } = useEmails({
-    status: status || undefined,
+    direction: tab,
+    status: tab === "outbox" ? status || undefined : undefined,
+    unread: tab === "inbox" ? readFilter || undefined : undefined,
     page,
     per_page: perPage,
   });
   const redeliver = useRedeliverEmail();
+  const markRead = useMarkReadEmail();
+  const markAllRead = useMarkAllReadEmails();
+  const { data: mailCounts } = useUnreadEmailCount();
+  const unreadCount = mailCounts?.unread_count ?? 0;
+  const outboxAttention = (mailCounts?.failed_count ?? 0) + (mailCounts?.draft_count ?? 0);
   const rows = ((data as unknown as { data?: OutboxEmail[] })?.data ?? []);
   const meta = (data as unknown as { meta?: { total_count: number; total_pages: number; current_page: number } })?.meta;
+
+  const switchTab = (next: "inbox" | "outbox") => {
+    setTab(next);
+    setStatus("");
+    setReadFilter("");
+    setPage(1);
+    setSelected(null);
+    setActionError(null);
+  };
+
+  const openEmail = (email: OutboxEmail) => {
+    setSelected(email);
+    if (email.direction === "inbound" && !email.read_at) {
+      void markRead.mutateAsync(email.id).catch(() => {});
+    }
+  };
 
   const retry = async (id: string) => {
     setActionError(null);
@@ -225,7 +254,38 @@ export default function OutboxPage() {
     }
   };
 
-  const columns: DataTableColumn<OutboxEmail>[] = [
+  const columns: DataTableColumn<OutboxEmail>[] =
+    tab === "inbox"
+      ? [
+          {
+            key: "from",
+            label: "From",
+            render: (e) => (
+              <span className={e.read_at ? "text-[var(--text-secondary)]" : "font-medium text-[var(--text-primary)]"}>
+                {e.from_address || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "subject",
+            label: "Subject",
+            render: (e) => (
+              <span className={e.read_at ? "text-[var(--text-secondary)]" : "font-medium text-[var(--text-primary)]"}>
+                {e.subject || "—"}
+              </span>
+            ),
+          },
+          {
+            key: "date",
+            label: "Date",
+            render: (e) => (
+              <span className="text-[var(--text-secondary)]">
+                {new Date(e.sent_at ?? e.created_at).toLocaleString()}
+              </span>
+            ),
+          },
+        ]
+      : [
     {
       key: "to",
       label: "To",
@@ -300,45 +360,104 @@ export default function OutboxPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
           <Mail className="h-5 w-5 text-[var(--text-tertiary)]" />
-          Outbox
+          Mail
         </h1>
         <p className="text-[var(--text-secondary)] text-sm mt-1">
-          Every outbound email — drafts waiting on a provider, sent mail, and failures to retry.
+          Inbound replies from your connected provider, and every outbound email.
         </p>
       </div>
 
       <FormError message={actionError} />
 
-      <EmailSetupBanner />
+      {tab === "outbox" && <EmailSetupBanner />}
 
       <div className="flex flex-wrap items-center gap-2">
-        <select
-          value={status}
-          onChange={(e) => {
-            setStatus(e.target.value);
-            setPage(1);
-          }}
-          className="input w-auto text-sm"
-          aria-label="Filter by status"
-        >
-          {STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
+        <div role="tablist" aria-label="Mailbox" className="flex rounded-[var(--radius-md)] border border-[var(--border)] p-0.5">
+          {(["inbox", "outbox"] as const).map((t) => {
+            const badge = t === "inbox" ? unreadCount : outboxAttention;
+            return (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={tab === t}
+                aria-label={t === "inbox" && badge > 0 ? `Inbox, ${badge} unread` : undefined}
+                onClick={() => switchTab(t)}
+                className={`px-3.5 py-1.5 text-sm rounded-[var(--radius-sm)] capitalize transition-colors inline-flex items-center gap-1.5 ${
+                  tab === t
+                    ? "bg-[var(--bg-elevated)] text-[var(--text-primary)] font-medium"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                }`}
+              >
+                {t}
+                {badge > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="min-w-5 px-1.5 text-center text-[11px] leading-5 font-semibold rounded-full bg-[var(--danger)] text-white"
+                  >
+                    {badge > 99 ? "99+" : badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+        {tab === "inbox" && (
+          <select
+            value={readFilter}
+            onChange={(e) => {
+              setReadFilter(e.target.value);
+              setPage(1);
+            }}
+            className="input w-auto text-sm"
+            aria-label="Filter by read state"
+          >
+            <option value="">All mail</option>
+            <option value="true">Unread</option>
+            <option value="false">Read</option>
+          </select>
+        )}
+        {tab === "outbox" && (
+          <select
+            value={status}
+            onChange={(e) => {
+              setStatus(e.target.value);
+              setPage(1);
+            }}
+            className="input w-auto text-sm"
+            aria-label="Filter by status"
+          >
+            {STATUS_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        )}
+        {tab === "inbox" && unreadCount > 0 && (
+          <button
+            type="button"
+            onClick={() => void markAllRead.mutateAsync().catch((e: unknown) => setActionError(errMessage(e, "Could not mark all as read.")))}
+            disabled={markAllRead.isPending}
+            className="btn-secondary text-sm"
+          >
+            {markAllRead.isPending ? "Marking…" : "Mark all read"}
+          </button>
+        )}
       </div>
 
       <DataTable
         columns={columns}
         rows={rows}
         isLoading={isLoading}
-        onRowClick={(e) => setSelected(e)}
+        onRowClick={(e) => openEmail(e)}
         minWidth="min-w-[720px]"
         empty={
           <div className="px-5 py-12 text-center">
             <p className="text-sm text-[var(--text-tertiary)]">
-              {status ? `No ${status} emails` : "No emails yet — send one from a deal page"}
+              {tab === "inbox"
+                ? "No replies yet — they appear here when contacts answer"
+                : status ? `No ${status} emails` : "No emails yet — send one from a deal page"}
             </p>
           </div>
         }

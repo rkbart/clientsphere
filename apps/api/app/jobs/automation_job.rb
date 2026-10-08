@@ -1,7 +1,7 @@
 class AutomationJob < ApplicationJob
   queue_as :default
 
-  ALLOWED_RECORD_TYPES = %w[Contact Company Deal Activity].freeze
+  ALLOWED_RECORD_TYPES = %w[Contact Company Deal Activity Email].freeze
 
   def perform(automation_id, event_type, record_type, record_id)
     return unless ALLOWED_RECORD_TYPES.include?(record_type)

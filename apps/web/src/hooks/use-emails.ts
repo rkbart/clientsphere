@@ -41,8 +41,69 @@ export function useEmails(params?: Record<string, unknown>) {
   });
 }
 
+export interface MailCounts {
+  unread_count: number;
+  failed_count: number;
+  draft_count: number;
+}
+
+export function useUnreadEmailCount() {
+  return useQuery({
+    queryKey: ["unread-email-count"],
+    queryFn: async () => {
+      const { data, error } = await apiClient.GET("/emails/unread_count", {
+        headers: headers(),
+      });
+      if (error) throw error;
+      const body = (data as unknown as Partial<MailCounts>) ?? {};
+      return {
+        unread_count: body.unread_count ?? 0,
+        failed_count: body.failed_count ?? 0,
+        draft_count: body.draft_count ?? 0,
+      };
+    },
+    refetchInterval: 30_000,
+  });
+}
+
+export function useMarkReadEmail() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await apiClient.POST("/emails/{id}/mark_read", {
+        params: { path: { id } },
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as unknown as Record<string, unknown>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["emails"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-email-count"] });
+    },
+  });
+}
+
+export function useMarkAllReadEmails() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data, error } = await apiClient.POST("/emails/mark_all_read", {
+        headers: headers(),
+      });
+      if (error) throw error;
+      return data as unknown as Record<string, unknown>;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["emails"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-email-count"] });
+    },
+  });
+}
+
 export interface EmailSettings {
   from_address?: string | null;
+  inbound_address?: string | null;
   provider?: "resend" | "gmail";
   delivery_configured?: boolean;
   workspace_configured?: boolean;

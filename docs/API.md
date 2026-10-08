@@ -148,19 +148,22 @@ DELETE /notes/:id
 ## Emails
 
 ```
-GET    /emails
+GET    /emails              # ?direction=inbound|outbound, ?unread=true, ?contact_id=, ?deal_id=
 POST   /emails
 GET    /emails/:id
 PATCH  /emails/:id
 DELETE /emails/:id
 GET    /emails/templates      # ?contact_id= for per-contact personalization
+GET    /emails/unread_count   # unread inbound count (Mail badge)
 POST   /emails/deliver        # body: deal_id?, subject, body, to_addresses?
                               #   contact_id? — omit it and pass to_addresses
                               #   instead; 422 if neither is present
 POST   /emails/:id/redeliver  # retry a draft/failed email; 422 if no recipient
+POST   /emails/:id/mark_read  # mark an inbound email read (idempotent)
+POST   /emails/mark_all_read  # mark all inbound read
 GET    /email_settings        # owner/admin; secrets never returned
-PATCH  /email_settings        # body: from_address, resend_api_key, webhook_secret
-POST   /webhooks/resend/:account_id  # Resend tracking events (Svix-signed)
+PATCH  /email_settings        # body: from_address, inbound_address, resend_api_key, webhook_secret
+POST   /webhooks/resend/:account_id  # Resend tracking + email.received events (Svix-signed)
 ```
 
 ## Tags

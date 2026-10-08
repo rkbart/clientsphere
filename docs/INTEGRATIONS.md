@@ -12,9 +12,10 @@ or n8n **Webhook** node:
    Subscribe to `automation.executed` (or leave events empty for all).
 3. Create an automation (`/automations`) with one of these triggers and a
    **Call webhook** action pointing at that webhook:
-   - `contact_created`, `contact_updated`
-   - `deal_created`, `deal_stage_changed`, `deal_won`, `deal_lost`
-   - `activity_completed`, `activity_overdue` (fired hourly by the scheduler)
+    - `contact_created`, `contact_updated`
+    - `deal_created`, `deal_stage_changed`, `deal_won`, `deal_lost`
+    - `activity_completed`, `activity_overdue` (fired hourly by the scheduler)
+    - `email_received` (fired for each new inbound reply)
 
 Each delivery POSTs JSON with a shared-secret HMAC signature:
 

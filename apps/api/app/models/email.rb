@@ -8,5 +8,7 @@ class Email < ApplicationRecord
   enum :direction, { inbound: 0, outbound: 1 }
   enum :status, { draft: 0, sent: 1, delivered: 2, opened: 3, failed: 4 }
 
+  scope :unread, -> { inbound.where(read_at: nil) }
+
   validates :subject, presence: true
 end

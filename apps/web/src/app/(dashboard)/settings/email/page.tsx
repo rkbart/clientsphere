@@ -16,6 +16,7 @@ export default function EmailSettingsPage() {
   const update = useUpdateEmailSettings();
   const [form, setForm] = useState({
     from_address: "",
+    inbound_address: "",
     provider: "resend" as "resend" | "gmail",
     resend_api_key: "",
     smtp_password: "",
@@ -31,6 +32,7 @@ export default function EmailSettingsPage() {
     setForm((f) => ({
       ...f,
       from_address: settings?.from_address ?? "",
+      inbound_address: settings?.inbound_address ?? "",
       provider: settings?.provider ?? "resend",
     }));
   }, [settings]);
@@ -59,6 +61,7 @@ export default function EmailSettingsPage() {
     setError(null);
     const payload: Record<string, unknown> = {
       from_address: form.from_address.trim() || null,
+      inbound_address: form.inbound_address.trim() || null,
       provider: form.provider,
     };
     if (!isGmail && form.resend_api_key) payload.resend_api_key = form.resend_api_key;
@@ -150,6 +153,25 @@ export default function EmailSettingsPage() {
             {isGmail
               ? "Must be the Gmail (or Workspace) address you sign into SMTP with, or one of its verified Send As aliases."
               : "Falls back to the server default when blank. Use an address on a domain you verified in Resend."}
+          </p>
+        </div>
+
+        <div>
+          <label htmlFor="email-inbound" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+            Inbound address
+          </label>
+          <input
+            id="email-inbound"
+            value={form.inbound_address}
+            onChange={(e) => setForm({ ...form, inbound_address: e.target.value })}
+            placeholder="replies@yourdomain.com"
+            autoComplete="off"
+            className="input"
+          />
+          <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+            Replies mailed here land in the Inbox and link to the sending contact. With Resend,
+            point your receiving domain at this address; with Gmail, auto-forward to it
+            (or poll the inbox directly on self-hosted deploys).
           </p>
         </div>
 

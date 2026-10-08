@@ -12,7 +12,8 @@ class Automation < ApplicationRecord
     deal_won: 4,
     deal_lost: 5,
     activity_completed: 6,
-    activity_overdue: 7
+    activity_overdue: 7,
+    email_received: 8
   }
 
   validates :name, presence: true

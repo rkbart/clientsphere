@@ -73,16 +73,19 @@ class EmailService
 
   def self.deliver(email)
     resolved = EmailDelivery.for_account(email.account)
-    message_id = EmailDelivery.deliver(
+    domain = resolved.from.to_s.split("@").last.presence || "clientsphere"
+    rfc_id = "<#{SecureRandom.uuid}@#{domain}>"
+    provider_id = EmailDelivery.deliver(
       resolved,
       to: email.to_addresses,
       cc: email.cc_addresses,
       bcc: email.bcc_addresses,
       subject: email.subject,
       html: to_html(email.body),
-      text: to_text(email.body)
+      text: to_text(email.body),
+      message_id: rfc_id
     )
-    email.update!(status: :sent, sent_at: Time.current, provider_message_id: message_id)
+    email.update!(status: :sent, sent_at: Time.current, provider_message_id: provider_id, message_id: rfc_id)
     email
   end
 

@@ -293,14 +293,15 @@ puts "Notes: #{account.notes.count}"
 
 # Emails (records only — no delivery)
 emails_data = [
-  { direction: :outbound, from_address: "sarah@beanandbrew.com", to_addresses: ["mike@techstart.com"], subject: "Re: Office Coffee Service", body: "Hi Mike, thanks for your interest! I've attached our pricing for the office coffee service.", contact: contacts[0], deal: deals[0], status: :sent, sent_at: 2.days.ago },
-  { direction: :inbound, from_address: "lisa@greenleafcafe.com", to_addresses: ["sarah@beanandbrew.com"], subject: "Catering Inquiry", body: "Hi Sarah, we're planning a wedding and need coffee service for 150 guests.", contact: contacts[1], deal: deals[1], status: :delivered, sent_at: 3.days.ago },
+  { direction: :outbound, from_address: "sarah@beanandbrew.com", to_addresses: ["mike@techstart.com"], subject: "Re: Office Coffee Service", body: "Hi Mike, thanks for your interest! I've attached our pricing for the office coffee service.", contact: contacts[0], deal: deals[0], status: :sent, sent_at: 2.days.ago, provider_message_id: "seed-out-1", message_id: "<seed-out-1@beanandbrew.com>", thread_key: "<seed-out-1@beanandbrew.com>" },
+  { direction: :inbound, from_address: "lisa@greenleafcafe.com", to_addresses: ["sarah@beanandbrew.com"], subject: "Catering Inquiry", body: "Hi Sarah, we're planning a wedding and need coffee service for 150 guests.", contact: contacts[1], deal: deals[1], status: :delivered, sent_at: 3.days.ago, provider_message_id: "seed-in-0" },
+  { direction: :inbound, from_address: "mike@techstart.com", to_addresses: ["sarah@beanandbrew.com"], subject: "Re: Office Coffee Service", body: "Thanks Sarah! The pricing looks great — can we schedule a tasting next week?", contact: contacts[0], deal: deals[0], status: :delivered, sent_at: 1.day.ago, provider_message_id: "seed-in-1", message_id: "<seed-in-1@techstart.com>", in_reply_to: "<seed-out-1@beanandbrew.com>", thread_key: "<seed-out-1@beanandbrew.com>" },
   { direction: :outbound, from_address: "sarah@beanandbrew.com", to_addresses: ["james@summitconstruction.com"], subject: "Welcome to Bean & Brew", body: "Hi James, welcome! We'd love to set up a lunch program for your team.", contact: contacts[2], deal: deals[2], status: :sent, sent_at: 1.day.ago },
   { direction: :outbound, from_address: "sarah@beanandbrew.com", to_addresses: ["grace@northwindtraders.com"], subject: "Northwind restock quote", body: "Hi Grace, attached is the restock quote with dock delivery included.", contact: contacts[12], deal: deals[9], status: :sent, sent_at: 1.day.ago },
 ]
 
 emails_data.each do |data|
-  record = account.emails.find_or_initialize_by(subject: data[:subject], contact: data[:contact])
+  record = account.emails.find_or_initialize_by(subject: data[:subject], contact: data[:contact], direction: data[:direction])
   record.assign_attributes(**data)
   record.save!
 end

@@ -312,13 +312,17 @@ On any contact, company, or deal detail page:
   personalized; otherwise you type the recipient yourself and placeholders like
   `{{first_name}}` stay literal. A confirmation dialog reports the outcome and
   clears the form.
-- **Outbox** — every outbound email with status filter; edit drafts inline,
-  retry failures (retry saves your edits first). Drafts pile up here
-  automatically when no provider is configured.
+- **Mail** — the sidebar entry (badge counts unread). The **Inbox** tab shows
+  inbound replies from the workspace's provider; the **Outbox** tab holds
+  every outbound email with status filter, inline draft editing, and failure
+  retries. Drafts pile up in the Outbox automatically when no provider is
+  configured. Opening a reply marks it read; **Mark all read** clears the rest.
 - **Delivery tracking** — Settings → Email holds the provider credentials
   and (for Resend) the webhook URL to paste into Resend; Outbox rows flip
   sent → delivered → opened as events arrive (tunnel needed for local
   testing). Gmail sends don't call back — delivery is recorded instead
+- **Contact timeline** — replies linked to a contact appear in a Mail section
+  on the contact detail page, next to notes and custom fields
 - **Deal Summary** — rule-based status (stage, value, close date, activity, staleness)
 
 ### Send as your Gmail address
@@ -474,9 +478,27 @@ create multi-step email drips:
 
 ---
 
-## Outbox
+## Mail (Inbox + Outbox)
 
-Go to **Outbox** (sidebar, `/emails`) to see every outbound email in one place:
+Go to **Mail** (sidebar, `/emails`) — the badge counts unread replies:
+
+### Inbox
+
+Replies arrive here from whichever provider the workspace uses
+(Settings → Email):
+
+- **Resend**: set an **Inbound address** in Settings → Email, point your
+  Resend receiving domain at it, and add the `email.received` webhook.
+  Replies link to the sending contact and thread onto the original deal.
+- **Gmail**: the app polls unseen inbox mail every 15 minutes (Solid Queue
+  recurring job). On Render's free tier IMAP is blocked like SMTP, so either
+  auto-forward Gmail to your inbound address or switch the workspace to Resend.
+- Opening a reply marks it read; **Mark all read** clears the rest. Replies
+  also appear in the contact's Mail timeline.
+
+### Outbox
+
+Every outbound email in one place:
 - Filter by status: **draft** (waiting on a provider), **sent**, **delivered**,
   **opened**, **failed**
 - Click anywhere on a row to read it; drafts open editable — fix the address,
@@ -485,6 +507,9 @@ Go to **Outbox** (sidebar, `/emails`) to see every outbound email in one place:
 - **Retry** on a draft or failure re-sends through your provider
 - Delivery tracking (`delivered`/`opened`) needs the Resend webhook
   configured in **Settings → Email**
+
+Inbound replies can trigger automations (`email_received` event — e.g. the
+"Inbound reply follow-up" template queues a task per reply).
 
 ---
 

@@ -2778,10 +2778,53 @@ paths:
               additionalProperties: true
       security:
       - bearerAuth: []
+  "/api/v1/emails/mark_all_read":
+    post:
+      summary: Mark all read email
+      operationId: mark_all_read_api_v1_emails
+      tags:
+      - emails
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      security:
+      - bearerAuth: []
   "/api/v1/emails/templates":
     get:
       summary: Templates email
       operationId: templates_api_v1_emails
+      tags:
+      - emails
+      parameters: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/emails/unread_count":
+    get:
+      summary: Unread count email
+      operationId: unread_count_api_v1_emails
       tags:
       - emails
       parameters: []
@@ -2897,6 +2940,36 @@ paths:
                 type: object
         '401':
           description: Missing or invalid token
+      security:
+      - bearerAuth: []
+  "/api/v1/emails/{id}/mark_read":
+    post:
+      summary: Mark read email
+      operationId: mark_read_api_v1_emails
+      tags:
+      - emails
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Missing or invalid token
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
       security:
       - bearerAuth: []
   "/api/v1/emails/{id}/redeliver":

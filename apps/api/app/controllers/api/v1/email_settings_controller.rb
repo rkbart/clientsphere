@@ -26,10 +26,11 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
     # credentials are invisible and unmanageable from the UI.
     configured = EmailDelivery.for_account(Current.account).present?
     workspace_ready = setting&.delivery_configured? || false
-    return { from_address: nil, provider: "resend", delivery_configured: configured, workspace_configured: workspace_ready, resend_api_key_set: false, smtp_password_set: false, webhook_secret_set: false, webhook_url: nil } unless setting
+    return { from_address: nil, provider: "resend", inbound_address: nil, delivery_configured: configured, workspace_configured: workspace_ready, resend_api_key_set: false, smtp_password_set: false, webhook_secret_set: false, webhook_url: nil } unless setting
 
     {
       from_address: setting.from_address,
+      inbound_address: setting.inbound_address,
       provider: setting.provider,
       delivery_configured: configured,
       workspace_configured: workspace_ready,
@@ -48,6 +49,6 @@ class Api::V1::EmailSettingsController < Api::V1::BaseController
   end
 
   def email_settings_params
-    params.require(:email_setting).permit(:from_address, :provider, :resend_api_key, :smtp_password, :webhook_secret)
+    params.require(:email_setting).permit(:from_address, :inbound_address, :provider, :resend_api_key, :smtp_password, :webhook_secret)
   end
 end

@@ -58,6 +58,7 @@ const TRIGGER_ICONS: Record<string, typeof Zap> = {
   deal_lost: CheckCircle2,
   activity_completed: CheckCircle2,
   activity_overdue: Bell,
+  email_received: Mail,
 };
 
 const ACTION_ICONS: Record<string, typeof Zap> = {

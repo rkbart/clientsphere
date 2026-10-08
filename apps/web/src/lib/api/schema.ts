@@ -311,9 +311,17 @@ export interface paths {
     /** Deliver email */
     post: operations["deliver_api_v1_emails"];
   };
+  "/emails/mark_all_read": {
+    /** Mark all read email */
+    post: operations["mark_all_read_api_v1_emails"];
+  };
   "/emails/templates": {
     /** Templates email */
     get: operations["templates_api_v1_emails"];
+  };
+  "/emails/unread_count": {
+    /** Unread count email */
+    get: operations["unread_count_api_v1_emails"];
   };
   "/emails/{id}": {
     /** Show email */
@@ -324,6 +332,10 @@ export interface paths {
     delete: operations["destroy_api_v1_emails"];
     /** Update email */
     patch: operations["update_api_v1_emails"];
+  };
+  "/emails/{id}/mark_read": {
+    /** Mark read email */
+    post: operations["mark_read_api_v1_emails"];
   };
   "/emails/{id}/redeliver": {
     /** Redeliver email */
@@ -2531,8 +2543,45 @@ export interface operations {
       };
     };
   };
+  /** Mark all read email */
+  mark_all_read_api_v1_emails: {
+    requestBody?: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Success */
+      200: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
   /** Templates email */
   templates_api_v1_emails: {
+    responses: {
+      /** @description Success */
+      200: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Unread count email */
+  unread_count_api_v1_emails: {
     responses: {
       /** @description Success */
       200: {
@@ -2598,6 +2647,33 @@ export interface operations {
     parameters: {
       path: {
         id: string;
+      };
+    };
+    responses: {
+      /** @description Success */
+      200: {
+        content: {
+          "application/json": Record<string, never>;
+        };
+      };
+      /** @description Missing or invalid token */
+      401: {
+        content: never;
+      };
+    };
+  };
+  /** Mark read email */
+  mark_read_api_v1_emails: {
+    parameters: {
+      path: {
+        id: string;
+      };
+    };
+    requestBody?: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
       };
     };
     responses: {

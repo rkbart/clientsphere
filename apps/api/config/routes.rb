@@ -89,10 +89,13 @@ Rails.application.routes.draw do
       resources :emails do
         collection do
           get :templates
+          get :unread_count
           post :deliver
+          post :mark_all_read
         end
         member do
           post :redeliver
+          post :mark_read
         end
       end
 

@@ -12,6 +12,7 @@ export const AUTOMATION_TRIGGERS = [
   "deal_lost",
   "activity_completed",
   "activity_overdue",
+  "email_received",
 ] as const;
 
 export const AUTOMATION_ACTIONS = [

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth-store";
 import { useUIStore } from "@/store/ui-store";
+import { useUnreadEmailCount } from "@/hooks/use-emails";
 import {
   LayoutDashboard,
   Users,
@@ -30,7 +31,7 @@ const navigation = [
   { name: "Activities", href: "/activities", icon: Activity },
   { name: "Calendar", href: "/calendar", icon: Calendar },
   { name: "Automations", href: "/automations", icon: Zap },
-  { name: "Outbox", href: "/emails", icon: Mail },
+  { name: "Mail", href: "/emails", icon: Mail },
 ];
 
 const secondary = [
@@ -64,6 +65,9 @@ export function Sidebar() {
   const toggleCollapsed = useUIStore((s) => s.toggleSidebarCollapsed);
   const isMobile = useIsMobile();
   const initial = (user?.name ?? "?").trim().charAt(0).toUpperCase() || "?";
+  const { data: mailCounts } = useUnreadEmailCount();
+  const unreadCount = mailCounts?.unread_count ?? 0;
+  const mailLabel = unreadCount > 0 ? `Mail, ${unreadCount} unread` : "Mail";
 
   // Mobile overlay open while expanded.
   const overlayOpen = isMobile && !collapsed;
@@ -130,6 +134,8 @@ export function Sidebar() {
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
+            const badge = item.name === "Mail" ? unreadCount : 0;
+            const badgeText = badge > 99 ? "99+" : String(badge);
             return (
               <Link
                 key={item.name}
@@ -137,8 +143,8 @@ export function Sidebar() {
                 onClick={collapseOnMobileNav}
                 tabIndex={tabIndex}
                 aria-current={active ? "page" : undefined}
-                aria-label={iconOnly ? item.name : undefined}
-                title={iconOnly ? item.name : undefined}
+                aria-label={iconOnly ? (item.name === "Mail" ? mailLabel : item.name) : undefined}
+                title={iconOnly ? (item.name === "Mail" ? mailLabel : item.name) : undefined}
                 className={`relative flex items-center gap-2.5 py-2 rounded-[var(--radius-md)] text-sm group ${
                   iconOnly ? "justify-center px-0" : "px-3"
                 } ${
@@ -161,6 +167,22 @@ export function Sidebar() {
                   }`}
                 />
                 {!iconOnly && <span className="flex-1 whitespace-nowrap">{item.name}</span>}
+                {badge > 0 &&
+                  (iconOnly ? (
+                    <span
+                      aria-hidden="true"
+                      className="absolute top-0.5 right-0.5 min-w-4 px-1 text-center text-[10px] leading-4 font-semibold rounded-full bg-[var(--danger)] text-white"
+                    >
+                      {badgeText}
+                    </span>
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className="shrink-0 min-w-5 px-1.5 text-center text-[11px] leading-5 font-semibold rounded-full bg-[var(--danger)] text-white"
+                    >
+                      {badgeText}
+                    </span>
+                  ))}
               </Link>
             );
           })}

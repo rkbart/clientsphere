@@ -106,6 +106,16 @@ localhost — use a tunnel for local testing (dev already allows
 `*.trycloudflare.com` hosts, no config needed). Gmail sends don't call
 back; delivery is recorded with a client-stamped Message-ID instead.
 
+**Inbound replies:** set an **Inbound address** in Settings → Email — replies
+mailed there land in the Mail Inbox, link to the sending contact, and thread
+onto the original deal:
+- Resend: create a receiving domain, point it at the inbound address, and add
+  the `email.received` webhook (same signing secret as tracking).
+- Gmail: unseen mail is polled every 15 minutes (`GmailInboxPollJob`, Solid
+  Queue recurring tasks). Render's free tier blocks IMAP like SMTP — there,
+  auto-forward Gmail to the inbound address (or switch the workspace to Resend).
+- Inbound mail fires the `email_received` automation event.
+
 ### Google OAuth (optional)
 
 1. Create OAuth credentials at [Google Cloud Console](https://console.cloud.google.com/apis/credentials)

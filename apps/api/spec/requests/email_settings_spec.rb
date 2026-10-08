@@ -108,6 +108,16 @@ RSpec.describe "Email settings", type: :request do
     expect(setting.smtp_password).to eq("app-pass")
   end
 
+  it "saves and returns the inbound address for reply routing" do
+    patch "/api/v1/email_settings",
+          params: { email_setting: { inbound_address: "acct-1@inbound.example.com" } },
+          headers: headers
+
+    expect(response).to have_http_status(:ok)
+    expect(JSON.parse(response.body)["inbound_address"]).to eq("acct-1@inbound.example.com")
+    expect(account.reload.email_setting.inbound_address).to eq("acct-1@inbound.example.com")
+  end
+
   it "rejects an unknown provider" do
     patch "/api/v1/email_settings",
           params: { email_setting: { provider: "bogus" } },

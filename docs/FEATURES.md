@@ -104,14 +104,26 @@
 - Confirmation dialog after send or draft; the form clears
 - `GET /emails/templates`, `POST /emails/deliver`
 
-### Outbox
-- Every outbound email in one list with status filter
+### Mail (Inbox + Outbox)
+- Sidebar **Mail** entry with unread-reply badge (red count pill, `99+` cap,
+  screen-reader label); Inbox/Outbox tab toggle on `/emails`
+- **Inbox**: inbound replies from the workspace provider, bold-until-read,
+  read-only detail, mark-read on open + mark-all-read; unread count endpoint
+  for the badge (`GET /emails/unread_count`, 30s poll)
+- **Outbox**: every outbound email in one list with status filter
   (draft/sent/delivered/opened/failed)
 - Read full content; edit drafts inline (to/cc/bcc, subject, body)
 - Retry drafts and failures (`POST /emails/:id/redeliver`); the Retry control is
   disabled on rows with no `to` recipient, and the endpoint returns 422 rather
   than asking the provider to reject the send
 - Drafts pile up here automatically when no provider is configured
+- Contact detail pages show a **Mail thread** section (inbound + outbound,
+  unread dot, shared read-only modal)
+- Inbound ingestion: provider-agnostic intake (contact match by sender,
+  deal threading via reply headers, idempotent on provider id, own-address
+  loop guard); Resend via `email.received` webhook + Receiving API;
+  Gmail via 15-minute IMAP poll (Solid Queue recurring job)
+- `email_received` automation trigger + "Inbound reply follow-up" template
 
 ### Email settings & tracking
 - Settings → Email: per-workspace provider — Resend API key or a company
