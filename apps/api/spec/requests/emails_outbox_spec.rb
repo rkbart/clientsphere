@@ -144,4 +144,29 @@ RSpec.describe "Emails outbox", type: :request do
 
     expect(response).to have_http_status(:not_found)
   end
+
+  it "lets an owner delete a draft or failed email" do
+    draft = create_email(status: :draft)
+    failed = create_email(status: :failed, subject: "Failed one")
+
+    delete "/api/v1/emails/#{draft.id}", headers: headers
+    expect(response).to have_http_status(:no_content)
+
+    delete "/api/v1/emails/#{failed.id}", headers: headers
+    expect(response).to have_http_status(:no_content)
+
+    expect(account.emails.where(id: [draft.id, failed.id]).count).to eq(0)
+  end
+
+  it "404s deleting another account's email" do
+    other = Account.create!(name: "Other")
+    outsider = other.emails.create!(
+      direction: :outbound, from_address: "me@example.com",
+      to_addresses: ["x@example.com"], subject: "Hi", body: "Hello", status: :draft
+    )
+
+    delete "/api/v1/emails/#{outsider.id}", headers: headers
+
+    expect(response).to have_http_status(:not_found)
+  end
 end

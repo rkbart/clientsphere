@@ -66,8 +66,11 @@ export function Sidebar() {
   const isMobile = useIsMobile();
   const initial = (user?.name ?? "?").trim().charAt(0).toUpperCase() || "?";
   const { data: mailCounts } = useUnreadEmailCount();
-  const unreadCount = mailCounts?.unread_count ?? 0;
-  const mailLabel = unreadCount > 0 ? `Mail, ${unreadCount} unread` : "Mail";
+  // Sidebar badge = everything needing attention: unread replies plus
+  // outbound drafts and failures (the tab badges split the same total).
+  const attentionCount =
+    (mailCounts?.unread_count ?? 0) + (mailCounts?.failed_count ?? 0) + (mailCounts?.draft_count ?? 0);
+  const mailLabel = attentionCount > 0 ? `Mail, ${attentionCount} need attention` : "Mail";
 
   // Mobile overlay open while expanded.
   const overlayOpen = isMobile && !collapsed;
@@ -134,7 +137,7 @@ export function Sidebar() {
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
-            const badge = item.name === "Mail" ? unreadCount : 0;
+            const badge = item.name === "Mail" ? attentionCount : 0;
             const badgeText = badge > 99 ? "99+" : String(badge);
             return (
               <Link

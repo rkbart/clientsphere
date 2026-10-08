@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useEmails, useRedeliverEmail, useUpdateEmail, useMarkReadEmail, useMarkAllReadEmails, useUnreadEmailCount } from "@/hooks/use-emails";
+import { useEmails, useRedeliverEmail, useUpdateEmail, useMarkReadEmail, useMarkAllReadEmails, useUnreadEmailCount, useDeleteEmail } from "@/hooks/use-emails";
 import { DataTable, type DataTableColumn } from "@/components/shared/data-table";
 import { Field, FormError } from "@/components/forms/fields";
-import { EmailSetupBanner, EmailSetupModal } from "@/components/settings/email-setup-nudge";
-import { Modal, ResultModal } from "@/components/ui/modal";
+import { EmailSetupBanner, EmailSetupModal, NoticeBanner } from "@/components/settings/email-setup-nudge";
+import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { errMessage } from "@/lib/error";
-import { Mail, RotateCcw } from "lucide-react";
+import { Mail, RotateCcw, Trash2 } from "lucide-react";
+import { useCanManageSettings } from "@/hooks/use-current-role";
 
 interface OutboxEmail {
   id: string;
@@ -199,6 +200,9 @@ export default function MailPage() {
   const [retryNotice, setRetryNotice] = useState<{ title: string; message: string } | null>(null);
   const [selected, setSelected] = useState<OutboxEmail | null>(null);
   const [saved, setSaved] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<OutboxEmail | null>(null);
+  const [deletedNotice, setDeletedNotice] = useState<string | null>(null);
+  const canManage = useCanManageSettings();
 
   const { data, isLoading } = useEmails({
     direction: tab,
@@ -208,6 +212,7 @@ export default function MailPage() {
     per_page: perPage,
   });
   const redeliver = useRedeliverEmail();
+  const remove = useDeleteEmail();
   const markRead = useMarkReadEmail();
   const markAllRead = useMarkAllReadEmails();
   const { data: mailCounts } = useUnreadEmailCount();
@@ -223,6 +228,7 @@ export default function MailPage() {
     setPage(1);
     setSelected(null);
     setActionError(null);
+    setDeletedNotice(null);
   };
 
   const openEmail = (email: OutboxEmail) => {
@@ -324,32 +330,40 @@ export default function MailPage() {
       render: (e) => {
         const retryable = e.status === "draft" || e.status === "failed";
         if (!retryable) return <span />;
-        if (!hasRecipient(e)) {
-          return (
-            <button
-              disabled
-              className="btn-secondary text-sm"
-              title="Add a recipient before retrying"
-              aria-label="Retry unavailable — no recipient"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Retry
-            </button>
-          );
-        }
         return (
-          <button
-            onClick={(ev) => {
-              ev.stopPropagation();
-              void retry(e.id);
-            }}
-            disabled={retryingId === e.id}
-            className="btn-secondary text-sm"
-            aria-label={`Retry ${e.subject ?? "email"}`}
-          >
-            <RotateCcw className="h-3.5 w-3.5" />
-            {retryingId === e.id ? "Retrying…" : "Retry"}
-          </button>
+          <span className="inline-flex items-center gap-2" onClick={(ev) => ev.stopPropagation()}>
+            {!hasRecipient(e) ? (
+              <button
+                disabled
+                className="btn-secondary text-sm"
+                title="Add a recipient before retrying"
+                aria-label="Retry unavailable — no recipient"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                Retry
+              </button>
+            ) : (
+              <button
+                onClick={() => void retry(e.id)}
+                disabled={retryingId === e.id}
+                className="btn-secondary text-sm"
+                aria-label={`Retry ${e.subject ?? "email"}`}
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                {retryingId === e.id ? "Retrying…" : "Retry"}
+              </button>
+            )}
+            {canManage && (
+              <button
+                onClick={() => setPendingDelete(e)}
+                className="btn-secondary text-sm !text-[var(--danger)]"
+                aria-label={`Delete ${e.subject ?? "email"}`}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete
+              </button>
+            )}
+          </span>
         );
       },
     },
@@ -446,6 +460,10 @@ export default function MailPage() {
         )}
       </div>
 
+      {deletedNotice && (
+        <NoticeBanner message={deletedNotice} onDismiss={() => setDeletedNotice(null)} />
+      )}
+
       <DataTable
         columns={columns}
         rows={rows}
@@ -482,6 +500,28 @@ export default function MailPage() {
           retrying={retryingId === selected.id}
         />
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={() => {
+          if (!pendingDelete) return;
+          setActionError(null);
+          remove.mutate(pendingDelete.id, {
+            onSuccess: () => {
+              setDeletedNotice(`"${pendingDelete.subject || "Untitled"}" deleted.`);
+              setPendingDelete(null);
+            },
+            onError: (e) => {
+              setPendingDelete(null);
+              setActionError(errMessage(e, "Could not delete the email."));
+            },
+          });
+        }}
+        title="Delete email?"
+        message={`"${pendingDelete?.subject || "Untitled"}" will be permanently removed. Only drafts and failures can be deleted.`}
+        confirming={remove.isPending}
+      />
 
       <ResultModal
         open={saved}

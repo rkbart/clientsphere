@@ -505,6 +505,8 @@ Every outbound email in one place:
   subject, or body, save, and retry (the **Retry** button is exempt from
   row navigation)
 - **Retry** on a draft or failure re-sends through your provider
+- **Delete** removes a draft or failure that will never send (test junk,
+  dead addresses) — owners/admins only, and it clears the Outbox badge
 - Delivery tracking (`delivered`/`opened`) needs the Resend webhook
   configured in **Settings → Email**
 

@@ -6,7 +6,7 @@ import { useAuthStore } from "@/store/auth-store";
 import { useCanManageSettings } from "@/hooks/use-current-role";
 import { useEmailSettings } from "@/hooks/use-emails";
 import { Modal } from "@/components/ui/modal";
-import { Mail, X } from "lucide-react";
+import { Check, Mail, X } from "lucide-react";
 
 // Nudge shown where unsent mail piles up (Outbox) while nothing can
 // deliver it. Managers only — everyone else can't act on it. The modal is
@@ -102,6 +102,35 @@ export function EmailSetupBanner({ showLink = true }: { showLink?: boolean }) {
       <button
         type="button"
         onClick={dismiss}
+        aria-label="Dismiss notification"
+        className="p-1 shrink-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
+// Generic one-shot notice reusing the banner look. The Mail page uses it
+// for "Email deleted" confirmations above the table.
+export function NoticeBanner({
+  message,
+  onDismiss,
+}: {
+  message: string;
+  onDismiss: () => void;
+}) {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--bg-card)] px-4 py-3 animate-fade-in"
+    >
+      <Check className="h-4 w-4 shrink-0 text-[var(--success-ink)]" aria-hidden="true" />
+      <p className="flex-1 text-sm text-[var(--text-secondary)]">{message}</p>
+      <button
+        type="button"
+        onClick={onDismiss}
         aria-label="Dismiss notification"
         className="p-1 shrink-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
       >

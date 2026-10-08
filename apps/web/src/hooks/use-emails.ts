@@ -177,7 +177,6 @@ export function useUpdateEmail() {
     },
   });
 }
-
 export function useRedeliverEmail() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -191,6 +190,23 @@ export function useRedeliverEmail() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["emails"] });
+    },
+  });
+}
+
+export function useDeleteEmail() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await apiClient.DELETE("/emails/{id}", {
+        params: { path: { id } },
+        headers: headers(),
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["emails"] });
+      queryClient.invalidateQueries({ queryKey: ["unread-email-count"] });
     },
   });
 }

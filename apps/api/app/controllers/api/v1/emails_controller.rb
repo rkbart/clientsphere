@@ -121,7 +121,7 @@ class Api::V1::EmailsController < Api::V1::BaseController
   private
 
   def set_email
-    @email = Email.find(params[:id])
+    @email = Current.account.emails.find(params[:id])
   end
 
   def email_params
