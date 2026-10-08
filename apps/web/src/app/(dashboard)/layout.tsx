@@ -43,8 +43,8 @@ export default function DashboardLayout({
       </a>
       <Sidebar />
       <div
-        className={`pl-16 transition-[padding-left] duration-200 ${
-          collapsed ? "lg:pl-16" : "lg:pl-60"
+        className={`pl-10 transition-[padding-left] duration-200 ${
+          collapsed ? "lg:pl-10" : "lg:pl-60"
         }`}
       >
         <Topbar />

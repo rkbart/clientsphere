@@ -126,7 +126,7 @@ export function Sidebar() {
           </Link>
         </div>
 
-        <nav aria-label="Primary" className={`flex-1 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden ${iconOnly ? "px-2" : "px-3"}`}>
+        <nav aria-label="Primary" className={`flex-1 py-4 space-y-0.5 overflow-y-auto overflow-x-hidden ${iconOnly ? "px-1" : "px-3"}`}>
           {navigation.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -166,7 +166,7 @@ export function Sidebar() {
           })}
         </nav>
 
-        <div className={`py-3 border-t border-white/5 space-y-0.5 ${iconOnly ? "px-2" : "px-3"}`}>
+        <div className={`py-3 border-t border-white/5 space-y-0.5 ${iconOnly ? "px-1" : "px-3"}`}>
           {secondary.map((item) => {
             const Icon = item.icon;
             const active = isActive(item.href);
@@ -204,7 +204,7 @@ export function Sidebar() {
           })}
         </div>
 
-        <div className={`py-3 border-t border-white/5 ${iconOnly ? "px-2" : "px-3"}`}>
+        <div className={`py-3 border-t border-white/5 ${iconOnly ? "px-1" : "px-3"}`}>
           <div
             className={`flex items-center gap-2.5 py-2 ${iconOnly ? "justify-center px-0" : "px-3"}`}
             title={iconOnly ? (user?.name ?? undefined) : undefined}
@@ -248,7 +248,7 @@ export function Sidebar() {
       <aside
         aria-label="Navigation"
         className={`hidden lg:flex fixed inset-y-0 left-0 bg-[var(--bg-sidebar)] flex-col z-40 transition-[width] duration-200 ${
-          collapsed ? "w-16" : "w-60"
+          collapsed ? "w-10" : "w-60"
         }`}
         style={{ transitionTimingFunction: "var(--ease-drawer)" }}
       >
@@ -259,7 +259,7 @@ export function Sidebar() {
       <aside
         aria-label="Navigation"
         aria-hidden={overlayOpen}
-        className="lg:hidden fixed inset-y-0 left-0 w-16 bg-[var(--bg-sidebar)] flex flex-col z-30"
+        className="lg:hidden fixed inset-y-0 left-0 w-10 bg-[var(--bg-sidebar)] flex flex-col z-30"
       >
         {content({ iconOnly: true, behindOverlay: overlayOpen })}
       </aside>
