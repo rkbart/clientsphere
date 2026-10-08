@@ -49,8 +49,10 @@ is deployed separately on Vercel (root directory `apps/web`).
   `WEB_URL` (your Vercel URL — used in email links and as the OAuth landing page),
   `APP_HOST` (your Render API URL — shown as the Resend webhook URL in Settings → Email),
   `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` (optional OAuth —
-  the redirect URI must be `https://<vercel-app>.vercel.app/auth/google_oauth2/callback`
-  and registered verbatim in Google Cloud Console),
+  e.g. `https://<api-host>.onrender.com/auth/google_oauth2/callback`; the URI
+  must be registered verbatim in Google Cloud Console and must equal
+  `GOOGLE_REDIRECT_URI` exactly — the Vercel app URL also works since
+  `/auth/*` rewrites to the API),
   `RESEND_API_KEY` / `EMAIL_FROM_ADDRESS` / `GMAIL_ADDRESS` / `GMAIL_APP_PASSWORD`
   (optional global email credentials — per-workspace settings win)
 - Env vars (web): `API_INTERNAL_URL` (your Render API URL, used by the Next

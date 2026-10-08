@@ -69,10 +69,14 @@ services behind, delete them first, then re-apply.)
 
 ## 5. Optional integrations (any order)
 
-- **Google OAuth**: Google Cloud Console → Credentials → add authorized
-  redirect URI `https://<your-app>.vercel.app/auth/google_oauth2/callback`
-  (exact match). Set `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` /
-  `GOOGLE_REDIRECT_URI` (same URI) on Render and redeploy.
+- **Google OAuth**: Google Cloud Console → Credentials → create an OAuth client
+  (type: Web application) → add authorized redirect URI
+  `https://clientsphere-api.onrender.com/auth/google_oauth2/callback`
+  (your actual API host + `/auth/google_oauth2/callback`, exact match).
+  Set `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI`
+  (same URI) on Render and redeploy. Verify with
+  `curl https://<api>/api/v1/auth/providers` — expect `{"google":true}`,
+  and the login page should then show "Continue with Google".
 - **Resend tracking**: in the app, Settings → Email → copy the webhook
   URL into a Resend webhook (needs a verified sending domain first).
 - **Resend**: Settings → Email → provider Resend (see
