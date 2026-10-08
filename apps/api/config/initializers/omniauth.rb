@@ -32,12 +32,8 @@ if ENV["GOOGLE_CLIENT_ID"].present? && ENV["GOOGLE_CLIENT_SECRET"].present?
                  "GOOGLE_REDIRECT_URI",
                  "http://localhost:3000/auth/google_oauth2/callback"
                ),
-               scope: "email,profile,https://www.googleapis.com/auth/gmail.send",
-               # offline + consent: Google only issues a refresh token on a
-               # consented grant, so repeat logins must re-consent to (re)link
-               # Gmail API sending for the workspace provider.
-               access_type: "offline",
-               prompt: "select_account consent",
+               scope: "email,profile",
+               prompt: "select_account",
              }
   end
 end

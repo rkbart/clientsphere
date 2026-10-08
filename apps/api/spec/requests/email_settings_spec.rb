@@ -43,15 +43,13 @@ RSpec.describe "Email settings", type: :request do
   end
 
   it "reports delivery configured for a complete gmail setting" do
-    owner.update!(google_refresh_token: "refresh-123", google_email: "owner-es@example.com")
-    account.create_email_setting!(provider: "gmail", from_address: "owner-es@example.com", gmail_user: owner)
+    account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
 
     get "/api/v1/email_settings", headers: headers
 
     body = JSON.parse(response.body)
     expect(body["delivery_configured"]).to be(true)
     expect(body["workspace_configured"]).to be(true)
-    expect(body["gmail_connected_as"]).to eq("owner-es@example.com")
     expect(body["provider"]).to eq("gmail")
   end
 
@@ -88,14 +86,13 @@ RSpec.describe "Email settings", type: :request do
     expect(setting.from_address).to eq("me@example.com")
   end
 
-  it "saves gmail linked to the current user and reports the connected address" do
-    owner.update!(google_refresh_token: "refresh-123", google_email: "owner-es@example.com")
-
+  it "saves a gmail provider with an app password without ever returning it" do
     patch "/api/v1/email_settings",
           params: {
             email_setting: {
               provider: "gmail",
-              from_address: "owner-es@example.com"
+              from_address: "me@gmail.com",
+              smtp_password: "app-pass"
             }
           },
           headers: headers
@@ -103,40 +100,12 @@ RSpec.describe "Email settings", type: :request do
     expect(response).to have_http_status(:ok)
     body = JSON.parse(response.body)
     expect(body["provider"]).to eq("gmail")
-    expect(body["gmail_connected_as"]).to eq("owner-es@example.com")
-    expect(body["workspace_configured"]).to be(true)
+    expect(body["smtp_password_set"]).to be(true)
+    expect(body.keys).not_to include("smtp_password")
 
     setting = account.reload.email_setting
     expect(setting.provider).to eq("gmail")
-    expect(setting.gmail_user).to eq(owner)
-  end
-
-  it "rejects gmail when the saver never granted Google sending" do
-    patch "/api/v1/email_settings",
-          params: {
-            email_setting: {
-              provider: "gmail",
-              from_address: "owner-es@example.com"
-            }
-          },
-          headers: headers
-
-    expect(response).to have_http_status(:unprocessable_entity)
-  end
-
-  it "rejects a from address that is not the connected Gmail address" do
-    owner.update!(google_refresh_token: "refresh-123", google_email: "owner-es@example.com")
-
-    patch "/api/v1/email_settings",
-          params: {
-            email_setting: {
-              provider: "gmail",
-              from_address: "someone-else@example.com"
-            }
-          },
-          headers: headers
-
-    expect(response).to have_http_status(:unprocessable_entity)
+    expect(setting.smtp_password).to eq("app-pass")
   end
 
   it "rejects an unknown provider" do

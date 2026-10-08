@@ -21,8 +21,27 @@ RSpec.describe PasswordResets::Notifier do
       end
     end
 
+    it "delivers through the global Gmail account when configured" do
+      stub_const(
+        "ENV",
+        ENV.to_h.merge(
+          "RESEND_API_KEY" => nil,
+          "GMAIL_ADDRESS" => "me@gmail.com",
+          "GMAIL_APP_PASSWORD" => "app-pass",
+          "EMAIL_FROM_ADDRESS" => "noreply@example.com"
+        )
+      )
+      allow(EmailDelivery).to receive(:deliver).and_return("<uuid@gmail.com>")
+
+      expect(described_class.send_reset(password_reset, password_reset.token)).to be(true)
+      expect(EmailDelivery).to have_received(:deliver) do |resolved, **kwargs|
+        expect(resolved.provider).to eq("gmail")
+        expect(kwargs[:to]).to eq(["user-reset@example.com"])
+      end
+    end
+
     it "skips delivery without any credentials" do
-      stub_const("ENV", ENV.to_h.except("RESEND_API_KEY"))
+      stub_const("ENV", ENV.to_h.except("RESEND_API_KEY", "GMAIL_APP_PASSWORD"))
       sender = class_double("Resend::Emails").as_stubbed_const
       allow(sender).to receive(:send)
 

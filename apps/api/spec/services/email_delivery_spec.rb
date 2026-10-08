@@ -1,15 +1,15 @@
 require "rails_helper"
 
+# NOTE: never stub Mail::SMTP.new here. The mail gem memoizes its global
+# default delivery handler, so a stubbed constructor poisons every later
+# Mail.new in the process (leaked-double failures). Stub EmailDelivery
+# itself (our own seam) or assert on real Mail objects instead.
 RSpec.describe EmailDelivery do
   let(:account) { Account.create!(name: "Acme") }
-  let(:gmail_user) do
-    User.create!(name: "Gmail", email: "me@gmail.com", password: "password123",
-                 google_refresh_token: "refresh-123", google_email: "me@gmail.com")
-  end
 
   describe ".for_account" do
     it "returns nil when nothing is configured" do
-      stub_const("ENV", ENV.to_h.except("RESEND_API_KEY"))
+      stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil))
 
       expect(described_class.for_account(account)).to be_nil
     end
@@ -35,41 +35,58 @@ RSpec.describe EmailDelivery do
       expect(resolved.from).to eq("me@example.com")
     end
 
-    it "resolves gmail to the linked Google account" do
+    it "resolves gmail from the workspace setting" do
       stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_env"))
-      Membership.create!(account: account, user: gmail_user, role: :owner)
-      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", gmail_user: gmail_user)
+      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
 
       resolved = described_class.for_account(account)
 
       expect(resolved.provider).to eq("gmail")
       expect(resolved.from).to eq("me@gmail.com")
-      expect(resolved.gmail_user).to eq(gmail_user)
+      expect(resolved.smtp_username).to eq("me@gmail.com")
+      expect(resolved.smtp_password).to eq("app-pass")
     end
 
-    it "falls back to resend when the linked user is gone" do
+    it "ignores an incomplete gmail setting and falls back to resend" do
       stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_env"))
-      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", gmail_user: gmail_user)
-      gmail_user.destroy!
+      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com")
 
-      expect(described_class.for_account(account.reload).provider).to eq("resend")
+      expect(described_class.for_account(account).provider).to eq("resend")
     end
   end
 
   describe ".global" do
-    it "returns nil without a resend key" do
-      stub_const("ENV", ENV.to_h.except("RESEND_API_KEY"))
+    it "returns nil without any credentials" do
+      stub_const("ENV", ENV.to_h.except("RESEND_API_KEY", "GMAIL_APP_PASSWORD"))
 
       expect(described_class.global).to be_nil
     end
 
-    it "resolves resend from the global key" do
-      stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_env", "EMAIL_FROM_ADDRESS" => "env@example.com"))
+    it "prefers the global resend key" do
+      stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_env", "GMAIL_APP_PASSWORD" => "app-pass",
+                                       "GMAIL_ADDRESS" => "me@gmail.com"))
+
+      expect(described_class.global.provider).to eq("resend")
+    end
+
+    it "resolves gmail from env when no resend key exists" do
+      stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil, "GMAIL_ADDRESS" => "me@gmail.com",
+                                       "GMAIL_APP_PASSWORD" => "app-pass"))
 
       resolved = described_class.global
 
-      expect(resolved.provider).to eq("resend")
-      expect(resolved.resend_key).to eq("re_env")
+      expect(resolved.provider).to eq("gmail")
+      expect(resolved.from).to eq("me@gmail.com")
+      expect(resolved.smtp_username).to eq("me@gmail.com")
+    end
+  end
+
+  describe ".smtp_settings" do
+    it "points at Gmail with direct TLS" do
+      expect(described_class.smtp_settings(username: "me@gmail.com", password: "app-pass")).to eq(
+        address: "smtp.gmail.com", port: 465, user_name: "me@gmail.com",
+        password: "app-pass", authentication: :plain, tls: true
+      )
     end
   end
 
@@ -116,14 +133,15 @@ RSpec.describe EmailDelivery do
       expect(described_class).to have_received(:deliver_resend)
     end
 
-    it "dispatches gmail resolutions to the Gmail API" do
-      resolved = described_class::Resolved.new(provider: "gmail", from: "me@gmail.com", gmail_user: gmail_user)
-      allow(described_class).to receive(:deliver_gmail_api).and_return("<uuid@gmail.com>")
+    it "dispatches gmail resolutions to SMTP" do
+      resolved = described_class::Resolved.new(provider: "gmail", from: "me@gmail.com",
+                                               smtp_username: "me@gmail.com", smtp_password: "app-pass")
+      allow(described_class).to receive(:deliver_smtp).and_return("<uuid@gmail.com>")
 
       id = described_class.deliver(resolved, to: ["you@example.com"], subject: "Hi", html: "<p>Hi</p>")
 
       expect(id).to eq("<uuid@gmail.com>")
-      expect(described_class).to have_received(:deliver_gmail_api)
+      expect(described_class).to have_received(:deliver_smtp)
     end
   end
 end

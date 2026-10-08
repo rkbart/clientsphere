@@ -113,16 +113,16 @@
 - Drafts pile up here automatically when no provider is configured
 
 ### Email settings & tracking
-- Settings → Email: per-workspace provider — Resend API key or Company
-  Gmail (linked to the saver's Google login via OAuth, sends through the
-  Gmail HTTPS API) — plus sender address and webhook secret (all secrets
-  encrypted, write-only, owner/admin only; workspace settings override env
-  vars). Gmail From must match the connected address
+- Settings → Email: per-workspace provider — Resend API key or a company
+  Gmail address + app password (SMTP) — plus sender address and webhook
+  secret (all secrets encrypted, write-only, owner/admin only; workspace
+  settings override env vars)
 - Delivery tracking via Resend webhooks (`email.delivered` → delivered,
   `email.opened` → opened, `email.bounced` → failed); forward-only,
-  signature-verified, per-account URL. Gmail sends record the Gmail
-  message id instead (no tracking callbacks)
-- Account-less mail (password resets) uses the global `RESEND_API_KEY`
+  signature-verified, per-account URL. Gmail sends record delivery with a
+  client-stamped Message-ID instead (no tracking callbacks)
+- Account-less mail (password resets) uses the global `RESEND_API_KEY`, or
+  `GMAIL_ADDRESS` + `GMAIL_APP_PASSWORD` when no Resend key is set
 
 ### Lead Scoring
 - Rules-based scoring with reasons

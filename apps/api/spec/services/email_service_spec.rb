@@ -52,9 +52,7 @@ RSpec.describe EmailService do
 
   it "delivers through the workspace provider and stores its message id" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil))
-    sender = User.create!(name: "Gmail", email: "me@gmail.com", password: "password123",
-                          google_refresh_token: "refresh-123", google_email: "me@gmail.com")
-    account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", gmail_user: sender)
+    account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
     allow(EmailDelivery).to receive(:deliver).and_return("<uuid@gmail.com>")
 
     email = described_class.send_email(account: account, contact: contact, subject: "Hi", body: "Hello")
@@ -67,14 +65,11 @@ RSpec.describe EmailService do
     expect(email.provider_message_id).to eq("<uuid@gmail.com>")
   end
 
-  it "keeps a draft when gmail is chosen but the linked user is gone" do
+  it "keeps a draft when gmail is chosen but the app password is missing" do
     stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil))
-    sender = User.create!(name: "Gmail", email: "me@gmail.com", password: "password123",
-                          google_refresh_token: "refresh-123", google_email: "me@gmail.com")
-    account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", gmail_user: sender)
-    sender.destroy!
+    account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com")
 
-    email = described_class.send_email(account: account.reload, contact: contact, subject: "Hi", body: "Hello")
+    email = described_class.send_email(account: account, contact: contact, subject: "Hi", body: "Hello")
 
     expect(email.status).to eq("draft")
   end

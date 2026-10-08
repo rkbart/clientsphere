@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_07_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -232,9 +232,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
     t.datetime "updated_at", null: false
     t.string "provider", default: "resend", null: false
     t.text "smtp_password"
-    t.uuid "gmail_user_id"
     t.index ["account_id"], name: "index_email_settings_on_account_id", unique: true
-    t.index ["gmail_user_id"], name: "index_email_settings_on_gmail_user_id"
   end
 
   create_table "emails", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -568,8 +566,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
     t.string "google_uid"
     t.datetime "welcome_seen_at"
     t.string "phone"
-    t.text "google_refresh_token"
-    t.string "google_email"
     t.index ["current_account_id"], name: "index_users_on_current_account_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
@@ -642,7 +638,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_130000) do
   add_foreign_key "email_sequence_steps", "accounts"
   add_foreign_key "email_sequence_steps", "email_sequences", column: "sequence_id"
   add_foreign_key "email_sequences", "accounts"
-  add_foreign_key "email_settings", "users", column: "gmail_user_id"
   add_foreign_key "emails", "accounts"
   add_foreign_key "emails", "contacts"
   add_foreign_key "emails", "deals"

@@ -46,8 +46,8 @@ export interface EmailSettings {
   provider?: "resend" | "gmail";
   delivery_configured?: boolean;
   workspace_configured?: boolean;
-  gmail_connected_as?: string | null;
   resend_api_key_set?: boolean;
+  smtp_password_set?: boolean;
   webhook_secret_set?: boolean;
   webhook_url?: string | null;
 }

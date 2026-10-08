@@ -36,9 +36,7 @@ RSpec.describe Invitations::Notifier do
 
     it "delivers through the workspace Gmail account when chosen" do
       stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => nil))
-      sender = User.create!(name: "Gmail", email: "me@gmail.com", password: "password123",
-                            google_refresh_token: "refresh-123", google_email: "me@gmail.com")
-      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", gmail_user: sender)
+      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
       allow(EmailDelivery).to receive(:deliver).and_return("<uuid@gmail.com>")
 
       expect(described_class.send_invite(invitation, "raw-token")).to be(true)
@@ -50,9 +48,7 @@ RSpec.describe Invitations::Notifier do
 
     it "prefers the workspace provider over the global Resend key" do
       stub_const("ENV", ENV.to_h.merge("RESEND_API_KEY" => "re_test"))
-      sender_user = User.create!(name: "Gmail", email: "me@gmail.com", password: "password123",
-                                 google_refresh_token: "refresh-123", google_email: "me@gmail.com")
-      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", gmail_user: sender_user)
+      account.create_email_setting!(provider: "gmail", from_address: "me@gmail.com", smtp_password: "app-pass")
       sender = class_double("Resend::Emails").as_stubbed_const
       allow(sender).to receive(:send)
       allow(EmailDelivery).to receive(:deliver).and_return("<uuid@gmail.com>")

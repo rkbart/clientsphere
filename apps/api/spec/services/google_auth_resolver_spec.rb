@@ -1,12 +1,11 @@
 require "rails_helper"
 
 RSpec.describe GoogleAuth::Resolver do
-  def auth_hash(uid:, email:, name:, refresh_token: nil)
+  def auth_hash(uid:, email:, name:)
     OmniAuth::AuthHash.new({
-                             provider: "google_oauth2", uid: uid,
-                             info: { email: email, name: name },
-                             credentials: refresh_token ? { refresh_token: refresh_token } : {},
-                           })
+      provider: "google_oauth2", uid: uid,
+      info: { email: email, name: name },
+    })
   end
 
   it "creates a user with a personal workspace for new emails" do
@@ -36,23 +35,5 @@ RSpec.describe GoogleAuth::Resolver do
     second = described_class.resolve(auth_hash(uid: "g-3", email: "changed@example.com", name: "Back"))
 
     expect(second.id).to eq(first.id)
-  end
-
-  it "stores the refresh token for Gmail API sending on consent" do
-    user = described_class.resolve(auth_hash(uid: "g-4", email: "token@example.com", name: "Token",
-                                             refresh_token: "refresh-abc"))
-
-    expect(user.reload.google_refresh_token).to eq("refresh-abc")
-    expect(user.google_email).to eq("token@example.com")
-  end
-
-  it "never blanks an existing token when a login carries none" do
-    user = described_class.resolve(auth_hash(uid: "g-5", email: "keep@example.com", name: "Keep",
-                                             refresh_token: "refresh-keep"))
-
-    relogin = described_class.resolve(auth_hash(uid: "g-5", email: "keep@example.com", name: "Keep"))
-
-    expect(relogin.id).to eq(user.id)
-    expect(relogin.reload.google_refresh_token).to eq("refresh-keep")
   end
 end

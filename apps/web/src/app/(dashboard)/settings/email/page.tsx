@@ -18,6 +18,7 @@ export default function EmailSettingsPage() {
     from_address: "",
     provider: "resend" as "resend" | "gmail",
     resend_api_key: "",
+    smtp_password: "",
     webhook_secret: "",
   });
   const [saved, setSaved] = useState(false);
@@ -50,8 +51,8 @@ export default function EmailSettingsPage() {
   }
 
   const hasKey = settings?.resend_api_key_set ?? false;
+  const hasSmtpPassword = settings?.smtp_password_set ?? false;
   const hasSecret = settings?.webhook_secret_set ?? false;
-  const connectedAs = settings?.gmail_connected_as ?? null;
   const isGmail = form.provider === "gmail";
 
   const handleSave = async () => {
@@ -62,9 +63,10 @@ export default function EmailSettingsPage() {
     };
     if (!isGmail && form.resend_api_key) payload.resend_api_key = form.resend_api_key;
     if (!isGmail && form.webhook_secret) payload.webhook_secret = form.webhook_secret;
+    if (isGmail && form.smtp_password) payload.smtp_password = form.smtp_password;
     try {
       await update.mutateAsync(payload);
-      setForm((f) => ({ ...f, resend_api_key: "", webhook_secret: "" }));
+      setForm((f) => ({ ...f, resend_api_key: "", smtp_password: "", webhook_secret: "" }));
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
       setSavedDialog(true);
@@ -107,7 +109,7 @@ export default function EmailSettingsPage() {
             {(
               [
                 { value: "resend", title: "Resend", hint: "API delivery with open/click tracking." },
-                { value: "gmail", title: "Company Gmail", hint: "Send as your Gmail address via Google." },
+                { value: "gmail", title: "Company Gmail", hint: "Send as a Gmail address via SMTP." },
               ] as const
             ).map((option) => {
               const selected = form.provider === option.value;
@@ -146,25 +148,32 @@ export default function EmailSettingsPage() {
           />
           <p className="text-xs text-[var(--text-secondary)] mt-1.5">
             {isGmail
-              ? "Must be the Gmail address of the Google account you log in with."
+              ? "Must be the Gmail (or Workspace) address you sign into SMTP with, or one of its verified Send As aliases."
               : "Falls back to the server default when blank. Use an address on a domain you verified in Resend."}
           </p>
         </div>
 
         {isGmail ? (
           <div>
-            <p className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
-              Google connection
-              {connectedAs && (
-                <span className="badge badge-success ml-2 align-middle">Connected as {connectedAs}</span>
+            <label htmlFor="email-smtp-password" className="block text-sm font-medium text-[var(--text-primary)] mb-1.5">
+              Gmail app password
+              {hasSmtpPassword && !form.smtp_password && (
+                <span className="badge badge-success ml-2 align-middle">Saved</span>
               )}
-            </p>
+            </label>
+            <input
+              id="email-smtp-password"
+              type="password"
+              value={form.smtp_password}
+              onChange={(e) => setForm({ ...form, smtp_password: e.target.value })}
+              placeholder={hasSmtpPassword ? "••••••••  (leave blank to keep current password)" : "xxxx xxxx xxxx xxxx"}
+              autoComplete="off"
+              className="input"
+            />
             <p className="text-xs text-[var(--text-secondary)] mt-1.5">
-              Saving links this workspace to <em>your</em> Google account — log in
-              with Google first (you&apos;ll approve Gmail sending), then save
-              here. The From address above must match that Gmail address.
-              Revoke anytime from your Google Account → Security → Third-party
-              access.
+              Google Account → Security → 2-Step Verification → App passwords (name it
+              “ClientSphere”). Never use your real Google password. Personal Gmail
+              accounts can send roughly 500 emails a day this way.
             </p>
           </div>
         ) : (
