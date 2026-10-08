@@ -1,6 +1,7 @@
 class Contact < ApplicationRecord
   include Discard::Model
   include PaperTrail::Model
+  include Addressable
 
   enum :status, { lead: 0, customer: 1, churned: 2 }, default: :lead
 

@@ -11,6 +11,8 @@ module Types
     field :score_reasons, [String], null: false
     field :company, Types::CompanyType, null: true
     field :owner, Types::UserType, null: true
+    field :billing_address, GraphQL::Types::JSON, null: false
+    field :shipping_address, GraphQL::Types::JSON, null: false
     field :custom_data, GraphQL::Types::JSON, null: false
     field :created_at, GraphQL::Types::ISO8601DateTime, null: false
     field :updated_at, GraphQL::Types::ISO8601DateTime, null: false

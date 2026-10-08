@@ -8,13 +8,16 @@ module Mutations
     argument :source, String, required: false
     argument :company_id, ID, required: false
     argument :owner_id, ID, required: false
+    argument :billing_address, GraphQL::Types::JSON, required: false
+    argument :shipping_address, GraphQL::Types::JSON, required: false
     argument :custom_data, GraphQL::Types::JSON, required: false
 
     field :contact, Types::ContactType, null: true
     field :errors, [String], null: false
 
     def resolve(first_name:, last_name: nil, email: nil, phone: nil, status: nil,
-                source: nil, company_id: nil, owner_id: nil, custom_data: nil)
+                source: nil, company_id: nil, owner_id: nil, billing_address: nil,
+                shipping_address: nil, custom_data: nil)
       contact = Current.account.contacts.new(
         first_name: first_name,
         last_name: last_name,
@@ -24,6 +27,8 @@ module Mutations
         source: source,
         company_id: company_id,
         owner_id: owner_id,
+        billing_address: billing_address || {},
+        shipping_address: shipping_address || {},
         custom_data: custom_data || {}
       )
 

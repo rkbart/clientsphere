@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -106,6 +106,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_130000) do
     t.jsonb "social_links", default: [], null: false
     t.uuid "added_by_id"
     t.uuid "main_contact_id"
+    t.jsonb "billing_address", default: {}, null: false
+    t.jsonb "shipping_address", default: {}, null: false
     t.index ["account_id"], name: "index_companies_on_account_id"
     t.index ["added_by_id"], name: "index_companies_on_added_by_id"
     t.index ["main_contact_id"], name: "index_companies_on_main_contact_id"
@@ -131,6 +133,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_130000) do
     t.string "job_title"
     t.string "city"
     t.jsonb "social_links", default: [], null: false
+    t.jsonb "billing_address", default: {}, null: false
+    t.jsonb "shipping_address", default: {}, null: false
     t.index ["account_id", "email"], name: "index_contacts_on_account_and_email_unique", unique: true, where: "((email IS NOT NULL) AND (discarded_at IS NULL))"
     t.index ["account_id"], name: "index_contacts_on_account_id"
     t.index ["company_id"], name: "index_contacts_on_company_id"

@@ -9,6 +9,8 @@ module Mutations
     argument :source, String, required: false
     argument :company_id, ID, required: false
     argument :owner_id, ID, required: false
+    argument :billing_address, GraphQL::Types::JSON, required: false
+    argument :shipping_address, GraphQL::Types::JSON, required: false
     argument :custom_data, GraphQL::Types::JSON, required: false
 
     field :contact, Types::ContactType, null: true

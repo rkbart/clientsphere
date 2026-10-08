@@ -9,6 +9,7 @@ import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { CompanyForm, type CompanyFormValues } from "@/components/companies/company-form";
+import { formatAddress, normalizeAddress } from "@/components/shared/address-fields";
 import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
@@ -23,6 +24,8 @@ interface CompanyData {
   annual_revenue: number | null;
   description: string | null;
   address?: string | null;
+  billing_address?: Record<string, unknown> | null;
+  shipping_address?: Record<string, unknown> | null;
   social_links?: SocialLink[] | null;
   added_by?: { id: string; name: string } | null;
   main_contact?: { id: string; first_name: string; last_name?: string | null } | null;
@@ -60,6 +63,8 @@ export default function CompanyDetailPage() {
     annual_revenue: company.annual_revenue == null ? "" : String(company.annual_revenue),
     description: company.description ?? "",
     address: company.address ?? "",
+    billing_address: normalizeAddress(company.billing_address),
+    shipping_address: normalizeAddress(company.shipping_address),
     main_contact_id: company.main_contact?.id ?? company.main_contact_id ?? "",
     social_links: (company.social_links ?? []).map((l) => ({
       platform: l.platform ?? "other",
@@ -124,6 +129,14 @@ export default function CompanyDetailPage() {
           <div>
             <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Address</dt>
             <dd className="mt-0.5 text-sm">{company.address || "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Billing address</dt>
+            <dd className="mt-0.5 text-sm">{formatAddress(company.billing_address)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Shipping address</dt>
+            <dd className="mt-0.5 text-sm">{formatAddress(company.shipping_address)}</dd>
           </div>
           <div>
             <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Main contact</dt>

@@ -10,6 +10,7 @@ import { TagEditor } from "@/components/shared/tag-editor";
 import { CustomFieldValues } from "@/components/custom-fields/custom-field-inputs";
 import { Modal, ConfirmDialog, ResultModal } from "@/components/ui/modal";
 import { ContactForm, type ContactFormValues } from "@/components/contacts/contact-form";
+import { formatAddress, normalizeAddress } from "@/components/shared/address-fields";
 import { SocialIcon, type SocialLink } from "@/components/shared/social-links-editor";
 import { FormError } from "@/components/forms/fields";
 import { errMessage } from "@/lib/error";
@@ -26,6 +27,8 @@ interface ContactData {
   company?: { id: string; name: string } | null;
   job_title?: string | null;
   city?: string | null;
+  billing_address?: Record<string, unknown> | null;
+  shipping_address?: Record<string, unknown> | null;
   social_links?: SocialLink[] | null;
   custom_data?: Record<string, unknown> | null;
   created_at: string;
@@ -118,6 +121,14 @@ export default function ContactDetailPage() {
             <dd className="mt-0.5 text-sm">{contact.city || "—"}</dd>
           </div>
           <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Billing address</dt>
+            <dd className="mt-0.5 text-sm">{formatAddress(contact.billing_address)}</dd>
+          </div>
+          <div>
+            <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Shipping address</dt>
+            <dd className="mt-0.5 text-sm">{formatAddress(contact.shipping_address)}</dd>
+          </div>
+          <div>
             <dt className="text-xs text-[var(--text-tertiary)] uppercase tracking-wider">Added on</dt>
             <dd className="mt-0.5 text-sm">{new Date(contact.created_at).toLocaleDateString()}</dd>
           </div>
@@ -166,6 +177,8 @@ export default function ContactDetailPage() {
             company_id: contact.company_id ?? contact.company?.id ?? "",
             job_title: contact.job_title ?? "",
             city: contact.city ?? "",
+            billing_address: normalizeAddress(contact.billing_address),
+            shipping_address: normalizeAddress(contact.shipping_address),
             social_links: (contact.social_links ?? []).map((l) => ({
               platform: l.platform ?? "other",
               url: l.url ?? "",

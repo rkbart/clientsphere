@@ -1,6 +1,7 @@
 class Company < ApplicationRecord
   include Discard::Model
   include PaperTrail::Model
+  include Addressable
 
   belongs_to :account
   belongs_to :owner, class_name: "User", optional: true

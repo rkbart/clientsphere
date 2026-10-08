@@ -8,6 +8,8 @@ module Mutations
     argument :annual_revenue, Float, required: false
     argument :description, String, required: false
     argument :owner_id, ID, required: false
+    argument :billing_address, GraphQL::Types::JSON, required: false
+    argument :shipping_address, GraphQL::Types::JSON, required: false
     argument :custom_data, GraphQL::Types::JSON, required: false
 
     field :company, Types::CompanyType, null: true

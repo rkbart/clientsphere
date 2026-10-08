@@ -7,13 +7,16 @@ module Mutations
     argument :annual_revenue, Float, required: false
     argument :description, String, required: false
     argument :owner_id, ID, required: false
+    argument :billing_address, GraphQL::Types::JSON, required: false
+    argument :shipping_address, GraphQL::Types::JSON, required: false
     argument :custom_data, GraphQL::Types::JSON, required: false
 
     field :company, Types::CompanyType, null: true
     field :errors, [String], null: false
 
     def resolve(name:, domain: nil, industry: nil, size_range: nil,
-                annual_revenue: nil, description: nil, owner_id: nil, custom_data: nil)
+                annual_revenue: nil, description: nil, owner_id: nil,
+                billing_address: nil, shipping_address: nil, custom_data: nil)
       company = Current.account.companies.new(
         name: name,
         domain: domain,
@@ -22,6 +25,8 @@ module Mutations
         annual_revenue: annual_revenue,
         description: description,
         owner_id: owner_id,
+        billing_address: billing_address || {},
+        shipping_address: shipping_address || {},
         custom_data: custom_data || {}
       )
 

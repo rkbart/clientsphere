@@ -5,6 +5,12 @@ import { Field } from "@/components/forms/fields";
 import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/custom-field-inputs";
 import { useCompanies } from "@/hooks/use-companies";
 import { SocialLinksEditor, type SocialLink } from "@/components/shared/social-links-editor";
+import {
+  AddressFields,
+  EMPTY_ADDRESS,
+  serializeAddress,
+  type AddressValues,
+} from "@/components/shared/address-fields";
 
 export interface ContactFormValues {
   first_name: string;
@@ -15,6 +21,8 @@ export interface ContactFormValues {
   company_id: string;
   job_title: string;
   city: string;
+  billing_address: AddressValues;
+  shipping_address: AddressValues;
   social_links: SocialLink[];
   custom_data: CustomData;
 }
@@ -28,6 +36,8 @@ export const EMPTY_CONTACT: ContactFormValues = {
   company_id: "",
   job_title: "",
   city: "",
+  billing_address: { ...EMPTY_ADDRESS },
+  shipping_address: { ...EMPTY_ADDRESS },
   social_links: [],
   custom_data: {},
 };
@@ -65,6 +75,8 @@ export function ContactForm({
           company_id: values.company_id || null,
           job_title: values.job_title.trim() || null,
           city: values.city.trim() || null,
+          billing_address: serializeAddress(values.billing_address),
+          shipping_address: serializeAddress(values.shipping_address),
           social_links: values.social_links
             .map((l) => ({ platform: l.platform, url: l.url.trim() }))
             .filter((l) => l.url !== ""),
@@ -157,6 +169,20 @@ export function ContactForm({
       <SocialLinksEditor
         value={values.social_links}
         onChange={(social_links) => setValues((v) => ({ ...v, social_links }))}
+      />
+      <AddressFields
+        title="Billing address"
+        idPrefix="contact-billing"
+        value={values.billing_address}
+        onChange={(billing_address) => setValues((v) => ({ ...v, billing_address }))}
+      />
+      <AddressFields
+        title="Shipping address"
+        idPrefix="contact-shipping"
+        value={values.shipping_address}
+        onChange={(shipping_address) => setValues((v) => ({ ...v, shipping_address }))}
+        sameAs={values.billing_address}
+        sameAsLabel="Same as billing"
       />
       <CustomFieldInputs
         entityType="Contact"

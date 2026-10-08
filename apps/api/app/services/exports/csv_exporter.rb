@@ -15,6 +15,8 @@ module Exports
           "Phone" => contact.phone,
           "Company" => contact.company&.name,
           "Status" => contact.status,
+          "Billing Address" => contact.full_address(:billing),
+          "Shipping Address" => contact.full_address(:shipping),
           "Lead Score" => contact.lead_score,
           "Created At" => contact.created_at
         }
@@ -29,6 +31,8 @@ module Exports
           "Industry" => company.industry,
           "Size Range" => company.size_range,
           "Annual Revenue" => company.annual_revenue,
+          "Billing Address" => company.full_address(:billing),
+          "Shipping Address" => company.full_address(:shipping),
           "Description" => company.description
         }
       end
