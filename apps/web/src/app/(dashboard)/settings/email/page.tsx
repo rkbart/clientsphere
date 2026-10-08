@@ -275,21 +275,31 @@ export default function EmailSettingsPage() {
                   <span className="badge badge-success ml-2 align-middle">Saved</span>
                 )}
               </label>
-              <input
-                id="email-smtp-password"
-                type="password"
-                value={form.smtp_password}
-                onChange={(e) => setForm({ ...form, smtp_password: e.target.value })}
-                placeholder={hasSmtpPassword ? "••••••••  (leave blank to keep current password)" : "xxxx xxxx xxxx xxxx"}
-                autoComplete="off"
-                className="input"
-              />
-              <p className="text-xs text-[var(--text-secondary)] mt-1.5">
-                Optional SMTP fallback for self-hosted deploys with open submission
-                ports (Google Account → Security → App passwords). Not needed when
-                Gmail is connected above — and SMTP ports 25/465/587 are blocked on
-                Render&apos;s free tier.
-              </p>
+              {gmailConnected && !gmailNeedsReconnect ? (
+                <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+                  Not needed while Gmail is connected above — sends go through
+                  the Gmail API. Disconnect first if you ever want to switch
+                  back to SMTP (self-hosted deploys only).
+                </p>
+              ) : (
+                <>
+                  <input
+                    id="email-smtp-password"
+                    type="password"
+                    value={form.smtp_password}
+                    onChange={(e) => setForm({ ...form, smtp_password: e.target.value })}
+                    placeholder={hasSmtpPassword ? "••••••••  (leave blank to keep current password)" : "xxxx xxxx xxxx xxxx"}
+                    autoComplete="off"
+                    className="input"
+                  />
+                  <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+                    SMTP fallback for self-hosted deploys with open submission
+                    ports (Google Account → Security → App passwords). Not needed
+                    when Gmail is connected above — and SMTP ports 25/465/587 are
+                    blocked on Render&apos;s free tier.
+                  </p>
+                </>
+              )}
             </div>
           </>
         ) : (

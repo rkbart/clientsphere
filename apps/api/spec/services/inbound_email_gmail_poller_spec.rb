@@ -72,6 +72,19 @@ RSpec.describe InboundEmail::GmailPoller do
     expect(email.deal).to eq(deal)
   end
 
+  it "caps each run at the newest messages" do
+    raws = (1..30).to_h do |i|
+      [i, "From: a#{i}@example.com\nTo: me@gmail.com\nSubject: Msg #{i}\nMessage-ID: <m#{i}@example.com>\nContent-Type: text/plain; charset=UTF-8\n\nHi #{i}\n"]
+    end
+    stub_imap(raws)
+
+    expect(described_class.call(account)).to eq(25)
+
+    subjects = account.emails.inbound.pluck(:subject)
+    expect(subjects).to include("Msg 30")
+    expect(subjects).not_to include("Msg 1")
+  end
+
   it "skips accounts without Gmail credentials and survives IMAP errors" do
     account.email_setting.update!(smtp_password: nil)
     expect(described_class.call(account)).to eq(0)

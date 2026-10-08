@@ -13,6 +13,10 @@ module InboundEmail
   class GmailPoller
     IMAP_HOST = "imap.gmail.com".freeze
     IMAP_PORT = 993
+    # First-ever poll on a lived-in mailbox can face hundreds of unseen
+    # messages; bound each run and take the newest first so replies land
+    # promptly while the backlog drains across runs.
+    MAX_PER_RUN = 25
 
     def self.call(account)
       setting = account.email_setting
@@ -21,7 +25,8 @@ module InboundEmail
       count = 0
       with_imap(setting) do |imap|
         imap.select("INBOX")
-        imap.search(["UNSEEN"]).each do |uid|
+        uids = imap.search(["UNSEEN"]).last(MAX_PER_RUN)
+        uids.each do |uid|
           fetched = imap.fetch(uid, "RFC822")&.first
           raw = fetched&.attr&.dig("RFC822")
           next if raw.blank?
