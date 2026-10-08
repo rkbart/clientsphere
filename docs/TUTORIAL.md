@@ -154,7 +154,8 @@ Click any contact to see:
 Click **Add Contact** (opens a modal) or the **Edit** button on any detail page.
 The form includes:
 - Standard fields (name, email, phone, status, company, job title, address,
-  social links)
+  social links). Company is search-as-you-type: pick a match or create a new
+  company inline — no need to visit the Companies page first.
 - Custom fields (automatically appear if defined)
 - Validation errors show inline. Contacts support soft delete (discard) plus a
   hard **Delete** with confirmation on the detail page.

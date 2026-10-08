@@ -3,9 +3,10 @@ import { apiClient, getAuthHeadersForApi } from "@/lib/api/client";
 
 const headers = () => getAuthHeadersForApi();
 
-export function useCompanies(params?: Record<string, unknown>) {
+export function useCompanies(params?: Record<string, unknown>, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["companies", params],
+    enabled: options?.enabled ?? true,
     queryFn: async () => {
       const { data, error } = await apiClient.GET("/companies", {
         params: { query: params as never },

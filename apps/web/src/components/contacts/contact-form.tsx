@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Field } from "@/components/forms/fields";
 import { CustomFieldInputs, type CustomData } from "@/components/custom-fields/custom-field-inputs";
-import { useCompanies } from "@/hooks/use-companies";
+import { CompanyCombobox } from "@/components/companies/company-combobox";
 import { SocialLinksEditor, type SocialLink } from "@/components/shared/social-links-editor";
 
 export interface ContactFormValues {
@@ -44,8 +44,6 @@ export function ContactForm({
   onSubmit: (values: Record<string, unknown>) => void;
 }) {
   const [values, setValues] = useState(initial);
-  const { data: companiesRes } = useCompanies({ per_page: 100 });
-  const companies = ((companiesRes as unknown as { data?: { id: string; name: string }[] })?.data ?? []);
 
   const set = (key: keyof ContactFormValues) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -123,16 +121,10 @@ export function ContactForm({
             <option value="churned">Churned</option>
           </select>
         </Field>
-        <Field label="Company" htmlFor="contact-company">
-          <select id="contact-company" className="input" value={values.company_id} onChange={set("company_id")}>
-            <option value="">No company</option>
-            {companies.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <CompanyCombobox
+          value={values.company_id}
+          onChange={(company_id) => setValues((v) => ({ ...v, company_id }))}
+        />
       </div>
       <Field label="Job title" htmlFor="contact-job-title">
         <input

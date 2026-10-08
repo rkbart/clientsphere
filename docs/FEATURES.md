@@ -6,6 +6,7 @@
 - List with search (debounced), status/tag filters, sortable columns, pagination
 - Detail pages with notes and tags
 - Status field: lead / customer / churned (filter + column)
+- Company picker: debounced search with inline create (name only)
 - Tags for categorization (filter by tag, attach/detach chips on detail)
 - Soft delete (discard)
 - Unique email per account
